@@ -1,0 +1,13 @@
+.*.swp
+*.iml
+local.properties
+build
+src/org/freedesktop/wayland/protocol
+test/classes
+
+/.gradle
+/.classpath
+/.settings
+/.project
+/target
+/.idea

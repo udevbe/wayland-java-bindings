@@ -1,0 +1,27 @@
+description = 'Examples for the Wayland protocol Java classes'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+sourceCompatibility = JavaVersion.VERSION_1_6
+
+group = 'org.freedesktop'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile(
+            'org.freedesktop:wayland:0.0.1-SNAPSHOT'
+    )
+}
+
+task jni(type: Exec) {
+    workingDir = 'src/main/native'
+    commandLine 'make'
+}
+
+jar.dependsOn jni
