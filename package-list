@@ -1,0 +1,5 @@
+org.freedesktop.wayland.arch
+org.freedesktop.wayland.client
+org.freedesktop.wayland.server
+org.freedesktop.wayland.shared
+org.freedesktop.wayland.util
