@@ -1,0 +1,34 @@
+description = 'Auto-generated Wayland protocol Java classes'
+
+def generatedSources = "$buildDir/generated-src"
+def generatedOutputDir = file("$generatedSources")
+
+compileJava {
+    doFirst {
+        generatedOutputDir.exists() || generatedOutputDir.mkdirs()
+        options.compilerArgs = [
+                '-s', "${generatedSources}"
+        ]
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += generatedOutputDir
+        }
+    }
+}
+
+javadoc {
+    source = sourceSets.main.resources
+}
+
+dependencies {
+    compile(
+            project(":stubs"),
+            project(":generator")
+    )
+}
+
+compileJava.dependsOn clean

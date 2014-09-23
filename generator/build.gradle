@@ -1,0 +1,9 @@
+description = 'Lib for auto-generating Wayland protocol Java classes'
+
+dependencies {
+    compile('com.squareup:javawriter:2.5.0',
+            'com.google.guava:guava:17.0',
+            project(":stubs")
+    )
+}
+
