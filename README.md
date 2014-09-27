@@ -29,3 +29,4 @@ Known Issues
 ============
  - Probably some memory leaks
  - Native JNI code is not as robust is should be i.e. no corner case checks.
+ - No unit tests.
