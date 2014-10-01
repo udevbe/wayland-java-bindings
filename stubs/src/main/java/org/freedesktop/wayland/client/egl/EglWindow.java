@@ -1,5 +1,6 @@
-package org.freedesktop.wayland.client;
+package org.freedesktop.wayland.client.egl;
 
+import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.util.HasPointer;
 import org.freedesktop.wayland.util.ObjectCache;
 
@@ -51,9 +52,9 @@ public class EglWindow implements HasPointer{
   public static EglWindow create(Proxy<?> wlSurfaceProxy,
                                  int width,
                                  int height){
-    return new EglWindow(WlClientJNI.createEglWindow(wlSurfaceProxy.getPointer(),
-                                                     width,
-                                                     height));
+    return new EglWindow(WlEglJNI.createEglWindow(wlSurfaceProxy.getPointer(),
+                                                  width,
+                                                  height));
   }
 
   protected EglWindow(final long pointer) {
@@ -63,7 +64,7 @@ public class EglWindow implements HasPointer{
   }
 
   public void destroy(){
-    WlClientJNI.destroyEglWindow(getPointer());
+    WlEglJNI.destroyEglWindow(getPointer());
     ObjectCache.remove(getPointer());
   }
 
@@ -71,17 +72,17 @@ public class EglWindow implements HasPointer{
                      int height,
                      int dx,
                      int dy){
-    WlClientJNI.resize(getPointer(),
-                       width,
-                       height,
-                       dx,
-                       dy);
+    WlEglJNI.resize(getPointer(),
+                    width,
+                    height,
+                    dx,
+                    dy);
   }
 
   public Size getAttachedSize(){
     final int[] size = new int[2];
-    WlClientJNI.getAttachedSize(getPointer(),
-                                size);
+    WlEglJNI.getAttachedSize(getPointer(),
+                             size);
     return new Size(size[0],
                     size[1]);
   }
