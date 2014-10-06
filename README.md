@@ -34,4 +34,3 @@ Known Issues
 TODO
 ====
  - Unit tests.
- - EGL Wayland.
