@@ -6,7 +6,7 @@ apply plugin: 'maven'
 sourceCompatibility = JavaVersion.VERSION_1_6
 
 group = 'org.freedesktop'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
 
 repositories {
     mavenLocal()
@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     compile(
-            'org.freedesktop:wayland:0.0.1-SNAPSHOT'
+            'org.freedesktop:wayland:1.0.0-SNAPSHOT'
     )
 }
 
