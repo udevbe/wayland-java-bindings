@@ -48,7 +48,6 @@ public abstract class Resource<I> implements WaylandObject {
             @Override
             public void handle() {
                 ObjectCache.remove(getPointer());
-                destroy();
             }
         });
         ObjectCache.store(getPointer(),
