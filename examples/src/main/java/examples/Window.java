@@ -7,30 +7,19 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.concurrent.TimeUnit;
 
 public class Window {
 
     public class Buffer {
 
-        private final ShmPool shmPool;
-        private       boolean       busy;
+        private final ShmPool       shmPool;
         private       WlBufferProxy bufferProxy;
+        private final ByteBuffer byteBuffer;
 
         public Buffer() {
             try {
                 shmPool = new ShmPool(width * height * 4);
-            }
-            catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public ByteBuffer getByteBuffer() {
-            return shmPool.asByteBuffer();
-        }
-
-        public WlBufferProxy getProxy() {
-            if (bufferProxy == null) {
 
                 WlShmPoolProxy pool = display.getShmProxy()
                                              .createPool(new WlShmPoolEvents() {
@@ -40,7 +29,6 @@ public class Window {
                 bufferProxy = pool.createBuffer(new WlBufferEvents() {
                                                     @Override
                                                     public void release(final WlBufferProxy emitter) {
-                                                        busy = false;
                                                     }
                                                 },
                                                 0,
@@ -49,8 +37,18 @@ public class Window {
                                                 width * 4,
                                                 WlShmFormat.XRGB8888.getValue());
                 pool.destroy();
+                byteBuffer = shmPool.asByteBuffer();
             }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
+        public ByteBuffer getByteBuffer() {
+            return byteBuffer;
+        }
+
+        public WlBufferProxy getProxy() {
             return bufferProxy;
         }
     }
@@ -63,7 +61,7 @@ public class Window {
     private WlSurfaceProxy      surfaceProxy;
     private WlShellSurfaceProxy shellSurfaceProxy;
     private WlCallbackProxy     callbackProxy;
-    private Buffer              buffers[];
+    private Buffer              buffer;
 
     public Window(Display display,
                   int width,
@@ -72,21 +70,21 @@ public class Window {
         this.width = width;
         this.height = height;
 
-        buffers = new Buffer[2];
-        buffers[0] = new Buffer();
-        buffers[1] = new Buffer();
+        buffer = new Buffer();
 
         surfaceProxy = display.getCompositorProxy()
                               .createSurface(new WlSurfaceEvents() {
                                   @Override
                                   public void enter(final WlSurfaceProxy emitter,
-                                                    @Nonnull final WlOutputProxy output) {
+                                                    @Nonnull
+                                                    final WlOutputProxy output) {
 
                                   }
 
                                   @Override
                                   public void leave(final WlSurfaceProxy emitter,
-                                                    @Nonnull final WlOutputProxy output) {
+                                                    @Nonnull
+                                                    final WlOutputProxy output) {
 
                                   }
                               });
@@ -99,15 +97,19 @@ public class Window {
                                    .getShellSurface(new WlShellSurfaceEvents() {
                                                         @Override
                                                         public void ping(final WlShellSurfaceProxy emitter,
-                                                                         @Nonnull final int serial) {
+                                                                         @Nonnull
+                                                                         final int serial) {
                                                             emitter.pong(serial);
                                                         }
 
                                                         @Override
                                                         public void configure(final WlShellSurfaceProxy emitter,
-                                                                              @Nonnull final int edges,
-                                                                              @Nonnull final int width,
-                                                                              @Nonnull final int height) {
+                                                                              @Nonnull
+                                                                              final int edges,
+                                                                              @Nonnull
+                                                                              final int width,
+                                                                              @Nonnull
+                                                                              final int height) {
 
                                                         }
 
@@ -129,18 +131,6 @@ public class Window {
 
         shellSurfaceProxy.destroy();
         surfaceProxy.destroy();
-    }
-
-    public Buffer nextBuffer() {
-        if (!buffers[0].busy) {
-            return buffers[0];
-        }
-        else if (!buffers[1].busy) {
-            return buffers[1];
-        }
-        else {
-            return null;
-        }
     }
 
     private int abs(int i) {
@@ -198,9 +188,9 @@ public class Window {
         }
     }
 
-    public void redraw(int time) {
-        final Buffer buffer = nextBuffer();
-        buffer.busy = true;
+    public void redraw(final int time) {
+        final long start = System.nanoTime();
+
         paintPixels(buffer.getByteBuffer(),
                     20,
                     time);
@@ -212,17 +202,21 @@ public class Window {
                             height - 40,
                             height - 40);
 
-        if (callbackProxy != null) {
-            callbackProxy.destroy();
-        }
-        callbackProxy = surfaceProxy.frame(new WlCallbackEvents() {
+        final WlCallbackEvents wlCallbackEvents = new WlCallbackEvents() {
             @Override
             public void done(final WlCallbackProxy emitter,
                              final int callbackData) {
+                final long millis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+                System.err.println(String.format("Frame %d took %d ms (%d fps)",
+                                                 time, millis,
+                                                 1000 / millis));
+                callbackProxy.destroy();
                 redraw(callbackData);
-                buffer.busy = false;
+
             }
-        });
+        };
+        callbackProxy = surfaceProxy.frame(wlCallbackEvents);
+
         surfaceProxy.commit();
     }
 }

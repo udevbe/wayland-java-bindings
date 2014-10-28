@@ -30,22 +30,19 @@ public final class ShmPool implements Closeable
 {
     private int fd;
     private long size;
-    private boolean readOnly;
     private ByteBuffer buffer;
 
-    private ShmPool(int fd, long size, boolean dupFD, boolean readOnly)
+    private ShmPool(int fd, long size, boolean dupFD)
             throws IOException
     {
         this.fd = fd;
         this.size = size;
-        this.readOnly = readOnly;
-        this.buffer = map(fd, size, dupFD, readOnly);
+        this.buffer = map(fd, size, dupFD);
     }
 
-    private static ByteBuffer map(int fd, long size, boolean dupFD,
-                                  boolean readOnly) throws IOException
+    private static ByteBuffer map(int fd, long size, boolean dupFD) throws IOException
     {
-        ByteBuffer tmpBuff = mapNative(fd, size, dupFD, readOnly);
+        ByteBuffer tmpBuff = mapNative(fd, size, dupFD, false);
         tmpBuff.order(ByteOrder.nativeOrder());
         return tmpBuff;
     }
@@ -54,10 +51,9 @@ public final class ShmPool implements Closeable
     {
         this.fd = createTmpFileNative();
         this.size = size;
-        this.readOnly = false;
         try {
             truncateNative(this.fd, this.size);
-            this.buffer = map(this.fd, this.size, false, false);
+            this.buffer = map(this.fd, this.size, false);
         } catch (IOException e) {
             closeNative(this.fd);
             throw e;
@@ -67,7 +63,7 @@ public final class ShmPool implements Closeable
     public static ShmPool fromFileDescriptor(int fd, long size, boolean dupFD,
                                              boolean readOnly) throws IOException
     {
-        return new ShmPool(fd, size, dupFD, readOnly);
+        return new ShmPool(fd, size, dupFD);
     }
 
     public ByteBuffer asByteBuffer()
@@ -75,15 +71,7 @@ public final class ShmPool implements Closeable
         if (buffer == null)
             throw new IllegalStateException("ShmPool is closed");
 
-        final ByteBuffer buffCopy;
-
-        if (readOnly) {
-            buffCopy = buffer.asReadOnlyBuffer();
-        } else {
-            buffCopy = buffer.duplicate();
-        }
-
-        return buffCopy.order(ByteOrder.nativeOrder());
+        return buffer;
     }
 
     public int getFileDescriptor()
@@ -94,11 +82,6 @@ public final class ShmPool implements Closeable
     public long size()
     {
         return size;
-    }
-
-    public boolean isReadOnly()
-    {
-        return readOnly;
     }
 
     public void resize(long size, boolean truncate) throws IOException
@@ -112,12 +95,12 @@ public final class ShmPool implements Closeable
         if (truncate)
             truncateNative(fd, size);
 
-        buffer = map(fd, size, false, readOnly);
+        buffer = map(fd, size, false);
     }
 
     public void resize(long size) throws IOException
     {
-        resize(size, !readOnly);
+        resize(size, true);
     }
 
     @Override
@@ -135,6 +118,7 @@ public final class ShmPool implements Closeable
     public void finalize() throws Throwable
     {
         close();
+        super.finalize();
     }
 
     private static native int createTmpFileNative()
