@@ -21,7 +21,7 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.util.HasPointer;
+import org.freedesktop.wayland.HasPointer;
 import org.freedesktop.wayland.util.ObjectCache;
 
 import java.nio.ByteBuffer;

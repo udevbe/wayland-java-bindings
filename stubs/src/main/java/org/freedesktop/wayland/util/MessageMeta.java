@@ -21,9 +21,11 @@
  */
 package org.freedesktop.wayland.util;
 
+import org.freedesktop.wayland.HasPointer;
+
 /**
  * Wrapper class for a {@link Message} to create a native wayland message for use with the native library. To create
- * a new native context for a given {@link Message}, use {@link #create(Message)}.
+ * a new native context for a given {@link Message}, use {@link #init(long, int, Message)}.
  *
  * @see InterfaceMeta
  */
