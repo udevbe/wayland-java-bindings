@@ -7,7 +7,6 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.concurrent.TimeUnit;
 
 public class Window {
 
@@ -189,8 +188,6 @@ public class Window {
     }
 
     public void redraw(final int time) {
-        final long start = System.nanoTime();
-
         paintPixels(buffer.getByteBuffer(),
                     20,
                     time);
@@ -206,10 +203,6 @@ public class Window {
             @Override
             public void done(final WlCallbackProxy emitter,
                              final int callbackData) {
-                final long millis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
-                System.err.println(String.format("Frame %d took %d ms (%d fps)",
-                                                 time, millis,
-                                                 1000 / millis));
                 callbackProxy.destroy();
                 redraw(callbackData);
 
