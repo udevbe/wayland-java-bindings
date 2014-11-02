@@ -21,7 +21,7 @@
  */
 package org.freedesktop.wayland.client;
 
-import org.freedesktop.wayland.util.HasPointer;
+import org.freedesktop.wayland.HasPointer;
 import org.freedesktop.wayland.util.ObjectCache;
 
 /**

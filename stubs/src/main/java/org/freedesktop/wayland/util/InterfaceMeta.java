@@ -22,6 +22,8 @@
 package org.freedesktop.wayland.util;
 
 
+import org.freedesktop.wayland.HasPointer;
+
 import java.util.HashMap;
 import java.util.Map;
 

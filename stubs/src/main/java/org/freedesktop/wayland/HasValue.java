@@ -19,8 +19,8 @@
  * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
  * OF THIS SOFTWARE.
  */
-package org.freedesktop.wayland.util;
+package org.freedesktop.wayland;
 
-public interface HasPointer {
-    long getPointer();
+public interface HasValue {
+    int getValue();
 }

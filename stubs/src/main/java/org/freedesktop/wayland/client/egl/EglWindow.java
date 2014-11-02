@@ -1,10 +1,10 @@
 package org.freedesktop.wayland.client.egl;
 
+import org.freedesktop.wayland.HasPointer;
 import org.freedesktop.wayland.client.Proxy;
-import org.freedesktop.wayland.util.HasPointer;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class EglWindow implements HasPointer{
+public class EglWindow implements HasPointer {
 
   public static final class Size{
 
