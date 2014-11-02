@@ -21,6 +21,7 @@
  */
 package org.freedesktop.wayland.util;
 
+import org.freedesktop.wayland.HasPointer;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.server.Resource;
 

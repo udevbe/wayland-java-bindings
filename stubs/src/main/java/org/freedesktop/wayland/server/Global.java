@@ -21,7 +21,7 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.util.HasPointer;
+import org.freedesktop.wayland.HasPointer;
 import org.freedesktop.wayland.util.InterfaceMeta;
 import org.freedesktop.wayland.util.ObjectCache;
 

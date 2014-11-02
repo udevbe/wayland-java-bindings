@@ -21,6 +21,8 @@
  */
 package org.freedesktop.wayland.util;
 
+import org.freedesktop.wayland.HasPointer;
+
 public interface WaylandObject extends HasImplementation, HasPointer {
     int getId();
 
