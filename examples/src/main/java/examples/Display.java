@@ -10,7 +10,6 @@ public class Display {
     private int shmFormats = 0;
 
     private WlCompositorProxy compositorProxy;
-    private WlShellProxy      shellProxy;
     private WlShmProxy        shmProxy;
 
 
@@ -55,13 +54,6 @@ public class Display {
                                                                                         new WlCompositorEvents() {
                                                                                         });
         }
-        else if (WlShellProxy.INTERFACE_NAME.equals(interface_)) {
-            shellProxy = registryProxy.<WlShellEvents, WlShellProxy>bind(name,
-                                                                         WlShellProxy.class,
-                                                                         1,
-                                                                         new WlShellEvents() {
-                                                                         });
-        }
         else if (WlShmProxy.INTERFACE_NAME.equals(interface_)) {
             shmProxy = registryProxy.<WlShmEvents, WlShmProxy>bind(name,
                                                                    WlShmProxy.class,
@@ -85,9 +77,6 @@ public class Display {
         if (shmProxy != null) {
             shmProxy.destroy();
         }
-        if (shellProxy != null) {
-            shellProxy.destroy();
-        }
 
         compositorProxy.destroy();
         registryProxy.destroy();
@@ -105,9 +94,5 @@ public class Display {
 
     public WlCompositorProxy getCompositorProxy() {
         return compositorProxy;
-    }
-
-    public WlShellProxy getShellProxy() {
-        return shellProxy;
     }
 }

@@ -58,7 +58,6 @@ public class Window {
     private final int height;
 
     private WlSurfaceProxy      surfaceProxy;
-    private WlShellSurfaceProxy shellSurfaceProxy;
     private WlCallbackProxy     callbackProxy;
     private Buffer              buffer;
 
@@ -91,44 +90,12 @@ public class Window {
                             0,
                             width,
                             height);
-
-        shellSurfaceProxy = display.getShellProxy()
-                                   .getShellSurface(new WlShellSurfaceEvents() {
-                                                        @Override
-                                                        public void ping(final WlShellSurfaceProxy emitter,
-                                                                         @Nonnull
-                                                                         final int serial) {
-                                                            emitter.pong(serial);
-                                                        }
-
-                                                        @Override
-                                                        public void configure(final WlShellSurfaceProxy emitter,
-                                                                              @Nonnull
-                                                                              final int edges,
-                                                                              @Nonnull
-                                                                              final int width,
-                                                                              @Nonnull
-                                                                              final int height) {
-
-                                                        }
-
-                                                        @Override
-                                                        public void popupDone(final WlShellSurfaceProxy emitter) {
-
-                                                        }
-                                                    },
-                                                    surfaceProxy);
-
-        shellSurfaceProxy.setTitle("simple-shm");
-        shellSurfaceProxy.setToplevel();
     }
 
     public void destroy() {
         if (callbackProxy != null) {
             callbackProxy.destroy();
         }
-
-        shellSurfaceProxy.destroy();
         surfaceProxy.destroy();
     }
 
