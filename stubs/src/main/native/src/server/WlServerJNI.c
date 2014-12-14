@@ -502,8 +502,7 @@ int jni_handle_event_loop_fd_call(int fd,
                                           (jint)fd,
                                           (jint)mask);
     //TODO: Handle java Exceptions
-    (*env)->DeleteGlobalRef(env,
-                            callback);
+    //TODO cleanup global ref when we remove the event source
     return ret;
 }
 
@@ -551,8 +550,7 @@ int jni_handle_event_loop_timer_call(void *data){
                                     callback,
                                     j_func_timer_callback);
     // TODO: Handle Exceptions
-    (*env)->DeleteGlobalRef(env,
-                            callback);
+    //TODO cleanup global ref when we remove the event source
     return ret;
 }
 
@@ -602,8 +600,7 @@ int jni_handle_event_loop_signal_call(int signal_number,
                                     j_func_signal_callback,
                                     (jint)signal_number);
     // TODO: Handle Exceptions
-    (*env)->DeleteGlobalRef(env,
-                            callback);
+    //TODO cleanup global ref when we remove the event source
     return ret;
 }
 
@@ -634,8 +631,7 @@ void handle_event_loop_idle_call(void * data){
                            callback,
                            j_func_idle_callback);
     // TODO: Handle Exceptions
-    (*env)->DeleteGlobalRef(env,
-                            callback);
+    //TODO cleanup global ref when we remove the event source
 }
 
 /*

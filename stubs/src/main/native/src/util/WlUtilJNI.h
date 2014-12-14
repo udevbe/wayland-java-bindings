@@ -6,10 +6,12 @@
 extern JavaVM* jvm;
 
 #define GET_ATTACHED_JENV(jenv){\
-    int getEnvStat = (*jvm)->GetEnv(jvm, (void **)&jenv,JNI_VERSION_1_6);\
-    if (getEnvStat == JNI_EDETACHED) {\
-    	(*jvm)->AttachCurrentThread(jvm, (void **) &jenv,NULL);\
-	}\
+    (*jvm)->GetEnv(jvm, (void **)&jenv,JNI_VERSION_1_6);\
+    JavaVMAttachArgs vm_args;\
+    vm_args.version = JNI_VERSION_1_6;\
+    vm_args.name = NULL;\
+    vm_args.group = NULL;\
+    (*jvm)->AttachCurrentThread(jvm, (void **) &jenv, &vm_args);\
 }
 
 int wl_dispatcher_func(const void *,
