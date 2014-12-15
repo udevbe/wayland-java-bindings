@@ -7,23 +7,25 @@ public class Display {
 
     private final WlDisplayProxy  displayProxy;
     private final WlRegistryProxy registryProxy;
+
     private int shmFormats = 0;
 
     private WlCompositorProxy compositorProxy;
     private WlShmProxy        shmProxy;
+    private WlSeatProxy       seatProxy;
 
 
     public Display() {
-        displayProxy = WlDisplayProxy.connect("wayland-0");
-        registryProxy = displayProxy.getRegistry(new WlRegistryEvents() {
+        this.displayProxy = WlDisplayProxy.connect("wayland-0");
+        this.registryProxy = this.displayProxy.getRegistry(new WlRegistryEvents() {
             @Override
             public void global(final WlRegistryProxy emitter,
                                final int name,
-                               final String interface_,
+                               final String interfaceName,
                                final int version) {
                 Display.this.global(emitter,
                                     name,
-                                    interface_,
+                                    interfaceName,
                                     version);
             }
 
@@ -34,37 +36,55 @@ public class Display {
                                           name);
             }
         });
-        displayProxy.roundtrip();
+        this.displayProxy.roundtrip();
 
-        if (shmProxy == null) {
+        if (this.shmProxy == null) {
             throw new NullPointerException("wl_shm not found!");
         }
 
-        displayProxy.roundtrip();
+        this.displayProxy.roundtrip();
     }
 
     private void global(final WlRegistryProxy emitter,
                         final int name,
-                        final String interface_,
+                        final String interfaceName,
                         final int version) {
-        if (WlCompositorProxy.INTERFACE_NAME.equals(interface_)) {
-            compositorProxy = registryProxy.<WlCompositorEvents, WlCompositorProxy>bind(name,
-                                                                                        WlCompositorProxy.class,
-                                                                                        1,
-                                                                                        new WlCompositorEvents() {
-                                                                                        });
+        if (WlCompositorProxy.INTERFACE_NAME.equals(interfaceName)) {
+            this.compositorProxy = this.registryProxy.<WlCompositorEvents, WlCompositorProxy>bind(name,
+                                                                                                  WlCompositorProxy.class,
+                                                                                                  WlCompositorEventsV3.VERSION,
+                                                                                                  new WlCompositorEventsV3() {
+                                                                                                  });
         }
-        else if (WlShmProxy.INTERFACE_NAME.equals(interface_)) {
-            shmProxy = registryProxy.<WlShmEvents, WlShmProxy>bind(name,
-                                                                   WlShmProxy.class,
-                                                                   1,
-                                                                   new WlShmEvents() {
-                                                                       @Override
-                                                                       public void format(final WlShmProxy emitter,
-                                                                                          final int format) {
-                                                                           shmFormats |= (1 << format);
-                                                                       }
-                                                                   });
+        else if (WlShmProxy.INTERFACE_NAME.equals(interfaceName)) {
+            this.shmProxy = this.registryProxy.<WlShmEvents, WlShmProxy>bind(name,
+                                                                             WlShmProxy.class,
+                                                                             WlShmEvents.VERSION,
+                                                                             new WlShmEvents() {
+                                                                                 @Override
+                                                                                 public void format(final WlShmProxy emitter,
+                                                                                                    final int format) {
+                                                                                     Display.this.shmFormats |= (1 << format);
+                                                                                 }
+                                                                             });
+        }
+        else if (WlSeatProxy.INTERFACE_NAME.equals(interfaceName)) {
+            this.seatProxy = this.registryProxy.<WlSeatEvents, WlSeatProxy>bind(name,
+                                                                                WlSeatProxy.class,
+                                                                                WlSeatEventsV4.VERSION,
+                                                                                new WlSeatEventsV4() {
+                                                                                    @Override
+                                                                                    public void capabilities(final WlSeatProxy emitter,
+                                                                                                             final int capabilities) {
+
+                                                                                    }
+
+                                                                                    @Override
+                                                                                    public void name(final WlSeatProxy emitter,
+                                                                                                     final String name) {
+                                                                                        System.out.println("Got seat with name "+name);
+                                                                                    }
+                                                                                });
         }
     }
 
@@ -74,25 +94,29 @@ public class Display {
     }
 
     public void destroy() {
-        if (shmProxy != null) {
-            shmProxy.destroy();
+        if (this.shmProxy != null) {
+            this.shmProxy.destroy();
         }
 
-        compositorProxy.destroy();
-        registryProxy.destroy();
-        displayProxy.flush();
-        displayProxy.disconnect();
+        this.compositorProxy.destroy();
+        this.registryProxy.destroy();
+        this.displayProxy.flush();
+        this.displayProxy.disconnect();
     }
 
     public WlDisplayProxy getDisplayProxy() {
-        return displayProxy;
+        return this.displayProxy;
     }
 
     public WlShmProxy getShmProxy() {
-        return shmProxy;
+        return this.shmProxy;
     }
 
     public WlCompositorProxy getCompositorProxy() {
-        return compositorProxy;
+        return this.compositorProxy;
+    }
+
+    public WlSeatProxy getSeatProxy() {
+        return this.seatProxy;
     }
 }
