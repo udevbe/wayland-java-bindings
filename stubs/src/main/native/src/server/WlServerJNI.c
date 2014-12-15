@@ -491,18 +491,35 @@ JNICALL Java_org_freedesktop_wayland_server_WlServerJNI_registerIdleHandler(JNIE
 
 static
 int jni_handle_event_loop_fd_call(int fd,
-                              uint32_t mask,
-                              void *data){
-    jobject callback = data;
+                                  uint32_t mask,
+                                  void *data){
     JNIEnv *const env;
     GET_ATTACHED_JENV(env);
-    const int ret = (*env)->CallIntMethod(env,
-                                          callback,
-                                          j_func_fd_callback,
-                                          (jint)fd,
-                                          (jint)mask);
-    //TODO: Handle java Exceptions
-    //TODO cleanup global ref when we remove the event source
+    int ret;
+
+    if ((*env)->PushLocalFrame(env,
+                               16) < 0) {
+        // Handle failed frame push error
+        //TODO throw exception?
+        ret = -1;
+    }
+    else {
+        jobject callback = (*env)->NewLocalRef(env,
+                                               (jobject)data);
+        if(callback){
+            //TODO: Handle java Exceptions
+            ret = (*env)->CallIntMethod(env,
+                                        callback,
+                                        j_func_fd_callback,
+                                        (jint)fd,
+                                        (jint)mask);
+        }
+        else {
+            ret = -1;
+        }
+        (*env)->PopLocalFrame(env,
+                              NULL);
+    }
     return ret;
 }
 
@@ -518,12 +535,17 @@ jlong JNICALL Java_org_freedesktop_wayland_server_WlServerJNI_addFileDescriptor(
                                                                                 const jint    fd,
                                                                                 const jint    mask,
                                                                                 const jobject callback){
-    return (jlong)(intptr_t) wl_event_loop_add_fd((struct wl_event_loop *)(intptr_t)event_loop_p,
-                                                  (int)fd,
-                                                  (uint32_t)mask,
-                                                  jni_handle_event_loop_fd_call,
-                                                  (*env)->NewGlobalRef(env,
-                                                                       callback));
+    struct wl_event_source *const source = wl_event_loop_add_fd((struct wl_event_loop *)(intptr_t)event_loop_p,
+                                                                (int)fd,
+                                                                (uint32_t)mask,
+                                                                jni_handle_event_loop_fd_call,
+                                                                (*env)->NewWeakGlobalRef(env,
+                                                                                         callback));
+    if (source == NULL) {
+        //TODO handle error, send OOM error?
+        return (jlong)(intptr_t)NULL;
+    }
+    return (jlong)(intptr_t)source;
 }
 
 
@@ -543,14 +565,32 @@ jint JNICALL Java_org_freedesktop_wayland_server_WlServerJNI_updateFileDescripto
 
 static
 int jni_handle_event_loop_timer_call(void *data){
-    jobject callback = data;
+
     JNIEnv *const env;
     GET_ATTACHED_JENV(env);
-    int ret = (*env)->CallIntMethod(env,
-                                    callback,
-                                    j_func_timer_callback);
-    // TODO: Handle Exceptions
-    //TODO cleanup global ref when we remove the event source
+    int ret;
+
+    if ((*env)->PushLocalFrame(env,
+                               16) < 0) {
+        // Handle failed frame push error
+        //TODO throw exception?
+        ret = -1;
+    }
+    else {
+        jobject callback = (*env)->NewLocalRef(env,
+                                               (jobject)data);
+        if(callback){
+            //TODO: Handle java Exceptions
+            ret = (*env)->CallIntMethod(env,
+                                        callback,
+                                        j_func_timer_callback);
+        }
+        else {
+            ret = -1;
+        }
+        (*env)->PopLocalFrame(env,
+                              NULL);
+    }
     return ret;
 }
 
@@ -566,8 +606,8 @@ jlong JNICALL Java_org_freedesktop_wayland_server_WlServerJNI_addTimer(JNIEnv *c
                                                                        const   jobject callback){
     struct wl_event_source *const source   = wl_event_loop_add_timer((struct wl_event_loop *)(intptr_t)event_loop_p,
                                                                      jni_handle_event_loop_timer_call,
-                                                                     (*env)->NewGlobalRef(env,
-                                                                                          callback));
+                                                                     (*env)->NewWeakGlobalRef(env,
+                                                                                              callback));
     if (source == NULL) {
         //TODO handle error, send OOM error?
         return (jlong)(intptr_t)NULL;
@@ -591,16 +631,33 @@ jint JNICALL Java_org_freedesktop_wayland_server_WlServerJNI_updateTimer(JNIEnv 
 
 static
 int jni_handle_event_loop_signal_call(int signal_number,
-                                  void * data){
-    jobject callback = data;
+                                      void * data){
     JNIEnv *const env;
     GET_ATTACHED_JENV(env);
-    int ret = (*env)->CallIntMethod(env,
-                                    callback,
-                                    j_func_signal_callback,
-                                    (jint)signal_number);
-    // TODO: Handle Exceptions
-    //TODO cleanup global ref when we remove the event source
+    int ret;
+
+    if ((*env)->PushLocalFrame(env,
+                               16) < 0) {
+        // Handle failed frame push error
+        //TODO throw exception?
+        ret = -1;
+    }
+    else {
+        jobject callback = (*env)->NewLocalRef(env,
+                                               (jobject)data);
+        if(callback){
+            //TODO: Handle java Exceptions
+            ret = (*env)->CallIntMethod(env,
+                                        callback,
+                                        j_func_signal_callback,
+                                        (jint)signal_number);
+        }
+        else {
+            ret = -1;
+        }
+        (*env)->PopLocalFrame(env,
+                              NULL);
+    }
     return ret;
 }
 
@@ -615,23 +672,29 @@ jlong JNICALL Java_org_freedesktop_wayland_server_WlServerJNI_addSignal(JNIEnv *
                                                                         const jlong   event_loop_p,
                                                                         const jint    signal_numer,
                                                                         const jobject callback){
-    return (jlong)(intptr_t)wl_event_loop_add_signal((struct wl_event_loop*)(intptr_t)event_loop_p,
-            										 (int) signal_numer,
-            										 jni_handle_event_loop_signal_call,
-            										 (*env)->NewGlobalRef(env,
-            												 	 	      callback));
+    struct wl_event_source *source = wl_event_loop_add_signal((struct wl_event_loop*)(intptr_t)event_loop_p,
+            										          (int) signal_numer,
+            										          jni_handle_event_loop_signal_call,
+            										          (*env)->NewWeakGlobalRef(env,
+            												 	 	                   callback));
+    if (source == NULL) {
+        //TODO handle error, send OOM error?
+        return (jlong)(intptr_t)NULL; /* Exception Thrown */
+    }
+    return (jlong)(intptr_t)source;
 }
 
 static
 void handle_event_loop_idle_call(void * data){
-    jobject callback = data;
     JNIEnv *const env;
     GET_ATTACHED_JENV(env);
+    jobject callback = (jobject)data;
+     //TODO: Handle java Exceptions
     (*env)->CallVoidMethod(env,
                            callback,
                            j_func_idle_callback);
-    // TODO: Handle Exceptions
-    //TODO cleanup global ref when we remove the event source
+    (*env)->DeleteGlobalRef(env,
+                            callback);
 }
 
 /*
