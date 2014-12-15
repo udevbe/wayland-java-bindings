@@ -2,6 +2,7 @@ package examples;
 
 import org.freedesktop.wayland.client.*;
 import org.freedesktop.wayland.shared.WlShmFormat;
+import org.freedesktop.wayland.util.Fixed;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -14,29 +15,29 @@ public class Window {
 
         private final ShmPool       shmPool;
         private       WlBufferProxy bufferProxy;
-        private final ByteBuffer byteBuffer;
+        private final ByteBuffer    byteBuffer;
 
         public Buffer() {
             try {
-                shmPool = new ShmPool(width * height * 4);
+                this.shmPool = new ShmPool(Window.this.width * Window.this.height * 4);
 
-                WlShmPoolProxy pool = display.getShmProxy()
+                WlShmPoolProxy pool = Window.this.display.getShmProxy()
                                              .createPool(new WlShmPoolEvents() {
                                                          },
-                                                         shmPool.getFileDescriptor(),
-                                                         width * height * 4);
-                bufferProxy = pool.createBuffer(new WlBufferEvents() {
+                                                         this.shmPool.getFileDescriptor(),
+                                                         Window.this.width * Window.this.height * 4);
+                this.bufferProxy = pool.createBuffer(new WlBufferEvents() {
                                                     @Override
                                                     public void release(final WlBufferProxy emitter) {
                                                     }
                                                 },
                                                 0,
-                                                width,
-                                                height,
-                                                width * 4,
+                                                Window.this.width,
+                                                Window.this.height,
+                                                Window.this.width * 4,
                                                 WlShmFormat.XRGB8888.getValue());
                 pool.destroy();
-                byteBuffer = shmPool.asByteBuffer();
+                this.byteBuffer = this.shmPool.asByteBuffer();
             }
             catch (IOException e) {
                 throw new RuntimeException(e);
@@ -44,11 +45,11 @@ public class Window {
         }
 
         public ByteBuffer getByteBuffer() {
-            return byteBuffer;
+            return this.byteBuffer;
         }
 
         public WlBufferProxy getProxy() {
-            return bufferProxy;
+            return this.bufferProxy;
         }
     }
 
@@ -57,9 +58,9 @@ public class Window {
     private final int width;
     private final int height;
 
-    private WlSurfaceProxy      surfaceProxy;
-    private WlCallbackProxy     callbackProxy;
-    private Buffer              buffer;
+    private WlSurfaceProxy  surfaceProxy;
+    private WlCallbackProxy callbackProxy;
+    private Buffer          buffer;
 
     public Window(Display display,
                   int width,
@@ -68,9 +69,9 @@ public class Window {
         this.width = width;
         this.height = height;
 
-        buffer = new Buffer();
+        this.buffer = new Buffer();
 
-        surfaceProxy = display.getCompositorProxy()
+        this.surfaceProxy = display.getCompositorProxy()
                               .createSurface(new WlSurfaceEvents() {
                                   @Override
                                   public void enter(final WlSurfaceProxy emitter,
@@ -86,17 +87,26 @@ public class Window {
 
                                   }
                               });
-        surfaceProxy.damage(0,
-                            0,
-                            width,
-                            height);
+        this.surfaceProxy.damage(0,
+                                 0,
+                                 width,
+                                 height);
+
+        final WlRegionProxy inputRegion = display.getCompositorProxy()
+                                                 .createRegion(new WlRegionEvents() {
+                                                 });
+        inputRegion.add(0,
+                        0,
+                        width,
+                        height);
+        this.surfaceProxy.setInputRegion(inputRegion);
     }
 
     public void destroy() {
-        if (callbackProxy != null) {
-            callbackProxy.destroy();
+        if (this.callbackProxy != null) {
+            this.callbackProxy.destroy();
         }
-        surfaceProxy.destroy();
+        this.surfaceProxy.destroy();
     }
 
     private int abs(int i) {
@@ -106,13 +116,13 @@ public class Window {
     private void paintPixels(ByteBuffer buffer,
                              int padding,
                              int time) {
-        final int halfh = padding + (height - padding * 2) / 2;
-        final int halfw = padding + (width - padding * 2) / 2;
+        final int halfh = padding + (this.height - padding * 2) / 2;
+        final int halfw = padding + (this.width - padding * 2) / 2;
         int ir;
         int or;
         IntBuffer image = buffer.asIntBuffer();
         image.clear();
-        for (int i = 0; i < width * height; ++i) {
+        for (int i = 0; i < this.width * this.height; ++i) {
             image.put(0xffffffff);
         }
         image.clear();
@@ -123,12 +133,12 @@ public class Window {
         or = or * or;
         ir = ir * ir;
 
-        image.position(padding * width);
-        for (int y = padding; y < height - padding; y++) {
+        image.position(padding * this.width);
+        for (int y = padding; y < this.height - padding; y++) {
             int y2 = (y - halfh) * (y - halfh);
 
             image.position(image.position() + padding);
-            for (int x = padding; x < width - padding; x++) {
+            for (int x = padding; x < this.width - padding; x++) {
                 int v;
 
                 int r2 = (x - halfw) * (x - halfw) + y2;
@@ -144,7 +154,7 @@ public class Window {
                 }
                 v &= 0x00ffffff;
 
-                if (abs(x - y) > 6 && abs(x + y - height) > 6) {
+                if (abs(x - y) > 6 && abs(x + y - this.height) > 6) {
                     v |= 0xff000000;
                 }
 
@@ -155,28 +165,71 @@ public class Window {
     }
 
     public void redraw(final int time) {
-        paintPixels(buffer.getByteBuffer(),
+        paintPixels(this.buffer.getByteBuffer(),
                     20,
                     time);
-        surfaceProxy.attach(buffer.getProxy(),
-                            0,
-                            0);
-        surfaceProxy.damage(20,
-                            20,
-                            height - 40,
-                            height - 40);
+        this.display.getSeatProxy().getPointer(new WlPointerEventsV3() {
+            @Override
+            public void enter(final WlPointerProxy emitter,
+                              @Nonnull final int serial,
+                              @Nonnull final WlSurfaceProxy surface,
+                              @Nonnull final Fixed surfaceX,
+                              @Nonnull final Fixed surfaceY) {
+
+            }
+
+            @Override
+            public void leave(final WlPointerProxy emitter,
+                              @Nonnull final int serial,
+                              @Nonnull final WlSurfaceProxy surface) {
+
+            }
+
+            @Override
+            public void motion(final WlPointerProxy emitter,
+                               @Nonnull final int time,
+                               @Nonnull final Fixed surfaceX,
+                               @Nonnull final Fixed surfaceY) {
+
+            }
+
+            @Override
+            public void button(final WlPointerProxy emitter,
+                               @Nonnull final int serial,
+                               @Nonnull final int time,
+                               @Nonnull final int button,
+                               @Nonnull final int state) {
+
+            }
+
+            @Override
+            public void axis(final WlPointerProxy emitter,
+                             @Nonnull final int time,
+                             @Nonnull final int axis,
+                             @Nonnull final Fixed value) {
+
+            }
+        });
+
+        this.surfaceProxy.attach(this.buffer.getProxy(),
+                                 0,
+                                 0);
+        this.surfaceProxy.damage(20,
+                                 20,
+                                 this.height - 40,
+                                 this.height - 40);
 
         final WlCallbackEvents wlCallbackEvents = new WlCallbackEvents() {
             @Override
             public void done(final WlCallbackProxy emitter,
                              final int callbackData) {
-                callbackProxy.destroy();
+                Window.this.callbackProxy.destroy();
                 redraw(callbackData);
 
             }
         };
-        callbackProxy = surfaceProxy.frame(wlCallbackEvents);
+        this.callbackProxy = this.surfaceProxy.frame(wlCallbackEvents);
 
-        surfaceProxy.commit();
+        this.surfaceProxy.commit();
     }
 }
