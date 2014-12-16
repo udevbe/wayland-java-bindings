@@ -1,6 +1,7 @@
 package examples;
 
 import org.freedesktop.wayland.client.*;
+import org.freedesktop.wayland.shared.WlPointerButtonState;
 import org.freedesktop.wayland.shared.WlShmFormat;
 import org.freedesktop.wayland.util.Fixed;
 
@@ -10,6 +11,12 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public class Window {
+
+  private int previousMotionX;
+  private int previousMotionY;
+
+  private int deltaX;
+  private int deltaY;
 
     public class Buffer {
 
@@ -169,6 +176,8 @@ public class Window {
                     20,
                     time);
         this.display.getSeatProxy().getPointer(new WlPointerEventsV3() {
+
+            boolean buttonPressed = false;
             @Override
             public void enter(final WlPointerProxy emitter,
                               @Nonnull final int serial,
@@ -190,7 +199,20 @@ public class Window {
                                @Nonnull final int time,
                                @Nonnull final Fixed surfaceX,
                                @Nonnull final Fixed surfaceY) {
+                if(buttonPressed){
 
+                  final int surfaceXInt = surfaceX.asInt();
+                  final int surfaceYInt = surfaceY.asInt();
+
+                  //only calculate delta when we have motion (ie requires 2 points)
+                  if(previousMotionX != 0 && previousMotionY != 0) {
+                    deltaX = surfaceXInt - previousMotionX;
+                    deltaY = surfaceYInt - previousMotionY;
+                  }
+
+                  previousMotionX = surfaceXInt;
+                  previousMotionY = surfaceYInt;
+                }
             }
 
             @Override
@@ -199,7 +221,11 @@ public class Window {
                                @Nonnull final int time,
                                @Nonnull final int button,
                                @Nonnull final int state) {
-
+                buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
+                if(!buttonPressed){
+                  previousMotionX = 0;
+                  previousMotionY = 0;
+                }
             }
 
             @Override
@@ -212,8 +238,11 @@ public class Window {
         });
 
         this.surfaceProxy.attach(this.buffer.getProxy(),
-                                 0,
-                                 0);
+                                 deltaX,
+                                 deltaY);
+        deltaX = 0;
+        deltaY = 0;
+
         this.surfaceProxy.damage(20,
                                  20,
                                  this.height - 40,
