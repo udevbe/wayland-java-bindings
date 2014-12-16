@@ -191,7 +191,7 @@ public class Window {
             public void leave(final WlPointerProxy emitter,
                               @Nonnull final int serial,
                               @Nonnull final WlSurfaceProxy surface) {
-
+                buttonPressed = false;
             }
 
             @Override
