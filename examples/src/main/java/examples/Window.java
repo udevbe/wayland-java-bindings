@@ -12,11 +12,11 @@ import java.nio.IntBuffer;
 
 public class Window {
 
-  private int previousMotionX;
-  private int previousMotionY;
+    private int previousMotionX;
+    private int previousMotionY;
 
-  private int deltaX;
-  private int deltaY;
+    private int deltaX;
+    private int deltaY;
 
     public class Buffer {
 
@@ -29,20 +29,20 @@ public class Window {
                 this.shmPool = new ShmPool(Window.this.width * Window.this.height * 4);
 
                 WlShmPoolProxy pool = Window.this.display.getShmProxy()
-                                             .createPool(new WlShmPoolEvents() {
-                                                         },
-                                                         this.shmPool.getFileDescriptor(),
-                                                         Window.this.width * Window.this.height * 4);
+                                                         .createPool(new WlShmPoolEvents() {
+                                                                     },
+                                                                     this.shmPool.getFileDescriptor(),
+                                                                     Window.this.width * Window.this.height * 4);
                 this.bufferProxy = pool.createBuffer(new WlBufferEvents() {
-                                                    @Override
-                                                    public void release(final WlBufferProxy emitter) {
-                                                    }
-                                                },
-                                                0,
-                                                Window.this.width,
-                                                Window.this.height,
-                                                Window.this.width * 4,
-                                                WlShmFormat.XRGB8888.getValue());
+                                                         @Override
+                                                         public void release(final WlBufferProxy emitter) {
+                                                         }
+                                                     },
+                                                     0,
+                                                     Window.this.width,
+                                                     Window.this.height,
+                                                     Window.this.width * 4,
+                                                     WlShmFormat.XRGB8888.getValue());
                 pool.destroy();
                 this.byteBuffer = this.shmPool.asByteBuffer();
             }
@@ -79,21 +79,21 @@ public class Window {
         this.buffer = new Buffer();
 
         this.surfaceProxy = display.getCompositorProxy()
-                              .createSurface(new WlSurfaceEvents() {
-                                  @Override
-                                  public void enter(final WlSurfaceProxy emitter,
-                                                    @Nonnull
-                                                    final WlOutputProxy output) {
+                                   .createSurface(new WlSurfaceEvents() {
+                                       @Override
+                                       public void enter(final WlSurfaceProxy emitter,
+                                                         @Nonnull
+                                                         final WlOutputProxy output) {
 
-                                  }
+                                       }
 
-                                  @Override
-                                  public void leave(final WlSurfaceProxy emitter,
-                                                    @Nonnull
-                                                    final WlOutputProxy output) {
+                                       @Override
+                                       public void leave(final WlSurfaceProxy emitter,
+                                                         @Nonnull
+                                                         final WlOutputProxy output) {
 
-                                  }
-                              });
+                                       }
+                                   });
         this.surfaceProxy.damage(0,
                                  0,
                                  width,
@@ -107,6 +107,72 @@ public class Window {
                         width,
                         height);
         this.surfaceProxy.setInputRegion(inputRegion);
+
+        this.display.getSeatProxy()
+                    .getPointer(new WlPointerEventsV3() {
+
+                        boolean buttonPressed = false;
+
+                        @Override
+                        public void enter(final WlPointerProxy emitter,
+                                          @Nonnull final int serial,
+                                          @Nonnull final WlSurfaceProxy surface,
+                                          @Nonnull final Fixed surfaceX,
+                                          @Nonnull final Fixed surfaceY) {
+
+                        }
+
+                        @Override
+                        public void leave(final WlPointerProxy emitter,
+                                          @Nonnull final int serial,
+                                          @Nonnull final WlSurfaceProxy surface) {
+                            this.buttonPressed = false;
+                        }
+
+                        @Override
+                        public void motion(final WlPointerProxy emitter,
+                                           @Nonnull final int time,
+                                           @Nonnull final Fixed surfaceX,
+                                           @Nonnull final Fixed surfaceY) {
+                            if (this.buttonPressed) {
+
+                                final int surfaceXInt = surfaceX.asInt();
+                                final int surfaceYInt = surfaceY.asInt();
+
+                                //only calculate delta when we have motion (ie requires 2 points)
+                                if (Window.this.previousMotionX != 0
+                                        && Window.this.previousMotionY != 0) {
+                                    Window.this.deltaX = (surfaceXInt - Window.this.previousMotionX);
+                                    Window.this.deltaY = (surfaceYInt - Window.this.previousMotionY);
+                                }
+                                else {
+                                    Window.this.previousMotionX = surfaceXInt;
+                                    Window.this.previousMotionY = surfaceYInt;
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void button(final WlPointerProxy emitter,
+                                           @Nonnull final int serial,
+                                           @Nonnull final int time,
+                                           @Nonnull final int button,
+                                           @Nonnull final int state) {
+                            this.buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
+                            if (!this.buttonPressed) {
+                                Window.this.previousMotionX = 0;
+                                Window.this.previousMotionY = 0;
+                            }
+                        }
+
+                        @Override
+                        public void axis(final WlPointerProxy emitter,
+                                         @Nonnull final int time,
+                                         @Nonnull final int axis,
+                                         @Nonnull final Fixed value) {
+
+                        }
+                    });
     }
 
     public void destroy() {
@@ -175,73 +241,13 @@ public class Window {
         paintPixels(this.buffer.getByteBuffer(),
                     20,
                     time);
-        this.display.getSeatProxy().getPointer(new WlPointerEventsV3() {
-
-            boolean buttonPressed = false;
-            @Override
-            public void enter(final WlPointerProxy emitter,
-                              @Nonnull final int serial,
-                              @Nonnull final WlSurfaceProxy surface,
-                              @Nonnull final Fixed surfaceX,
-                              @Nonnull final Fixed surfaceY) {
-
-            }
-
-            @Override
-            public void leave(final WlPointerProxy emitter,
-                              @Nonnull final int serial,
-                              @Nonnull final WlSurfaceProxy surface) {
-                buttonPressed = false;
-            }
-
-            @Override
-            public void motion(final WlPointerProxy emitter,
-                               @Nonnull final int time,
-                               @Nonnull final Fixed surfaceX,
-                               @Nonnull final Fixed surfaceY) {
-                if(buttonPressed){
-
-                  final int surfaceXInt = surfaceX.asInt();
-                  final int surfaceYInt = surfaceY.asInt();
-
-                  //only calculate delta when we have motion (ie requires 2 points)
-                  if(previousMotionX != 0 && previousMotionY != 0) {
-                    deltaX = surfaceXInt - previousMotionX;
-                    deltaY = surfaceYInt - previousMotionY;
-                  }
-
-                  previousMotionX = surfaceXInt;
-                  previousMotionY = surfaceYInt;
-                }
-            }
-
-            @Override
-            public void button(final WlPointerProxy emitter,
-                               @Nonnull final int serial,
-                               @Nonnull final int time,
-                               @Nonnull final int button,
-                               @Nonnull final int state) {
-                buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
-                if(!buttonPressed){
-                  previousMotionX = 0;
-                  previousMotionY = 0;
-                }
-            }
-
-            @Override
-            public void axis(final WlPointerProxy emitter,
-                             @Nonnull final int time,
-                             @Nonnull final int axis,
-                             @Nonnull final Fixed value) {
-
-            }
-        });
 
         this.surfaceProxy.attach(this.buffer.getProxy(),
-                                 deltaX,
-                                 deltaY);
-        deltaX = 0;
-        deltaY = 0;
+                                 this.deltaX,
+                                 this.deltaY);
+        this.deltaX = 0;
+        this.deltaY = 0;
+
 
         this.surfaceProxy.damage(20,
                                  20,
@@ -254,7 +260,6 @@ public class Window {
                              final int callbackData) {
                 Window.this.callbackProxy.destroy();
                 redraw(callbackData);
-
             }
         };
         this.callbackProxy = this.surfaceProxy.frame(wlCallbackEvents);
