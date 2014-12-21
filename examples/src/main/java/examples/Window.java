@@ -12,11 +12,7 @@ import java.nio.IntBuffer;
 
 public class Window {
 
-    private int previousMotionX;
-    private int previousMotionY;
-
-    private int deltaX;
-    private int deltaY;
+    private final WlShellSurfaceProxy shellSurface;
 
     public class Buffer {
 
@@ -62,14 +58,14 @@ public class Window {
 
     private final Display display;
 
-    private final int width;
-    private final int height;
+    private int width;
+    private int height;
 
     private WlSurfaceProxy  surfaceProxy;
     private WlCallbackProxy callbackProxy;
     private Buffer          buffer;
 
-    public Window(Display display,
+    public Window(final Display display,
                   int width,
                   int height) {
         this.display = display;
@@ -108,6 +104,30 @@ public class Window {
                         height);
         this.surfaceProxy.setInputRegion(inputRegion);
 
+        this.shellSurface = this.display.getShellProxy()
+                                        .getShellSurface(new WlShellSurfaceEvents() {
+                                                             @Override
+                                                             public void ping(final WlShellSurfaceProxy emitter,
+                                                                              @Nonnull final int serial) {
+                                                                 emitter.pong(serial);
+                                                             }
+
+                                                             @Override
+                                                             public void configure(final WlShellSurfaceProxy emitter,
+                                                                                   @Nonnull final int edges,
+                                                                                   @Nonnull final int width,
+                                                                                   @Nonnull final int height) {
+                                                                 Window.this.width = width;
+                                                                 Window.this.height = height;
+                                                             }
+
+                                                             @Override
+                                                             public void popupDone(final WlShellSurfaceProxy emitter) {
+
+                                                             }
+                                                         },
+                                                         this.surfaceProxy);
+
         this.display.getSeatProxy()
                     .getPointer(new WlPointerEventsV3() {
 
@@ -126,7 +146,6 @@ public class Window {
                         public void leave(final WlPointerProxy emitter,
                                           @Nonnull final int serial,
                                           @Nonnull final WlSurfaceProxy surface) {
-                            this.buttonPressed = false;
                         }
 
                         @Override
@@ -134,22 +153,6 @@ public class Window {
                                            @Nonnull final int time,
                                            @Nonnull final Fixed surfaceX,
                                            @Nonnull final Fixed surfaceY) {
-                            if (this.buttonPressed) {
-
-                                final int surfaceXInt = surfaceX.asInt();
-                                final int surfaceYInt = surfaceY.asInt();
-
-                                //only calculate delta when we have motion (ie requires 2 points)
-                                if (Window.this.previousMotionX != 0
-                                        && Window.this.previousMotionY != 0) {
-                                    Window.this.deltaX = (surfaceXInt - Window.this.previousMotionX);
-                                    Window.this.deltaY = (surfaceYInt - Window.this.previousMotionY);
-                                }
-                                else {
-                                    Window.this.previousMotionX = surfaceXInt;
-                                    Window.this.previousMotionY = surfaceYInt;
-                                }
-                            }
                         }
 
                         @Override
@@ -159,9 +162,9 @@ public class Window {
                                            @Nonnull final int button,
                                            @Nonnull final int state) {
                             this.buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
-                            if (!this.buttonPressed) {
-                                Window.this.previousMotionX = 0;
-                                Window.this.previousMotionY = 0;
+                            if (this.buttonPressed) {
+                                Window.this.shellSurface.move(display.getSeatProxy(),
+                                                              serial);
                             }
                         }
 
@@ -243,10 +246,8 @@ public class Window {
                     time);
 
         this.surfaceProxy.attach(this.buffer.getProxy(),
-                                 this.deltaX,
-                                 this.deltaY);
-        this.deltaX = 0;
-        this.deltaY = 0;
+                                 0,
+                                 0);
 
 
         this.surfaceProxy.damage(20,

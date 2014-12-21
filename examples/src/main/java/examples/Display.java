@@ -13,6 +13,7 @@ public class Display {
     private WlCompositorProxy compositorProxy;
     private WlShmProxy        shmProxy;
     private WlSeatProxy       seatProxy;
+    private WlShellProxy      shellProxy;
 
 
     public Display() {
@@ -68,6 +69,13 @@ public class Display {
                                                                                  }
                                                                              });
         }
+        else if (WlShellProxy.INTERFACE_NAME.equals(interfaceName)) {
+            this.shellProxy = this.registryProxy.<WlShellEvents, WlShellProxy>bind(name,
+                                                                                   WlShellProxy.class,
+                                                                                   WlShellEvents.VERSION,
+                                                                                   new WlShellEvents() {
+                                                                                   });
+        }
         else if (WlSeatProxy.INTERFACE_NAME.equals(interfaceName)) {
             this.seatProxy = this.registryProxy.<WlSeatEvents, WlSeatProxy>bind(name,
                                                                                 WlSeatProxy.class,
@@ -82,7 +90,7 @@ public class Display {
                                                                                     @Override
                                                                                     public void name(final WlSeatProxy emitter,
                                                                                                      final String name) {
-                                                                                        System.out.println("Got seat with name "+name);
+                                                                                        System.out.println("Got seat with name " + name);
                                                                                     }
                                                                                 });
         }
@@ -118,5 +126,9 @@ public class Display {
 
     public WlSeatProxy getSeatProxy() {
         return this.seatProxy;
+    }
+
+    public WlShellProxy getShellProxy() {
+        return this.shellProxy;
     }
 }
