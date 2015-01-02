@@ -26,21 +26,22 @@ import org.freedesktop.wayland.util.InterfaceMeta;
 import org.freedesktop.wayland.util.ObjectCache;
 
 public abstract class Global<R extends Resource<?>> implements HasPointer {
-    private final long pointer;
+
+    private final Display  display;
+    private final Class<R> resourceClass;
+    private final int      version;
+
+    private long pointer;
 
     protected Global(final Display display,
                      final Class<R> resourceClass,
                      final int version) {
-        if(version <= 0){
-          throw new IllegalArgumentException("Version must be bigger than 0");
+        if (version <= 0) {
+            throw new IllegalArgumentException("Version must be bigger than 0");
         }
-        this.pointer = WlServerJNI.createGlobal(display.getPointer(),
-                                                InterfaceMeta.get(resourceClass)
-                                                             .getPointer(),
-                                                version,
-                                                this);
-        ObjectCache.store(getPointer(),
-                          this);
+        this.display = display;
+        this.resourceClass = resourceClass;
+        this.version = version;
     }
 
     public long getPointer() {
@@ -58,9 +59,24 @@ public abstract class Global<R extends Resource<?>> implements HasPointer {
         //TODO add some extra checks?
     }
 
-    public void destroy() {
+    public void makeGlobal() {
+        if (this.pointer != 0) {
+            throw new IllegalStateException("A global already exists!");
+        }
+
+        this.pointer = WlServerJNI.createGlobal(this.display.getPointer(),
+                                                InterfaceMeta.get(this.resourceClass)
+                                                             .getPointer(),
+                                                this.version,
+                                                this);
+        ObjectCache.store(getPointer(),
+                          this);
+    }
+
+    public void destroyGlobal() {
         ObjectCache.remove(getPointer());
         WlServerJNI.destroyGlobal(getPointer());
+        this.pointer = 0;
     }
 
     public abstract R onBindClient(Client client,
