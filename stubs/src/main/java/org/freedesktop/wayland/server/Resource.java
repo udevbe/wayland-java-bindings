@@ -21,10 +21,12 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.util.Arguments;
-import org.freedesktop.wayland.util.InterfaceMeta;
-import org.freedesktop.wayland.util.ObjectCache;
-import org.freedesktop.wayland.util.WaylandObject;
+import com.sun.jna.Pointer;
+import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jna.wl_resource;
+import org.freedesktop.wayland.server.jna.wl_resource_destroy_func_t;
+import org.freedesktop.wayland.util.*;
+import org.freedesktop.wayland.util.jna.wl_object;
 
 /**
  * Server side implementation of a wayland object for a specific client.
@@ -32,59 +34,61 @@ import org.freedesktop.wayland.util.WaylandObject;
  * @param <I> Type of implementation that will be used to handle client requests.
  */
 public abstract class Resource<I> implements WaylandObject {
-
-    private final long pointer;
+    //keep refs to callbacks to they don't get garbage collected.
+    private final Dispatcher                 dispatcher            = new Dispatcher(this);
+    private final wl_resource_destroy_func_t nativeDestroyCallback = new wl_resource_destroy_func_t() {
+        @Override
+        public void apply(final wl_resource resource) {
+            ObjectCache.remove(getNative().getPointer());
+        }
+    };
+    private final wl_resource pointer;
+    private final I           implementation;
 
     protected Resource(final Client client,
                        final int version,
                        final int id,
                        final I implementation) {
-        this.pointer = WlServerJNI.createResource(client.getPointer(),
-                                                  InterfaceMeta.get(getClass())
-                                                               .getPointer(),
-                                                  version,
-                                                  id);
-        addDestroyListener(new Listener() {
-            @Override
-            public void handle() {
-                ObjectCache.remove(getPointer());
-            }
-        });
-        ObjectCache.store(getPointer(),
+        this.implementation = implementation;
+        this.pointer = WaylandServerLibrary.INSTANCE.wl_resource_create(client.getNative(),
+                                                                        InterfaceMeta.get(getClass())
+                                                                                     .getNative(),
+                                                                        version,
+                                                                        id);
+        ObjectCache.store(getNative().getPointer(),
                           this);
-        WlServerJNI.setDispatcher(getPointer(),
-                                  implementation);
-    }
-
-    protected Resource(final long pointer){
-        this.pointer = pointer;
+        WaylandServerLibrary.INSTANCE.wl_resource_set_dispatcher(this.pointer,
+                                                                 this.dispatcher,
+                                                                 Pointer.NULL,
+                                                                 Pointer.NULL,
+                                                                 this.nativeDestroyCallback);
     }
 
     public int getVersion() {
-        return WlServerJNI.getVersion(getPointer());
+        return WaylandServerLibrary.INSTANCE.wl_resource_get_version(this.pointer);
     }
 
     public I getImplementation() {
-        return (I) WlServerJNI.getImplementation(getPointer());
+        return this.implementation;
     }
 
     public Client getClient() {
-        final long clientPointer = WlServerJNI.getClient(getPointer());
-        return ObjectCache.from(clientPointer);
+        return ObjectCache.from(WaylandServerLibrary.INSTANCE.wl_resource_get_client(this.pointer)
+                                                             .getPointer());
     }
 
     public int getId() {
-        return WlServerJNI.getId(getPointer());
+        return WaylandServerLibrary.INSTANCE.wl_resource_get_id(this.pointer);
     }
 
     public void addDestroyListener(final Listener listener) {
-        WlServerJNI.addResourceDestroyListener(getPointer(),
-                                               listener.getPointer());
+        WaylandServerLibrary.INSTANCE.wl_resource_add_destroy_listener(this.pointer,
+                                                                       listener.getNative());
     }
 
     public void destroy() {
-        WlServerJNI.destroyResource(getPointer());
-        ObjectCache.remove(getPointer());
+        ObjectCache.remove(getNative().getPointer());
+        WaylandServerLibrary.INSTANCE.wl_resource_destroy(this.pointer);
     }
 
     /**
@@ -110,9 +114,9 @@ public abstract class Resource<I> implements WaylandObject {
      */
     public void postEvent(final int opcode,
                           final Arguments args) {
-        WlServerJNI.postEvent(getPointer(),
-                              opcode,
-                              args.getPointer());
+        WaylandServerLibrary.INSTANCE.wl_resource_post_event_array(this.pointer,
+                                                                   opcode,
+                                                                   args.getNative()[0]);
     }
 
     /**
@@ -120,20 +124,21 @@ public abstract class Resource<I> implements WaylandObject {
      * @see #postEvent(int, org.freedesktop.wayland.util.Arguments)
      */
     public void postEvent(final int opcode) {
-        WlServerJNI.postEvent(getPointer(),
-                              opcode,
-                              0);
+        WaylandServerLibrary.INSTANCE.wl_resource_post_event(this.pointer,
+                                                             opcode);
     }
 
     public void postError(final int code,
-                          final String msg) {
-        WlServerJNI.postError(getPointer(),
-                              code,
-                              msg);
+                          final String msg,
+                          final Object... varArgs) {
+        WaylandServerLibrary.INSTANCE.wl_resource_post_error(this.pointer,
+                                                             code,
+                                                             msg,
+                                                             varArgs);
     }
 
-    public long getPointer() {
-        return this.pointer;
+    public wl_object getNative() {
+        return this.pointer.object;
     }
 
     @Override
@@ -147,11 +152,11 @@ public abstract class Resource<I> implements WaylandObject {
 
         final Resource resource = (Resource) o;
 
-        return getPointer() == resource.getPointer();
+        return getNative().equals(resource.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }

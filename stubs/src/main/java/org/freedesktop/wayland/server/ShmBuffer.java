@@ -21,22 +21,23 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.HasPointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.server.jna.wl_shm_buffer;
 import org.freedesktop.wayland.util.ObjectCache;
 
 import java.nio.ByteBuffer;
 
-public class ShmBuffer implements HasPointer {
+public class ShmBuffer implements HasNative<wl_shm_buffer> {
 
-    private final long pointer;
+    private final wl_shm_buffer pointer;
 
-    protected ShmBuffer(final long pointer) {
+    protected ShmBuffer(final wl_shm_buffer pointer) {
         this.pointer = pointer;
     }
 
     /**
      * Create a new underlying WlBufferResource with the constructed ShmBuffer as it's implementation.
-     * <p>
+     * <p/>
      * {@code ShmBuffer} should never be stored in a compositor instead it should always be queried from a
      * {@code WlBufferResource}. Listening for the resource's destruction can be done when the buffer
      * resource is attached to a surface.
@@ -54,7 +55,7 @@ public class ShmBuffer implements HasPointer {
                      final int height,
                      final int stride,
                      final int format) {
-        this(WlServerJNI.createShmBuffer(client.getPointer(),
+        this(WlServerJNI.createShmBuffer(client.getNative(),
                                          id,
                                          width,
                                          height,
@@ -63,7 +64,7 @@ public class ShmBuffer implements HasPointer {
     }
 
     public static ShmBuffer get(final Resource<?> resource) {
-        final long bufferPointer = WlServerJNI.get(resource.getPointer());
+        final long bufferPointer = WlServerJNI.get(resource.getNative());
         final ShmBuffer buffer;
         if (bufferPointer == 0) {
             buffer = null;
@@ -76,17 +77,17 @@ public class ShmBuffer implements HasPointer {
 
     public void destroy() {
         //don't free the underlying native context, that's taking care of for us in the native layer.
-        ObjectCache.remove(getPointer());
+        ObjectCache.remove(getNative().getPointer());
     }
 
     @Override
-    public long getPointer() {
+    public wl_shm_buffer getNative() {
         return this.pointer;
     }
 
     /**
      * Mark that the given SHM buffer is about to be accessed
-     * <p>
+     * <p/>
      * An SHM buffer is a memory-mapped file given by the client.
      * According to POSIX, reading from a memory-mapped region that
      * extends off the end of the file will cause a SIGBUS signal to be
@@ -97,19 +98,19 @@ public class ShmBuffer implements HasPointer {
      * reading from the memory and call {@link #endAccess()}
      * afterwards. This will install a signal handler for SIGBUS which
      * will prevent the compositor from crashing.
-     * <p>
+     * <p/>
      * After calling this function the signal handler will remain
      * installed for the lifetime of the compositor process. Note that
      * this function will not work properly if the compositor is also
      * installing its own handler for SIGBUS.
-     * <p>
+     * <p/>
      * If a SIGBUS signal is received for an address within the range of
      * the SHM pool of the given buffer then the client will be sent an
      * error event when {@link #endAccess()} is called. If the signal
      * is for an address outside that range then the signal handler will
      * reraise the signal which would will likely cause the compositor to
      * terminate.
-     * <p>
+     * <p/>
      * It is safe to nest calls to these functions as long as the nested
      * calls are all accessing the same buffer. The number of calls to
      * wl_shm_buffer_end_access must match the number of calls to
@@ -118,24 +119,24 @@ public class ShmBuffer implements HasPointer {
      * buffer from multiple threads.
      */
     public void beginAccess() {
-        WlServerJNI.beginAccess(getPointer());
+        WlServerJNI.beginAccess(getNative());
     }
 
     /**
      * Ends the access to a buffer started by {@link #beginAccess()}.
-     * <p>
+     * <p/>
      * This should be called after {@link #beginAccess()} once the
      * buffer is no longer being accessed. If a SIGBUS signal was
      * generated in-between these two calls then the resource for the
      * given buffer will be sent an error.
      */
     public void endAccess() {
-        WlServerJNI.endAccess(getPointer());
+        WlServerJNI.endAccess(getNative());
     }
 
     /**
      * /** Get a pointer to the memory for the SHM buffer
-     * <p>
+     * <p/>
      * Returns a pointer which can be used to read the data contained in
      * the given SHM buffer.
      * <p
@@ -149,7 +150,7 @@ public class ShmBuffer implements HasPointer {
      * @return a direct ByteBuffer.
      */
     public ByteBuffer getData() {
-        return WlServerJNI.getData(getPointer(),
+        return WlServerJNI.getData(getNative(),
                                    getHeight() * getStride());
     }
 
@@ -158,23 +159,23 @@ public class ShmBuffer implements HasPointer {
      * @see #getData()
      */
     public long getDataAsPointer() {
-        return WlServerJNI.getDataAsPointer(getPointer());
+        return WlServerJNI.getDataAsPointer(getNative());
     }
 
     public int getStride() {
-        return WlServerJNI.getStride(getPointer());
+        return WlServerJNI.getStride(getNative());
     }
 
     public int getFormat() {
-        return WlServerJNI.getFormat(getPointer());
+        return WlServerJNI.getFormat(getNative());
     }
 
     public int getWidth() {
-        return WlServerJNI.getWidth(getPointer());
+        return WlServerJNI.getWidth(getNative());
     }
 
     public int getHeight() {
-        return WlServerJNI.getHeight(getPointer());
+        return WlServerJNI.getHeight(getNative());
     }
 
     @Override
@@ -188,12 +189,12 @@ public class ShmBuffer implements HasPointer {
 
         final ShmBuffer shmBuffer = (ShmBuffer) o;
 
-        return getPointer() == shmBuffer.getPointer();
+        return getNative().equals(shmBuffer.getNative());
 
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }
