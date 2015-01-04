@@ -22,8 +22,8 @@
 package org.freedesktop.wayland.util;
 
 import com.sun.jna.Pointer;
-import org.freedesktop.wayland.util.jna.WaylandUtilLibrary;
 import org.freedesktop.wayland.util.jna.wl_argument;
+import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jna.wl_message;
 import org.freedesktop.wayland.util.jna.wl_object;
 
@@ -34,17 +34,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Dispatcher implements WaylandUtilLibrary.wl_dispatcher_func_t {
+public final class Dispatcher implements wl_dispatcher_func_t {
     private static final Map<Class<?>, Map<Message, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Message, Method>>();
     private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
 
     private final WaylandObject waylandObject;
-    private final Object        implementation;
 
-    public Dispatcher(final WaylandObject waylandObject,
-                      final Object implementation) {
+    public Dispatcher(final WaylandObject waylandObject) {
         this.waylandObject = waylandObject;
-        this.implementation = implementation;
     }
 
 
@@ -150,7 +147,8 @@ public final class Dispatcher implements WaylandUtilLibrary.wl_dispatcher_func_t
             message = ObjectCache.<MessageMeta>from(wlMessage.getPointer())
                                  .getMessage();
             method = get(this.waylandObject.getClass(),
-                         this.implementation.getClass(),
+                         this.waylandObject.getImplementation()
+                                           .getClass(),
                          message);
 
             final String signature = message.signature();
@@ -194,7 +192,7 @@ public final class Dispatcher implements WaylandUtilLibrary.wl_dispatcher_func_t
                     optional = false;
                 }
             }
-            method.invoke(this.implementation,
+            method.invoke(this.waylandObject.getImplementation(),
                           jargs);
         }
         catch (final Exception e) {
@@ -204,7 +202,7 @@ public final class Dispatcher implements WaylandUtilLibrary.wl_dispatcher_func_t
                                                      "arguments=%s, " +
                                                      "message=%s",
                                              method,
-                                             this.implementation,
+                                             this.waylandObject.getImplementation(),
                                              Arrays.toString(jargs),
                                              message));
             e.printStackTrace();

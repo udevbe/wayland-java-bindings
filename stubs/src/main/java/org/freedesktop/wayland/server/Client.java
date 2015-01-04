@@ -21,16 +21,18 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.HasPointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jna.wl_client;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class Client implements HasPointer {
+public class Client implements HasNative<wl_client> {
 
-    private final long pointer;
+    private final wl_client pointer;
 
-    protected Client(final long pointer) {
+    protected Client(final wl_client pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getPointer(),
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
@@ -57,12 +59,12 @@ public class Client implements HasPointer {
      */
     public static Client create(final Display display,
                                 final int fd) {
-        return new Client(WlServerJNI.createClient(display.getPointer(),
-                                                   fd));
+        return new Client(WaylandServerLibrary.INSTANCE.wl_client_create(display.getNative(),
+                                                                         fd));
     }
 
     /**
-     * Flush pending events to the client
+     * Flush pending events to the client,
      * <p/>
      * Events sent to clients are queued in a buffer and written to the
      * socket later - typically when the compositor has handled all
@@ -70,12 +72,12 @@ public class Client implements HasPointer {
      * flushes all queued up events for a client immediately.
      */
     public void flush() {
-        WlServerJNI.flush(getPointer());
+        WaylandServerLibrary.INSTANCE.wl_client_flush(getNative());
     }
 
     public void addDestroyListener(final Listener listener) {
-        WlServerJNI.addClientDestroyListener(getPointer(),
-                                             listener.getPointer());
+        WaylandServerLibrary.INSTANCE.wl_client_add_destroy_listener(getNative(),
+                                                                     listener.getNative());
     }
 
     /**
@@ -85,15 +87,16 @@ public class Client implements HasPointer {
      * @return The display object the client is associated with.
      */
     public Display getDisplay() {
-        return ObjectCache.from(WlServerJNI.getDisplay(getPointer()));
+        return ObjectCache.from(WaylandServerLibrary.INSTANCE.wl_client_get_display(getNative())
+                                                             .getPointer());
     }
 
     public void destroy() {
-        ObjectCache.remove(getPointer());
-        WlServerJNI.destroyClient(getPointer());
+        ObjectCache.remove(getNative().getPointer());
+        WaylandServerLibrary.INSTANCE.wl_client_destroy(getNative());
     }
 
-    public long getPointer() {
+    public wl_client getNative() {
         return this.pointer;
     }
 
@@ -108,12 +111,12 @@ public class Client implements HasPointer {
 
         final Client client = (Client) o;
 
-        return getPointer() == client.getPointer();
+        return getNative().equals(client.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }
 

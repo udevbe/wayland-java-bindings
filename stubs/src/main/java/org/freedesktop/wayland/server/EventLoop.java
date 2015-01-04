@@ -21,79 +21,132 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.HasPointer;
+import com.sun.jna.Pointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.server.jna.*;
 import org.freedesktop.wayland.util.ObjectCache;
-import org.freedesktop.wayland.util.WlUtilJNI;
 
-public class EventLoop implements HasPointer {
+import java.util.Map;
+import java.util.WeakHashMap;
+
+public class EventLoop implements HasNative<wl_event_loop> {
 
     public static final int EVENT_READABLE = 0x01;
     public static final int EVENT_WRITABLE = 0x02;
     public static final int EVENT_HANGUP   = 0x04;
     public static final int EVENT_ERROR    = 0x08;
 
-    private final long pointer;
+    private final Map<Object, Object> weakNativeCallbackReferences = new WeakHashMap<Object, Object>();
 
-    protected EventLoop(final long pointer) {
+    private final wl_event_loop pointer;
+
+    protected EventLoop(final wl_event_loop pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getPointer(),
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
     public static EventLoop create() {
-        return new EventLoop(WlServerJNI.createEventLoop());
+        return new EventLoop(WaylandServerLibrary.INSTANCE.wl_event_loop_create());
     }
 
     public EventSource addFileDescriptor(final int fd,
                                          final int mask,
                                          final FileDescriptorEventHandler handler) {
-        return EventSource.create(WlServerJNI.addFileDescriptor(getPointer(),
-                                                                fd,
-                                                                mask,
-                                                                handler));
+        final wl_event_loop_fd_func_t nativeCallback = new wl_event_loop_fd_func_t() {
+            @Override
+            public int apply(final int fd,
+                             final int mask,
+                             final Pointer data) {
+                handler.handle(fd,
+                               mask);
+                return 0;
+            }
+        };
+        this.weakNativeCallbackReferences.put(handler,
+                                              nativeCallback);
+        final wl_event_source wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_fd(getNative(),
+                                                                                                 fd,
+                                                                                                 mask,
+                                                                                                 nativeCallback,
+                                                                                                 Pointer.NULL);
+        return EventSource.create(wlEventSource);
     }
 
     public EventSource addTimer(final TimerEventHandler handler) {
-        return EventSource.create(WlServerJNI.addTimer(getPointer(),
-                                                       handler));
+        final wl_event_loop_timer_func_t nativeCallback = new wl_event_loop_timer_func_t() {
+            @Override
+            public int apply(final Pointer data) {
+                handler.handle();
+                return 0;
+            }
+        };
+        this.weakNativeCallbackReferences.put(handler,
+                                              nativeCallback);
+        return EventSource.create(WaylandServerLibrary.INSTANCE.wl_event_loop_add_timer(getNative(),
+                                                                                        nativeCallback,
+                                                                                        Pointer.NULL));
     }
 
     public EventSource addSignal(final int signalNumber,
                                  final SignalEventHandler handler) {
-        return EventSource.create(WlServerJNI.addSignal(getPointer(),
-                                                        signalNumber,
-                                                        handler));
+        final wl_event_loop_signal_func_t callback = new wl_event_loop_signal_func_t() {
+
+            @Override
+            public int apply(final int signal_number,
+                             final Pointer data) {
+                handler.handle(signalNumber);
+                return 0;
+            }
+        };
+        this.weakNativeCallbackReferences.put(handler,
+                                              callback);
+        final wl_event_source wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_signal(getNative(),
+                                                                                                     signalNumber,
+                                                                                                     callback,
+                                                                                                     Pointer.NULL);
+        return EventSource.create(wlEventSource);
     }
 
     public EventSource addIdle(final IdleHandler handler) {
-        return EventSource.create(WlServerJNI.addIdle(getPointer(),
-                                                      handler));
+        final wl_event_loop_idle_func_t callback = new wl_event_loop_idle_func_t() {
+            @Override
+            public void apply(final Pointer data) {
+                handler.handle();
+            }
+        };
+        this.weakNativeCallbackReferences.put(handler,
+                                              callback);
+        final wl_event_source wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_idle(getNative(),
+                                                                                                   callback,
+                                                                                                   Pointer.NULL);
+        return EventSource.create(wlEventSource);
     }
 
     public int dispatch(final int timeout) {
-        return WlServerJNI.dispatch(getPointer(),
-                                    timeout);
+        return WaylandServerLibrary.INSTANCE.wl_event_loop_dispatch(getNative(),
+                                                                    timeout);
     }
 
     public void dispatchIdle() {
-        WlServerJNI.dispatchIdle(getPointer());
+        WaylandServerLibrary.INSTANCE.wl_event_loop_dispatch_idle(getNative());
     }
 
     public int getFileDescriptor() {
-        return WlServerJNI.getFileDescriptor(getPointer());
+        return WaylandServerLibrary.INSTANCE.wl_event_loop_get_fd(getNative());
     }
 
     public void addDestroyListener(final Listener listener) {
-        WlServerJNI.addEventLoopDestroyListener(getPointer(),
-                                                listener.getPointer());
+        WaylandServerLibrary.INSTANCE.wl_event_loop_add_destroy_listener(getNative(),
+                                                                         listener.getNative());
     }
 
     public void destroy() {
-        ObjectCache.remove(getPointer());
-        WlUtilJNI.free(getPointer());
+        ObjectCache.remove(getNative().getPointer());
+        WaylandServerLibrary.INSTANCE.free(getNative().getPointer());
     }
 
-    public long getPointer() {
+    public wl_event_loop getNative() {
         return this.pointer;
     }
 
@@ -108,12 +161,12 @@ public class EventLoop implements HasPointer {
 
         final EventLoop eventLoop = (EventLoop) o;
 
-        return getPointer() == eventLoop.getPointer();
+        return getNative().equals(eventLoop.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 
     public interface FileDescriptorEventHandler {
