@@ -21,45 +21,64 @@
  */
 package org.freedesktop.wayland.util;
 
-import org.freedesktop.wayland.HasPointer;
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.util.jna.wl_interface;
+import org.freedesktop.wayland.util.jna.wl_message;
 
 /**
  * Wrapper class for a {@link Message} to create a native wayland message for use with the native library. To create
- * a new native context for a given {@link Message}, use {@link #init(long, int, Message)}.
+ * a new native context for a given {@link Message}, use {@link #init(org.freedesktop.wayland.util.jna.wl_message, Message)}.
  *
  * @see InterfaceMeta
  */
-public class MessageMeta implements HasPointer {
+public class MessageMeta implements HasNative<wl_message> {
 
-    private final long    pointer;
-    private final Message message;
+    private final wl_message pointer;
+    private final Message    message;
 
-    protected MessageMeta(final long pointer,
+    protected MessageMeta(final wl_message pointer,
                           final Message message) {
         this.pointer = pointer;
         this.message = message;
-        ObjectCache.store(getPointer(),
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
-    public static void init(long messagePointerStart,
-                            int index,
+    public static void init(final wl_message messagePointer,
                             final Message message) {
+        //init args interfaces
         final Class<?>[] types = message.types();
-        final long[] typeInterfacePointers = new long[types.length];
+        final wl_interface.ByReference[] typeInterfacePointers = (wl_interface.ByReference[]) new wl_interface.ByReference().toArray(types.length);
         for (int i = 0; i < typeInterfacePointers.length; i++) {
-            typeInterfacePointers[i] = InterfaceMeta.get(types[i])
-                                                    .getPointer();
+            typeInterfacePointers[i] = new wl_interface.ByReference(InterfaceMeta.get(types[i])
+                                                                                 .getNative()
+                                                                                 .getPointer());
         }
-        new MessageMeta(WlUtilJNI.initMessage(messagePointerStart,
-                                              index,
-                                              message.name(),
-                                              message.signature(),
-                                              typeInterfacePointers),
+
+        //set name
+        final Pointer m = new Memory(message.name()
+                                            .length() + 1);
+        m.setString(0,
+                    message.name());
+        messagePointer.name = m;
+
+        //set signature
+        final Pointer s = new Memory(message.signature()
+                                            .length() + 1);
+        s.setString(0,
+                    message.signature());
+        messagePointer.signature = s;
+
+        //set types
+        messagePointer.types = typeInterfacePointers;
+
+        new MessageMeta(messagePointer,
                         message);
     }
 
-    public long getPointer() {
+    public wl_message getNative() {
         return this.pointer;
     }
 
@@ -78,11 +97,11 @@ public class MessageMeta implements HasPointer {
 
         final MessageMeta messageMeta = (MessageMeta) o;
 
-        return getPointer() == messageMeta.getPointer();
+        return getNative().equals(messageMeta.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }

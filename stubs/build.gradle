@@ -17,7 +17,8 @@ clean.dependsOn jniClean
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
     compile(
-            'com.google.code.findbugs:jsr305:3.0.0'
+            'com.google.code.findbugs:jsr305:3.0.0',
+            'net.java.dev.jna:jna:4.1.0'
     )
 }
 

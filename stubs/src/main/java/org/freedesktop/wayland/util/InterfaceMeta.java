@@ -22,7 +22,11 @@
 package org.freedesktop.wayland.util;
 
 
-import org.freedesktop.wayland.HasPointer;
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.util.jna.wl_interface;
+import org.freedesktop.wayland.util.jna.wl_message;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,22 +35,22 @@ import java.util.Map;
  * Wrapper class for any Java type to get or create a native wayland interface for use with the native wayland
  * library. To get a native wayland interface for a given Java type, use {@link #get(Class)}.
  */
-public class InterfaceMeta implements HasPointer {
+public class InterfaceMeta implements HasNative<wl_interface> {
 
-    public static final  InterfaceMeta                NO_INTERFACE  = new InterfaceMeta();
+    public static final  InterfaceMeta                NO_INTERFACE  = new InterfaceMeta(new wl_interface(Pointer.NULL));
     private static final Map<Class<?>, InterfaceMeta> INTERFACE_MAP = new HashMap<Class<?>, InterfaceMeta>();
 
-    private final long pointer;
+    private final wl_interface pointer;
 
-    protected InterfaceMeta(final long pointer) {
+    protected InterfaceMeta(final wl_interface pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getPointer(),
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
-    protected InterfaceMeta() {
-        this.pointer = 0;
-    }
+//    protected InterfaceMeta() {
+//        this.pointer = 0;
+//    }
 
     /**
      * Scans this type for {@link Interface} annotations and creates a native context if possible.
@@ -78,32 +82,54 @@ public class InterfaceMeta implements HasPointer {
                                           final int version,
                                           final Message[] methods,
                                           final Message[] events) {
-        final long methodPointer = WlUtilJNI.allocateMessages(methods.length);
-        final long eventPointer  = WlUtilJNI.allocateMessages(events.length);
-        for (int i = 0; i < methods.length; i++) {
-            MessageMeta.init(methodPointer,
-                             i,
-                             methods[i]);
+        final wl_message[] methodPointer;
+        if (methods.length > 0) {
+            methodPointer = (wl_message[]) new wl_message().toArray(methods.length);
+            for (int i = 0; i < methods.length; i++) {
+                MessageMeta.init(methodPointer[i],
+                                 methods[i]);
             }
-        for (int i = 0; i < events.length; i++) {
-            MessageMeta.init(eventPointer,
-                             i,
-                             events[i]);
         }
-        return new InterfaceMeta(WlUtilJNI.createInterface(name,
-                                                           version,
-                                                           methodPointer,
-                                                           methods.length,
-                                                           eventPointer,
-                                                           events.length));
+        else {
+            methodPointer = new wl_message[]{new wl_message(Pointer.NULL)};
+        }
+
+        final wl_message[] eventPointer;
+        if (events.length > 0) {
+            eventPointer = (wl_message[]) new wl_message().toArray(events.length);
+            for (int i = 0; i < events.length; i++) {
+                MessageMeta.init(eventPointer[i],
+                                 events[i]);
+            }
+        }
+        else {
+            eventPointer = new wl_message[]{new wl_message(Pointer.NULL)};
+        }
+
+        final wl_interface interfacePointer = new wl_interface();
+        //set name
+        final Pointer m = new Memory(name.length() + 1);
+        m.setString(0,
+                    name);
+        interfacePointer.name = m;
+        //set version
+        interfacePointer.version = version;
+        //set methods
+        interfacePointer.methods = new wl_message.ByReference(methodPointer[0].getPointer());
+        interfacePointer.method_count = methods.length;
+        //set events
+        interfacePointer.events = new wl_message.ByReference(eventPointer[0].getPointer());
+        interfacePointer.event_count = events.length;
+
+        return new InterfaceMeta(interfacePointer);
     }
 
-    public long getPointer() {
+    public wl_interface getNative() {
         return this.pointer;
     }
 
-    public String getName(){
-        return WlUtilJNI.getName(getPointer());
+    public String getName() {
+        return this.pointer.name.getString(0);
     }
 
     @Override
@@ -117,11 +143,11 @@ public class InterfaceMeta implements HasPointer {
 
         final InterfaceMeta that = (InterfaceMeta) o;
 
-        return getPointer() == that.getPointer();
+        return getNative().equals(that.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }
