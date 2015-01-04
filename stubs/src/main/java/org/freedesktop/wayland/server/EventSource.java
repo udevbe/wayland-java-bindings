@@ -21,42 +21,44 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.HasPointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jna.wl_event_source;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class EventSource implements HasPointer {
-    private final long pointer;
+public class EventSource implements HasNative<wl_event_source> {
+    private final wl_event_source pointer;
 
-    protected EventSource(final long pointer) {
+    protected EventSource(final wl_event_source pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getPointer(),
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
-    protected static EventSource create(final long pointer) {
+    protected static EventSource create(final wl_event_source pointer) {
         return new EventSource(pointer);
     }
 
     public int updateFileDescriptor(final int mask) {
-        return WlServerJNI.updateFileDescriptor(getPointer(),
-                                                mask);
+        return WaylandServerLibrary.INSTANCE.wl_event_source_fd_update(getNative(),
+                                                                       mask);
     }
 
     public int updateTimer(final int msDelay) {
-        return WlServerJNI.updateTimer(getPointer(),
-                                       msDelay);
+        return WaylandServerLibrary.INSTANCE.wl_event_source_timer_update(getNative(),
+                                                                          msDelay);
     }
 
     public int remove() {
-        ObjectCache.remove(getPointer());
-        return WlServerJNI.remove(getPointer());
+        ObjectCache.remove(getNative().getPointer());
+        return WaylandServerLibrary.INSTANCE.wl_event_source_remove(getNative());
     }
 
     public void check() {
-        WlServerJNI.check(getPointer());
+        WaylandServerLibrary.INSTANCE.wl_event_source_check(getNative());
     }
 
-    public long getPointer() {
+    public wl_event_source getNative() {
         return this.pointer;
     }
 
@@ -71,12 +73,12 @@ public class EventSource implements HasPointer {
 
         final EventSource that = (EventSource) o;
 
-        return getPointer() == that.getPointer();
+        return getNative().equals(that.getNative());
 
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }

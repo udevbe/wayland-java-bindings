@@ -43,7 +43,14 @@ public class Arguments implements HasNative<wl_argument[]> {
     }
 
     public static Arguments create(final int size) {
-        return new Arguments((wl_argument[]) new wl_argument().toArray(size),
+        final wl_argument[] wl_arguments;
+        if (size > 0) {
+            wl_arguments = (wl_argument[]) new wl_argument().toArray(size);
+        }
+        else {
+            wl_arguments = new wl_argument[]{new wl_argument(Pointer.NULL)};
+        }
+        return new Arguments(wl_arguments,
                              true);
     }
 

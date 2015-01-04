@@ -21,9 +21,12 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.HasPointer;
+import com.sun.jna.Pointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jna.wl_listener;
+import org.freedesktop.wayland.server.jna.wl_notify_func_t;
 import org.freedesktop.wayland.util.ObjectCache;
-import org.freedesktop.wayland.util.WlUtilJNI;
 
 /**
  * A single listener for Wayland signals
@@ -38,29 +41,35 @@ import org.freedesktop.wayland.util.WlUtilJNI;
  * listener should be done through provided accessor methods. A listener can
  * only listen to one signal at a time.
  */
-public abstract class Listener implements HasPointer {
+public abstract class Listener implements HasNative<wl_listener> {
 
-    private final long pointer;
+    private final wl_listener pointer;
 
     public Listener() {
-        this.pointer = WlServerJNI.createListener(this);
-        ObjectCache.store(getPointer(),
+        this.pointer = new wl_listener();
+        this.pointer.notify$ = new wl_notify_func_t() {
+            @Override
+            public void apply(final wl_listener listener,
+                              final Pointer data) {
+                handle();
+            }
+        };
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
     public void remove() {
-        WlServerJNI.removeListener(getPointer());
+        WaylandServerLibrary.INSTANCE.wl_list_remove(this.pointer.link);
     }
 
     public void destroy() {
-        ObjectCache.remove(getPointer());
-        WlUtilJNI.free(getPointer());
+        ObjectCache.remove(getNative().getPointer());
     }
 
     //called from jni
     public abstract void handle();
 
-    public long getPointer() {
+    public wl_listener getNative() {
         return this.pointer;
     }
 
@@ -75,12 +84,12 @@ public abstract class Listener implements HasPointer {
 
         final Listener listener = (Listener) o;
 
-        return getPointer() == listener.getPointer();
+        return getNative().equals(listener.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }
 

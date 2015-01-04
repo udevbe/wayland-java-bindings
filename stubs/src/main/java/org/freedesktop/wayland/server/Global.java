@@ -21,29 +21,50 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.HasPointer;
+import com.sun.jna.Pointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jna.wl_client;
+import org.freedesktop.wayland.server.jna.wl_global;
+import org.freedesktop.wayland.server.jna.wl_global_bind_func_t;
 import org.freedesktop.wayland.util.InterfaceMeta;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public abstract class Global<R extends Resource<?>> implements HasPointer {
-    private final long pointer;
+public abstract class Global<R extends Resource<?>> implements HasNative<wl_global> {
+    private final wl_global_bind_func_t nativeCallback = new wl_global_bind_func_t() {
+
+        @Override
+        public void apply(final wl_client wlClient,
+                          final Pointer data,
+                          final int version,
+                          final int id) {
+            final Client client = ObjectCache.from(wlClient.getPointer());
+            onBindClient(client == null ? new Client(wlClient) : client,
+                         version,
+                         id);
+        }
+    };
+
+    private final wl_global pointer;
 
     protected Global(final Display display,
                      final Class<R> resourceClass,
                      final int version) {
-        if(version <= 0){
-          throw new IllegalArgumentException("Version must be bigger than 0");
+        if (version <= 0) {
+            throw new IllegalArgumentException("Version must be bigger than 0");
         }
-        this.pointer = WlServerJNI.createGlobal(display.getPointer(),
-                                                InterfaceMeta.get(resourceClass)
-                                                             .getPointer(),
-                                                version,
-                                                this);
-        ObjectCache.store(getPointer(),
+
+        this.pointer = WaylandServerLibrary.INSTANCE.wl_global_create(display.getNative(),
+                                                                      InterfaceMeta.get(resourceClass)
+                                                                                   .getNative(),
+                                                                      version,
+                                                                      Pointer.NULL,
+                                                                      this.nativeCallback);
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
-    public long getPointer() {
+    public wl_global getNative() {
         return this.pointer;
     }
 
@@ -51,16 +72,13 @@ public abstract class Global<R extends Resource<?>> implements HasPointer {
     protected void bindClient(final long clientPointer,
                               final int version,
                               final int id) {
-        final Client client = ObjectCache.from(clientPointer);
-        R resource = onBindClient(client == null ? new Client(clientPointer) : client,
-                                  version,
-                                  id);
+
         //TODO add some extra checks?
     }
 
     public void destroy() {
-        ObjectCache.remove(getPointer());
-        WlServerJNI.destroyGlobal(getPointer());
+        ObjectCache.remove(getNative().getPointer());
+        WaylandServerLibrary.INSTANCE.wl_global_destroy(getNative());
     }
 
     public abstract R onBindClient(Client client,
@@ -78,12 +96,12 @@ public abstract class Global<R extends Resource<?>> implements HasPointer {
 
         final Global global = (Global) o;
 
-        return getPointer() == global.getPointer();
+        return getNative().equals(global.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }
 

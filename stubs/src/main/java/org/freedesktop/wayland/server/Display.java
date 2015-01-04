@@ -21,16 +21,20 @@
  */
 package org.freedesktop.wayland.server;
 
-import org.freedesktop.wayland.HasPointer;
+import com.sun.jna.Pointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jna.wl_display;
+import org.freedesktop.wayland.server.jna.wl_event_loop;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class Display implements HasPointer {
+public class Display implements HasNative<wl_display> {
 
-    private final long pointer;
+    private final wl_display pointer;
 
-    public Display(final long pointer) {
+    public Display(final wl_display pointer) {
         this.pointer = pointer;
-        ObjectCache.store(pointer,
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
@@ -42,24 +46,24 @@ public class Display implements HasPointer {
      * @return The Wayland display object. Null if failed to create
      */
     public static Display create() {
-        return new Display(WlServerJNI.createDisplay());
+        return new Display(WaylandServerLibrary.INSTANCE.wl_display_create());
     }
 
     public int addSocket(final String name) {
-        return WlServerJNI.addSocket(getPointer(),
-                                     name);
+        return WaylandServerLibrary.INSTANCE.wl_display_add_socket(getNative(),
+                                                                   name);
     }
 
     public void terminate() {
-        WlServerJNI.terminate(getPointer());
+        WaylandServerLibrary.INSTANCE.wl_display_terminate(getNative());
     }
 
     public void run() {
-        WlServerJNI.run(getPointer());
+        WaylandServerLibrary.INSTANCE.wl_display_run(getNative());
     }
 
     public void flushClients() {
-        WlServerJNI.flushClients(getPointer());
+        WaylandServerLibrary.INSTANCE.wl_display_flush_clients(getNative());
     }
 
     /**
@@ -69,7 +73,7 @@ public class Display implements HasPointer {
      * increment it.
      */
     public int getSerial() {
-        return WlServerJNI.getSerial(getPointer());
+        return WaylandServerLibrary.INSTANCE.wl_display_get_serial(getNative());
     }
 
     /**
@@ -79,27 +83,29 @@ public class Display implements HasPointer {
      * new value.
      */
     public int nextSerial() {
-        return WlServerJNI.nextSerial(getPointer());
+        return WaylandServerLibrary.INSTANCE.wl_display_next_serial(getNative());
     }
 
     public EventLoop getEventLoop() {
-        final long eventLoopPointer = WlServerJNI.getEventLoop(getPointer());
+        final wl_event_loop wlEventLoop = WaylandServerLibrary.INSTANCE.wl_display_get_event_loop(getNative());
+        final Pointer eventLoopPointer = wlEventLoop.getPointer();
         final EventLoop eventLoop = ObjectCache.from(eventLoopPointer);
-        return eventLoop == null ? new EventLoop(eventLoopPointer) : eventLoop;
+        return eventLoop == null ? new EventLoop(wlEventLoop) : eventLoop;
     }
 
     public void destroy() {
-        WlServerJNI.destroy(getPointer());
-        ObjectCache.remove(getPointer());
+        ObjectCache.remove(getNative().getPointer());
+        WaylandServerLibrary.INSTANCE.wl_display_destroy(getNative());
+
     }
 
     public void addDestroyListener(final Listener listener) {
-        WlServerJNI.addDisplayDestroyListener(getPointer(),
-                                              listener.getPointer());
+        WaylandServerLibrary.INSTANCE.wl_display_add_destroy_listener(getNative(),
+                                                                      listener.getNative());
     }
 
     public int initShm() {
-        return WlServerJNI.initShm(getPointer());
+        return WaylandServerLibrary.INSTANCE.wl_display_init_shm(getNative());
     }
 
     /**
@@ -119,12 +125,13 @@ public class Display implements HasPointer {
      * @param format The wl_shm pixel format to advertise
      * @return A pointer to the wl_shm format that was added to the list or NULL if adding it to the list failed.
      */
-    public long addShmFormat(int format) {
-        return WlServerJNI.addShmFormat(getPointer(),
-                                        format);
+    public int addShmFormat(final int format) {
+        return WaylandServerLibrary.INSTANCE.wl_display_add_shm_format(getNative(),
+                                                                       format)
+                                            .getValue();
     }
 
-    public long getPointer() {
+    public wl_display getNative() {
         return this.pointer;
     }
 
@@ -139,12 +146,12 @@ public class Display implements HasPointer {
 
         final Display display = (Display) o;
 
-        return getPointer() == display.getPointer();
+        return getNative().equals(display.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }
 
