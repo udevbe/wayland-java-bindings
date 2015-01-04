@@ -21,6 +21,6 @@
  */
 package org.freedesktop.wayland;
 
-public interface HasPointer {
-    long getPointer();
+public interface HasNative<T> {
+    T getNative();
 }

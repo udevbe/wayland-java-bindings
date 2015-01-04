@@ -21,67 +21,62 @@
  */
 package org.freedesktop.wayland.util;
 
-import org.freedesktop.wayland.HasPointer;
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.server.Resource;
+import org.freedesktop.wayland.util.jna.wl_argument;
+import org.freedesktop.wayland.util.jna.wl_array;
+import org.freedesktop.wayland.util.jna.wl_object;
 
-import java.nio.ByteBuffer;
+public class Arguments implements HasNative<wl_argument[]> {
 
-public class Arguments implements HasPointer {
+    private final wl_argument[] args;
+    private final boolean       autoFree;
 
-    private final long    pointer;
-    private final boolean autoFree;
-
-    Arguments(final long pointer,
+    Arguments(final wl_argument[] args,
               final boolean autoFree) {
-        this.pointer = pointer;
+        this.args = args;
         this.autoFree = autoFree;
         //do not cache object, let the java GC finalize the object, which in turn will free the native context.
     }
 
     public static Arguments create(final int size) {
-        return new Arguments(WlUtilJNI.createArguments(size),
+        return new Arguments((wl_argument[]) new wl_argument().toArray(size),
                              true);
     }
 
     public int getI(final int index) {
-        return WlUtilJNI.getIArgument(getPointer(),
-                                      index);
+        return this.args[index].i;
     }
 
     public int getU(final int index) {
-        return WlUtilJNI.getUArgument(getPointer(),
-                                      index);
+        return this.args[index].u;
     }
 
     public Fixed getFixed(final int index) {
-        return new Fixed(WlUtilJNI.getFArgument(getPointer(),
-                                                index));
+        return new Fixed(this.args[index].f);
     }
 
     public String getS(final int index) {
-        return WlUtilJNI.getSArgument(getPointer(),
-                                      index);
+        return this.args[index].s.getString(0);
     }
 
-    public long getO(final int index) {
-        return WlUtilJNI.getOArgument(getPointer(),
-                                      index);
+    public wl_object getO(final int index) {
+        return this.args[index].o;
     }
 
     public int getN(final int index) {
-        return WlUtilJNI.getNArgument(getPointer(),
-                                      index);
+        return this.args[index].n;
     }
 
-    public byte[] getA(final int index) {
-        return WlUtilJNI.getAArgument(getPointer(),
-                                      index);
+    public wl_array getA(final int index) {
+        return this.args[index].a;
     }
 
     public int getH(final int index) {
-        return WlUtilJNI.getHArgument(getPointer(),
-                                      index);
+        return this.args[index].h;
     }
 
     /**
@@ -96,9 +91,7 @@ public class Arguments implements HasPointer {
      */
     public Arguments set(final int index,
                          final int iunh) {
-        WlUtilJNI.setIUNHArgument(getPointer(),
-                                  index,
-                                  iunh);
+        this.args[index].i = this.args[index].u = this.args[index].n = this.args[index].h = iunh;
         return this;
     }
 
@@ -111,9 +104,7 @@ public class Arguments implements HasPointer {
      */
     public Arguments set(final int index,
                          final Resource<?> o) {
-        WlUtilJNI.setOArgument(getPointer(),
-                               index,
-                               o.getPointer());
+        this.args[index].o = o.getNative();
         return this;
     }
 
@@ -126,9 +117,7 @@ public class Arguments implements HasPointer {
      */
     public Arguments set(final int index,
                          final Proxy<?> o) {
-        WlUtilJNI.setOArgument(getPointer(),
-                               index,
-                               o.getPointer());
+        this.args[index].o = o.getNative();
         return this;
     }
 
@@ -141,9 +130,7 @@ public class Arguments implements HasPointer {
      */
     public Arguments set(final int index,
                          final Fixed f) {
-        WlUtilJNI.setFArgument(getPointer(),
-                               index,
-                               f.getRaw());
+        this.args[index].f = f.getRaw();
         return this;
     }
 
@@ -156,9 +143,10 @@ public class Arguments implements HasPointer {
      */
     public Arguments set(final int index,
                          final String s) {
-        WlUtilJNI.setSArgument(getPointer(),
-                               index,
-                               s);
+        final Pointer m = new Memory(s.length() + 1);
+        m.setString(0,
+                    s);
+        this.args[index].s = m;
         return this;
     }
 
@@ -170,45 +158,14 @@ public class Arguments implements HasPointer {
      * @return
      */
     public Arguments set(final int index,
-                         final ByteBuffer array) {
-        if (!array.isDirect()) {
-            throw new IllegalArgumentException("array is not a direct bytebuffer.");
-        }
-        WlUtilJNI.setAArgument(getPointer(),
-                               index,
-                               array);
+                         final wl_array.ByReference array) {
+
+        this.args[index].a = array;
         return this;
     }
 
     @Override
-    public long getPointer() {
-        return this.pointer;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final Arguments argument = (Arguments) o;
-
-        return getPointer() == argument.getPointer();
-    }
-
-    @Override
-    public int hashCode() {
-        return (int) this.pointer;
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        if (this.autoFree) {
-            WlUtilJNI.destroyArgument(getPointer());
-        }
-        super.finalize();
+    public wl_argument[] getNative() {
+        return this.args;
     }
 }

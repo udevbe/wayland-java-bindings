@@ -21,9 +21,10 @@
  */
 package org.freedesktop.wayland.util;
 
-import org.freedesktop.wayland.HasPointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.util.jna.wl_object;
 
-public interface WaylandObject extends HasImplementation, HasPointer {
+public interface WaylandObject extends HasImplementation, HasNative<wl_object> {
     int getId();
 
     int getVersion();
