@@ -33,12 +33,9 @@ import org.freedesktop.wayland.util.jna.wl_object;
 public class Arguments implements HasNative<wl_argument[]> {
 
     private final wl_argument[] args;
-    private final boolean       autoFree;
 
-    Arguments(final wl_argument[] args,
-              final boolean autoFree) {
+    Arguments(final wl_argument[] args) {
         this.args = args;
-        this.autoFree = autoFree;
         //do not cache object, let the java GC finalize the object, which in turn will free the native context.
     }
 
@@ -50,8 +47,7 @@ public class Arguments implements HasNative<wl_argument[]> {
         else {
             wl_arguments = new wl_argument[]{new wl_argument(Pointer.NULL)};
         }
-        return new Arguments(wl_arguments,
-                             true);
+        return new Arguments(wl_arguments);
     }
 
     public int getI(final int index) {
