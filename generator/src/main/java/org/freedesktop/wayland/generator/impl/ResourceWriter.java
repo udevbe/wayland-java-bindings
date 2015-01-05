@@ -134,12 +134,7 @@ public class ResourceWriter {
                                     "implementation")
                   .emitStatement("super(client, version, id, implementation)")
                   .endConstructor()
-                  .emitEmptyLine()
-                  .beginConstructor(EnumSet.of(Modifier.PROTECTED),
-                                    long.class.getName(),
-                                    "pointer")
-                  .emitStatement("super(pointer)")
-                  .endConstructor();
+                  .emitEmptyLine();
 
         //methods
         for (int i = 0; i < eventNodes.getLength(); i++) {
