@@ -167,8 +167,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             jargs[0] = this.waylandObject;
 
             if (nroArgs > 0) {
-                final Arguments arguments = new Arguments((wl_argument[]) wlArguments.toArray(nroArgs),
-                                                          false);
+                final Arguments arguments = new Arguments((wl_argument[]) wlArguments.toArray(nroArgs));
                 boolean optional = false;
                 int argIndex = 0;
                 for (final char signatureChar : messageSignature.toCharArray()) {
