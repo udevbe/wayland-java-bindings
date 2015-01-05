@@ -158,6 +158,10 @@ public class ShmBuffer implements HasNative<wl_shm_buffer> {
                                                                                              getHeight() * getStride());
     }
 
+    public int getFormat(){
+        return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_format(getNative());
+    }
+
     public int getStride() {
       return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_stride(getNative());
     }
