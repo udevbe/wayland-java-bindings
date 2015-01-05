@@ -22,6 +22,8 @@
 package org.freedesktop.wayland.server;
 
 import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jna.wl_resource;
 import org.freedesktop.wayland.server.jna.wl_shm_buffer;
 import org.freedesktop.wayland.util.ObjectCache;
 
@@ -55,22 +57,24 @@ public class ShmBuffer implements HasNative<wl_shm_buffer> {
                      final int height,
                      final int stride,
                      final int format) {
-        this(WlServerJNI.createShmBuffer(client.getNative(),
-                                         id,
-                                         width,
-                                         height,
-                                         stride,
-                                         format));
+        this(WaylandServerLibrary.INSTANCE.wl_shm_buffer_create(client.getNative(),id,
+                                                           width,
+                                                           height,
+                                                           stride,
+                                                           format));
     }
 
     public static ShmBuffer get(final Resource<?> resource) {
-        final long bufferPointer = WlServerJNI.get(resource.getNative());
+      final wl_shm_buffer
+          wlShmBuffer =
+          WaylandServerLibrary.INSTANCE.wl_shm_buffer_get(new wl_resource(resource.getNative().getPointer()));
+
         final ShmBuffer buffer;
-        if (bufferPointer == 0) {
+        if (wlShmBuffer == null) {
             buffer = null;
         }
         else {
-            buffer = new ShmBuffer(bufferPointer);
+            buffer = new ShmBuffer(wlShmBuffer);
         }
         return buffer;
     }
@@ -119,7 +123,7 @@ public class ShmBuffer implements HasNative<wl_shm_buffer> {
      * buffer from multiple threads.
      */
     public void beginAccess() {
-        WlServerJNI.beginAccess(getNative());
+      WaylandServerLibrary.INSTANCE.wl_shm_buffer_begin_access(getNative());
     }
 
     /**
@@ -131,7 +135,7 @@ public class ShmBuffer implements HasNative<wl_shm_buffer> {
      * given buffer will be sent an error.
      */
     public void endAccess() {
-        WlServerJNI.endAccess(getNative());
+      WaylandServerLibrary.INSTANCE.wl_shm_buffer_end_access(getNative());
     }
 
     /**
@@ -150,32 +154,20 @@ public class ShmBuffer implements HasNative<wl_shm_buffer> {
      * @return a direct ByteBuffer.
      */
     public ByteBuffer getData() {
-        return WlServerJNI.getData(getNative(),
-                                   getHeight() * getStride());
-    }
-
-    /**
-     * @return
-     * @see #getData()
-     */
-    public long getDataAsPointer() {
-        return WlServerJNI.getDataAsPointer(getNative());
+      return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_data(getNative()).getByteBuffer(0,
+                                                                                             getHeight() * getStride());
     }
 
     public int getStride() {
-        return WlServerJNI.getStride(getNative());
-    }
-
-    public int getFormat() {
-        return WlServerJNI.getFormat(getNative());
+      return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_stride(getNative());
     }
 
     public int getWidth() {
-        return WlServerJNI.getWidth(getNative());
+        return  WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_width(getNative());
     }
 
     public int getHeight() {
-        return WlServerJNI.getHeight(getNative());
+        return  WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_height(getNative());
     }
 
     @Override
