@@ -18,7 +18,7 @@ public class wl_message extends Structure {
     /**
      * C type : wl_interface**
      */
-    public  wl_interface.ByReference[] types;
+    public  wl_interface.ByReference types;
 
     public wl_message() {
         super();
@@ -35,19 +35,16 @@ public class wl_message extends Structure {
      * @param signature C type : const char*<br>
      * @param types     C type : wl_interface**
      */
-    public wl_message(Pointer name,
-                      Pointer signature,
-                      wl_interface.ByReference types[]) {
+    public wl_message(final Pointer name,
+                      final Pointer signature,
+                      final wl_interface.ByReference types) {
         super();
         this.name = name;
         this.signature = signature;
-        if ((types.length != this.types.length)) {
-            throw new IllegalArgumentException("Wrong array size !");
-        }
         this.types = types;
     }
 
-    public wl_message(Pointer peer) {
+    public wl_message(final Pointer peer) {
         super(peer);
     }
 
@@ -63,7 +60,7 @@ public class wl_message extends Structure {
 
         public ByReference(final Pointer name,
                            final Pointer signature,
-                           final wl_interface.ByReference[] types) {
+                           final wl_interface.ByReference types) {
             super(name,
                   signature,
                   types);
@@ -80,7 +77,7 @@ public class wl_message extends Structure {
 
         public ByValue(final Pointer name,
                        final Pointer signature,
-                       final wl_interface.ByReference[] types) {
+                       final wl_interface.ByReference types) {
             super(name,
                   signature,
                   types);
