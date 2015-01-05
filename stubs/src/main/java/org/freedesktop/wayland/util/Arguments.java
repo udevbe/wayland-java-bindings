@@ -22,6 +22,7 @@
 package org.freedesktop.wayland.util;
 
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.client.Proxy;
@@ -29,6 +30,8 @@ import org.freedesktop.wayland.server.Resource;
 import org.freedesktop.wayland.util.jna.wl_argument;
 import org.freedesktop.wayland.util.jna.wl_array;
 import org.freedesktop.wayland.util.jna.wl_object;
+
+import java.nio.ByteBuffer;
 
 public class Arguments implements HasNative<wl_argument[]> {
 
@@ -161,9 +164,12 @@ public class Arguments implements HasNative<wl_argument[]> {
      * @return
      */
     public Arguments set(final int index,
-                         final wl_array.ByReference array) {
-
-        this.args[index].a = array;
+                         final ByteBuffer array) {
+        final wl_array.ByReference wlArray = new wl_array.ByReference();
+        wlArray.alloc = array.capacity();
+        wlArray.size = array.capacity();
+        wlArray.data = Native.getDirectBufferPointer(array);
+        this.args[index].a = wlArray;
         return this;
     }
 
