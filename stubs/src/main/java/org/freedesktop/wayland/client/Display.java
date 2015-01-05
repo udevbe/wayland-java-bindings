@@ -82,7 +82,6 @@ import org.freedesktop.wayland.client.jna.wl_proxy;
  * might be events queued on the main queue. Those events should be
  * dispatched with {@link #dispatchPending()} before
  * flushing and blocking.
- *
  */
 public abstract class Display extends Proxy<Void> {
 
@@ -274,7 +273,8 @@ public abstract class Display extends Proxy<Void> {
     }
 
     public int prepareReadQueue(final EventQueue queue) {
-        return WaylandClientLibrary.INSTANCE.wl_display_prepare_read_queue(this.wlDisplay,queue.getNative());
+        return WaylandClientLibrary.INSTANCE.wl_display_prepare_read_queue(this.wlDisplay,
+                                                                           queue.getNative());
     }
 
     /**
