@@ -50,11 +50,18 @@ public class MessageMeta implements HasNative<wl_message> {
                             final Message message) {
         //init args interfaces
         final Class<?>[] types = message.types();
-        final wl_interface.ByReference[] typeInterfacePointers = (wl_interface.ByReference[]) new wl_interface.ByReference().toArray(types.length);
-        for (int i = 0; i < typeInterfacePointers.length; i++) {
-            typeInterfacePointers[i] = new wl_interface.ByReference(InterfaceMeta.get(types[i])
-                                                                                 .getNative()
-                                                                                 .getPointer());
+
+        final wl_interface.ByReference[] typeInterfacePointers;
+        if (types.length > 0) {
+            typeInterfacePointers = (wl_interface.ByReference[]) new wl_interface.ByReference().toArray(types.length);
+            for (int i = 0; i < typeInterfacePointers.length; i++) {
+                typeInterfacePointers[i] = new wl_interface.ByReference(InterfaceMeta.get(types[i])
+                                                                                     .getNative()
+                                                                                     .getPointer());
+            }
+        }
+        else {
+            typeInterfacePointers = new wl_interface.ByReference[]{new wl_interface.ByReference(Pointer.NULL)};
         }
 
         //set name
@@ -72,7 +79,7 @@ public class MessageMeta implements HasNative<wl_message> {
         messagePointer.signature = s;
 
         //set types
-        messagePointer.types = typeInterfacePointers;
+        messagePointer.types = typeInterfacePointers[0];
 
         new MessageMeta(messagePointer,
                         message);
