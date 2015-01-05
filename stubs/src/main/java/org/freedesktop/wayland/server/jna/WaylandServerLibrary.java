@@ -239,4 +239,6 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
                                        int format);
 
     void wl_log_set_handler_server(wl_log_func_t handler);
+
+    int wl_shm_buffer_get_format(wl_shm_buffer buffer);
 }
