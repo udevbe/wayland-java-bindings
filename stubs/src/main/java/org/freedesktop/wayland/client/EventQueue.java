@@ -21,7 +21,9 @@
  */
 package org.freedesktop.wayland.client;
 
-import org.freedesktop.wayland.HasPointer;
+import org.freedesktop.wayland.HasNative;
+import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
+import org.freedesktop.wayland.client.jna.wl_event_queue;
 import org.freedesktop.wayland.util.ObjectCache;
 
 /**
@@ -32,16 +34,16 @@ import org.freedesktop.wayland.util.ObjectCache;
  *
  * @see Display
  */
-public class EventQueue implements HasPointer {
-    private final long pointer;
+public class EventQueue implements HasNative<wl_event_queue> {
+    private final wl_event_queue pointer;
 
-    protected EventQueue(final long pointer) {
+    protected EventQueue(final wl_event_queue pointer) {
         this.pointer = pointer;
-        ObjectCache.store(pointer,
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
-    public long getPointer() {
+    public wl_event_queue getNative() {
         return this.pointer;
     }
 
@@ -56,8 +58,8 @@ public class EventQueue implements HasPointer {
      * this function.
      */
     public void destroy() {
-        WlClientJNI.destroyEventQueue(getPointer());
-        ObjectCache.remove(getPointer());
+        WaylandClientLibrary.INSTANCE.wl_event_queue_destroy(getNative());
+        ObjectCache.remove(getNative().getPointer());
     }
 
     @Override
@@ -71,11 +73,11 @@ public class EventQueue implements HasPointer {
 
         final EventQueue that = (EventQueue) o;
 
-        return getPointer() == that.getPointer();
+        return getNative().equals(that.getNative());
     }
 
     @Override
     public int hashCode() {
-        return (int) getPointer();
+        return getNative().hashCode();
     }
 }
