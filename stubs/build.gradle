@@ -1,19 +1,5 @@
 description = 'Java stub for wayland client and server protocols.'
 
-task jniAll(type: Exec) {
-    workingDir = 'src/main/native'
-    commandLine 'make'
-}
-
-jar.dependsOn jniAll
-
-task jniClean(type: Exec) {
-    workingDir = 'src/main/native'
-    commandLine 'make', 'clean'
-}
-
-clean.dependsOn jniClean
-
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
     compile(
