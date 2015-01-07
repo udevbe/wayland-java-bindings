@@ -119,16 +119,18 @@ public abstract class Proxy<I> implements WaylandObject {
      * @see {@link #marshal(int, Arguments)}
      */
     protected void marshal(final int opcode) {
-        marshal(opcode,
-                new wl_argument[]{new wl_argument(Pointer.NULL)});
+      WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(this.pointer,
+                                                           opcode,
+                                                           null);
     }
 
     //called from generated proxies
     protected void marshal(final int opcode,
-                           final wl_argument[] argsPointer) {
+                           final wl_argument argsPointer) {
+        argsPointer.write();
         WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(this.pointer,
                                                              opcode,
-                                                             argsPointer[0]);
+                                                             argsPointer);
     }
 
     //called from generated proxies
@@ -172,13 +174,14 @@ public abstract class Proxy<I> implements WaylandObject {
                                                            final J implementation,
                                                            final int version,
                                                            final Class<T> newProxyCls,
-                                                           final wl_argument[] argsPointer) {
+                                                           final wl_argument argsPointer) {
         try {
+            argsPointer.write();
             final wl_proxy
                     wlProxy =
                     WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array_constructor(this.pointer,
                                                                                      opcode,
-                                                                                     argsPointer[0],
+                                                                                     argsPointer,
                                                                                      InterfaceMeta.get(newProxyCls)
                                                                                                   .getNative());
             return marshalProxy(wlProxy,
