@@ -24,11 +24,6 @@ public interface WaylandClientLibrary extends WaylandUtilLibrary {
     wl_proxy wl_proxy_create(wl_proxy factory,
                              wl_interface interface$);
 
-    wl_proxy wl_proxy_marshal_constructor(wl_proxy proxy,
-                                          int opcode,
-                                          wl_interface interface$,
-                                          Object... varArgs1);
-
     wl_proxy wl_proxy_marshal_array_constructor(wl_proxy proxy,
                                                 int opcode,
                                                 wl_argument args,
@@ -59,7 +54,7 @@ public interface WaylandClientLibrary extends WaylandUtilLibrary {
     void wl_proxy_set_queue(wl_proxy proxy,
                             wl_event_queue queue);
 
-    wl_display wl_display_connect(String name);
+    wl_display wl_display_connect(Pointer name);
 
     wl_display wl_display_connect_to_fd(int fd);
 
