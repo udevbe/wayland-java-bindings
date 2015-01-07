@@ -26,7 +26,6 @@ import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.server.jna.wl_resource;
 import org.freedesktop.wayland.server.jna.wl_resource_destroy_func_t;
 import org.freedesktop.wayland.util.*;
-import org.freedesktop.wayland.util.jna.wl_argument;
 import org.freedesktop.wayland.util.jna.wl_object;
 
 /**
@@ -115,7 +114,8 @@ public abstract class Resource<I> implements WaylandObject {
      */
     public void postEvent(final int opcode,
                           final Arguments args) {
-        args.getNative().write();
+        args.getNative()
+            .write();
         WaylandServerLibrary.INSTANCE.wl_resource_post_event_array(this.pointer,
                                                                    opcode,
                                                                    args.getNative());

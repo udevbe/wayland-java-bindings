@@ -3,6 +3,8 @@ package examples;
 
 import org.freedesktop.wayland.client.*;
 
+import javax.annotation.Nonnull;
+
 public class Display {
 
     private final WlDisplayProxy  displayProxy;
@@ -15,12 +17,12 @@ public class Display {
 
 
     public Display() {
-        displayProxy = WlDisplayProxy.connect("wayland-0");
-        registryProxy = displayProxy.getRegistry(new WlRegistryEvents() {
+        this.displayProxy = WlDisplayProxy.connect("wayland-0");
+        this.registryProxy = this.displayProxy.getRegistry(new WlRegistryEvents() {
             @Override
             public void global(final WlRegistryProxy emitter,
                                final int name,
-                               final String interface_,
+                               @Nonnull final String interface_,
                                final int version) {
                 Display.this.global(emitter,
                                     name,
@@ -35,13 +37,13 @@ public class Display {
                                           name);
             }
         });
-        displayProxy.roundtrip();
+        this.displayProxy.roundtrip();
 
-        if (shmProxy == null) {
+        if (this.shmProxy == null) {
             throw new NullPointerException("wl_shm not found!");
         }
 
-        displayProxy.roundtrip();
+        this.displayProxy.roundtrip();
     }
 
     private void global(final WlRegistryProxy emitter,
@@ -49,30 +51,30 @@ public class Display {
                         final String interface_,
                         final int version) {
         if (WlCompositorProxy.INTERFACE_NAME.equals(interface_)) {
-            compositorProxy = registryProxy.<WlCompositorEvents, WlCompositorProxy>bind(name,
-                                                                                        WlCompositorProxy.class,
-                                                                                        1,
-                                                                                        new WlCompositorEvents() {
-                                                                                        });
+            this.compositorProxy = this.registryProxy.<WlCompositorEvents, WlCompositorProxy>bind(name,
+                                                                                             WlCompositorProxy.class,
+                                                                                             1,
+                                                                                             new WlCompositorEvents() {
+                                                                                             });
         }
         else if (WlShellProxy.INTERFACE_NAME.equals(interface_)) {
-            shellProxy = registryProxy.<WlShellEvents, WlShellProxy>bind(name,
-                                                                         WlShellProxy.class,
-                                                                         1,
-                                                                         new WlShellEvents() {
-                                                                         });
+            this.shellProxy = this.registryProxy.<WlShellEvents, WlShellProxy>bind(name,
+                                                                              WlShellProxy.class,
+                                                                              1,
+                                                                              new WlShellEvents() {
+                                                                              });
         }
         else if (WlShmProxy.INTERFACE_NAME.equals(interface_)) {
-            shmProxy = registryProxy.<WlShmEvents, WlShmProxy>bind(name,
-                                                                   WlShmProxy.class,
-                                                                   1,
-                                                                   new WlShmEvents() {
-                                                                       @Override
-                                                                       public void format(final WlShmProxy emitter,
-                                                                                          final int format) {
-                                                                           shmFormats |= (1 << format);
-                                                                       }
-                                                                   });
+            this.shmProxy = this.registryProxy.<WlShmEvents, WlShmProxy>bind(name,
+                                                                        WlShmProxy.class,
+                                                                        1,
+                                                                        new WlShmEvents() {
+                                                                            @Override
+                                                                            public void format(final WlShmProxy emitter,
+                                                                                               final int format) {
+                                                                                Display.this.shmFormats |= (1 << format);
+                                                                            }
+                                                                        });
         }
     }
 
@@ -82,32 +84,32 @@ public class Display {
     }
 
     public void destroy() {
-        if (shmProxy != null) {
-            shmProxy.destroy();
+        if (this.shmProxy != null) {
+            this.shmProxy.destroy();
         }
-        if (shellProxy != null) {
-            shellProxy.destroy();
+        if (this.shellProxy != null) {
+            this.shellProxy.destroy();
         }
 
-        compositorProxy.destroy();
-        registryProxy.destroy();
-        displayProxy.flush();
-        displayProxy.disconnect();
+        this.compositorProxy.destroy();
+        this.registryProxy.destroy();
+        this.displayProxy.flush();
+        this.displayProxy.disconnect();
     }
 
     public WlDisplayProxy getDisplayProxy() {
-        return displayProxy;
+        return this.displayProxy;
     }
 
     public WlShmProxy getShmProxy() {
-        return shmProxy;
+        return this.shmProxy;
     }
 
     public WlCompositorProxy getCompositorProxy() {
-        return compositorProxy;
+        return this.compositorProxy;
     }
 
     public WlShellProxy getShellProxy() {
-        return shellProxy;
+        return this.shellProxy;
     }
 }

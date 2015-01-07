@@ -7,6 +7,7 @@ public class wl_client extends PointerType {
     public wl_client(final Pointer address) {
         super(address);
     }
+
     public wl_client() {
         super();
     }

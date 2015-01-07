@@ -65,7 +65,7 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
     wl_event_loop wl_display_get_event_loop(wl_display display);
 
     int wl_display_add_socket(wl_display display,
-                              String name);
+                              Pointer name);
 
     String wl_display_add_socket_auto(wl_display display);
 
@@ -229,5 +229,7 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
 
     int wl_shm_buffer_get_format(wl_shm_buffer buffer);
 
-    void wl_resource_post_error(wl_resource pointer, int code, String msg);
+    void wl_resource_post_error(wl_resource pointer,
+                                int code,
+                                String msg);
 }

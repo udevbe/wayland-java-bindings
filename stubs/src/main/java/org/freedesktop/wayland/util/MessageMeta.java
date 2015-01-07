@@ -24,9 +24,7 @@ package org.freedesktop.wayland.util;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
-
 import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.util.jna.wl_interface;
 import org.freedesktop.wayland.util.jna.wl_message;
 
 /**
@@ -54,11 +52,12 @@ public class MessageMeta implements HasNative<wl_message> {
         final Class<?>[] types = message.types();
         PointerByReference typesPointerPointer = null;
         if (types.length > 0) {
-            Pointer typesPointer = new Memory(Pointer.SIZE * types.length);
+            final Pointer typesPointer = new Memory(Pointer.SIZE * types.length);
             for (int i = 0; i < types.length; i++) {
-                typesPointer.setPointer(i * Pointer.SIZE, InterfaceMeta.get(types[i])
-                                                                       .getNative()
-                                                                       .getPointer());
+                typesPointer.setPointer(i * Pointer.SIZE,
+                                        InterfaceMeta.get(types[i])
+                                                     .getNative()
+                                                     .getPointer());
             }
             typesPointerPointer = new PointerByReference(typesPointer);
         }
