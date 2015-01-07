@@ -21,6 +21,7 @@
  */
 package org.freedesktop.wayland.server;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
@@ -50,8 +51,11 @@ public class Display implements HasNative<wl_display> {
     }
 
     public int addSocket(final String name) {
+        final Pointer m = new Memory(name.length() + 1);
+        m.setString(0,
+                    name);
         return WaylandServerLibrary.INSTANCE.wl_display_add_socket(getNative(),
-                                                                   name);
+                                                                   m);
     }
 
     public void terminate() {
