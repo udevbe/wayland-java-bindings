@@ -7,6 +7,7 @@ public class wl_display extends PointerType {
     public wl_display(final Pointer address) {
         super(address);
     }
+
     public wl_display() {
         super();
     }

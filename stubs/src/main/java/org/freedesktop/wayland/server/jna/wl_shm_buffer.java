@@ -7,6 +7,7 @@ public class wl_shm_buffer extends PointerType {
     public wl_shm_buffer(final Pointer address) {
         super(address);
     }
+
     public wl_shm_buffer() {
         super();
     }

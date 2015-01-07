@@ -11,6 +11,7 @@ public interface WaylandEglLibrary extends Library {
     public static final NativeLibrary     JNA_NATIVE_LIB   = NativeLibrary.getInstance(WaylandEglLibrary.JNA_LIBRARY_NAME);
     public static final WaylandEglLibrary INSTANCE         = (WaylandEglLibrary) Native.loadLibrary(WaylandEglLibrary.JNA_LIBRARY_NAME,
                                                                                                     WaylandEglLibrary.class);
+
     wl_egl_window wl_egl_window_create(Pointer surface,
                                        int width,
                                        int height);

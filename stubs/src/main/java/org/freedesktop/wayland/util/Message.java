@@ -30,33 +30,38 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Message {
 
-  /**
-   * wayland message signature
-   * @return
-   */
+    /**
+     * wayland message signature
+     *
+     * @return
+     */
     String signature() default "";
 
-  /**
-   * wayland message name
-   * @return
-   */
+    /**
+     * wayland message name
+     *
+     * @return
+     */
     String name();
 
-  /**
-   * wayland message version
-   * @return
-   */
+    /**
+     * wayland message version
+     *
+     * @return
+     */
     int since() default 1;
 
-  /**
-   * Type to scan for wayland interfaces. Also used to find matching Java function.
-   * @return
-   */
+    /**
+     * Type to scan for wayland interfaces. Also used to find matching Java function.
+     *
+     * @return
+     */
     Class<?>[] types() default {};
 
-  /**
-   * Java function name.
-   * @return
-   */
+    /**
+     * Java function name.
+     *
+     * @return
+     */
     String functionName();
 }

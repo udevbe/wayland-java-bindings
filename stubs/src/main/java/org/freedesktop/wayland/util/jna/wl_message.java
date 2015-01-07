@@ -11,11 +11,11 @@ public class wl_message extends Structure {
     /**
      * C type : const char*
      */
-    public Pointer                                name;
+    public Pointer            name;
     /**
      * C type : const char*
      */
-    public Pointer                                signature;
+    public Pointer            signature;
     /**
      * C type : wl_interface**
      */
