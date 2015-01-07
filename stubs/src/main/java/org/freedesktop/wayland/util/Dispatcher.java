@@ -138,7 +138,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                      final Pointer implWlObject,
                      final int opcode,
                      final wl_message wlMessage,
-                     final wl_argument wlArguments) {
+                     final wl_argument.ByReference wlArguments) {
 
         Method method = null;
         Object[] jargs = null;
@@ -167,7 +167,8 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             jargs[0] = this.waylandObject;
 
             if (nroArgs > 0) {
-                final Arguments arguments = new Arguments((wl_argument[]) wlArguments.toArray(nroArgs));
+                final Arguments arguments = new Arguments(wlArguments,
+                                                          (wl_argument[]) wlArguments.toArray(nroArgs));
                 boolean optional = false;
                 int argIndex = 0;
                 for (final char signatureChar : messageSignature.toCharArray()) {

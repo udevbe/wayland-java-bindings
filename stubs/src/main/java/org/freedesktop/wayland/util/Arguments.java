@@ -33,24 +33,26 @@ import org.freedesktop.wayland.util.jna.wl_object;
 
 import java.nio.ByteBuffer;
 
-public class Arguments implements HasNative<wl_argument[]> {
+public class Arguments implements HasNative<wl_argument> {
 
     private final wl_argument[] args;
+    private final wl_argument pointer;
 
-    Arguments(final wl_argument[] args) {
+    Arguments(wl_argument pointer,
+              wl_argument[] args) {
+        this.pointer = pointer;
         this.args = args;
         //do not cache object, let the java GC finalize the object, which in turn will free the native context.
     }
 
     public static Arguments create(final int size) {
-        final wl_argument[] wl_arguments;
-        if (size > 0) {
-            wl_arguments = (wl_argument[]) new wl_argument().toArray(size);
+        if(size < 1){
+            throw new IllegalArgumentException("Arguments size must be greater than 0");
         }
-        else {
-            wl_arguments = new wl_argument[]{new wl_argument(Pointer.NULL)};
-        }
-        return new Arguments(wl_arguments);
+        final wl_argument pointer = new wl_argument();
+        final wl_argument[] wlArguments = (wl_argument[]) pointer.toArray(size);
+        return new Arguments(pointer,
+                             wlArguments);
     }
 
     public int getI(final int index) {
@@ -97,7 +99,8 @@ public class Arguments implements HasNative<wl_argument[]> {
      */
     public Arguments set(final int index,
                          final int iunh) {
-        this.args[index].i = this.args[index].u = this.args[index].n = this.args[index].h = iunh;
+        this.args[index].h = this.args[index].n = this.args[index].f = this.args[index].u = this.args[index].i = iunh;
+        this.args[index].setType(Integer.class);
         return this;
     }
 
@@ -111,6 +114,7 @@ public class Arguments implements HasNative<wl_argument[]> {
     public Arguments set(final int index,
                          final Resource<?> o) {
         this.args[index].o = o.getNative();
+        this.args[index].setType(wl_object.class);
         return this;
     }
 
@@ -124,6 +128,7 @@ public class Arguments implements HasNative<wl_argument[]> {
     public Arguments set(final int index,
                          final Proxy<?> o) {
         this.args[index].o = o.getNative();
+        this.args[index].setType(wl_object.class);
         return this;
     }
 
@@ -137,6 +142,7 @@ public class Arguments implements HasNative<wl_argument[]> {
     public Arguments set(final int index,
                          final Fixed f) {
         this.args[index].f = f.getRaw();
+        this.args[index].setType(Integer.class);
         return this;
     }
 
@@ -153,6 +159,7 @@ public class Arguments implements HasNative<wl_argument[]> {
         m.setString(0,
                     s);
         this.args[index].s = m;
+        this.args[index].setType(Pointer.class);
         return this;
     }
 
@@ -170,11 +177,12 @@ public class Arguments implements HasNative<wl_argument[]> {
         wlArray.size = array.capacity();
         wlArray.data = Native.getDirectBufferPointer(array);
         this.args[index].a = wlArray;
+        this.args[index].setType(wl_array.ByReference.class);
         return this;
     }
 
     @Override
-    public wl_argument[] getNative() {
-        return this.args;
+    public wl_argument getNative() {
+        return this.pointer;
     }
 }

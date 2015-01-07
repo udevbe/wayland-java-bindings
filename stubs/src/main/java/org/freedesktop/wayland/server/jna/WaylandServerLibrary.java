@@ -138,26 +138,13 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
     void wl_display_remove_global(wl_display display,
                                   wl_global global);
 
-    void wl_resource_post_event(wl_resource resource,
-                                int opcode,
-                                Object... varArgs1);
-
     void wl_resource_post_event_array(wl_resource resource,
                                       int opcode,
                                       wl_argument args);
 
-    void wl_resource_queue_event(wl_resource resource,
-                                 int opcode,
-                                 Object... varArgs1);
-
     void wl_resource_queue_event_array(wl_resource resource,
                                        int opcode,
                                        wl_argument args);
-
-    void wl_resource_post_error(wl_resource resource,
-                                int code,
-                                String msg,
-                                Object... varArgs1);
 
     void wl_resource_post_no_memory(wl_resource resource);
 
@@ -241,4 +228,6 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
     void wl_log_set_handler_server(wl_log_func_t handler);
 
     int wl_shm_buffer_get_format(wl_shm_buffer buffer);
+
+    void wl_resource_post_error(wl_resource pointer, int code, String msg);
 }

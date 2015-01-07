@@ -17,10 +17,6 @@ public interface WaylandClientLibrary extends WaylandUtilLibrary {
 
     void wl_event_queue_destroy(wl_event_queue queue);
 
-    void wl_proxy_marshal(wl_proxy p,
-                          int opcode,
-                          Object... varArgs1);
-
     void wl_proxy_marshal_array(wl_proxy p,
                                 int opcode,
                                 wl_argument args);
