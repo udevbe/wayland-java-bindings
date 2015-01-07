@@ -78,14 +78,14 @@ public abstract class Proxy<I> implements WaylandObject {
         //Special casing implementation. For some proxies the underlying native library provides its own implementation.
         //We pass in a null implementation in those cases. (Eg Display proxy).
         if (implementation != null) {
-            dispatcher = new Dispatcher(this);
+            this.dispatcher = new Dispatcher(this);
             WaylandClientLibrary.INSTANCE.wl_proxy_add_dispatcher(this.pointer,
                                                                   this.dispatcher,
                                                                   Pointer.NULL,
                                                                   Pointer.NULL);
         }
         else {
-            dispatcher = null;
+            this.dispatcher = null;
         }
     }
 
@@ -119,9 +119,9 @@ public abstract class Proxy<I> implements WaylandObject {
      * @see {@link #marshal(int, Arguments)}
      */
     protected void marshal(final int opcode) {
-      WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(this.pointer,
-                                                           opcode,
-                                                           null);
+        WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(this.pointer,
+                                                             opcode,
+                                                             null);
     }
 
     //called from generated proxies
@@ -217,7 +217,7 @@ public abstract class Proxy<I> implements WaylandObject {
         Constructor<? extends Proxy<?>> proxyConstructor = PROXY_CONSTRUCTORS.get(newProxyCls);
         if (proxyConstructor == null) {
             proxyConstructor = findMatchingConstructor(newProxyCls,
-                                                       long.class,
+                                                       wl_proxy.class,
                                                        implementation.getClass(),
                                                        int.class);
             PROXY_CONSTRUCTORS.put(newProxyCls,
@@ -228,16 +228,16 @@ public abstract class Proxy<I> implements WaylandObject {
                                                 version);
     }
 
-    protected <J, T extends Proxy<J>> Constructor<T> findMatchingConstructor(Class<T> newProxyCls,
-                                                                             Class<?> longClass,
-                                                                             Class<?> implementationClass,
-                                                                             Class<?> intClass) throws NoSuchMethodException {
-        for (Constructor<?> constructor : newProxyCls.getConstructors()) {
+    protected <J, T extends Proxy<J>> Constructor<T> findMatchingConstructor(final Class<T> newProxyCls,
+                                                                             final Class<?> pointerClass,
+                                                                             final Class<?> implementationClass,
+                                                                             final Class<?> intClass) throws NoSuchMethodException {
+        for (final Constructor<?> constructor : newProxyCls.getConstructors()) {
             final Class<?>[] parameterTypes = constructor.getParameterTypes();
             if (parameterTypes.length != 3) {
                 continue;
             }
-            if (parameterTypes[0].isAssignableFrom(longClass) &&
+            if (parameterTypes[0].isAssignableFrom(pointerClass) &&
                     parameterTypes[1].isAssignableFrom(implementationClass) &&
                     parameterTypes[2].isAssignableFrom(intClass)) {
                 return (Constructor<T>) constructor;
