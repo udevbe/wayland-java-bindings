@@ -23,6 +23,8 @@ package org.freedesktop.wayland.util;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.PointerByReference;
+
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.util.jna.wl_interface;
 import org.freedesktop.wayland.util.jna.wl_message;
@@ -50,36 +52,30 @@ public class MessageMeta implements HasNative<wl_message> {
                             final Message message) {
         //init args interfaces
         final Class<?>[] types = message.types();
-
-        final wl_interface.ByReference[] typeInterfacePointers;
+        PointerByReference typesPointerPointer = null;
         if (types.length > 0) {
-            typeInterfacePointers = (wl_interface.ByReference[]) new wl_interface.ByReference().toArray(types.length);
-            for (int i = 0; i < typeInterfacePointers.length; i++) {
-                typeInterfacePointers[i] = new wl_interface.ByReference(InterfaceMeta.get(types[i])
-                                                                                     .getNative()
-                                                                                     .getPointer());
+            Pointer typesPointer = new Memory(Pointer.SIZE * types.length);
+            for (int i = 0; i < types.length; i++) {
+                typesPointer.setPointer(i * Pointer.SIZE, InterfaceMeta.get(types[i])
+                                                                       .getNative()
+                                                                       .getPointer());
             }
+            typesPointerPointer = new PointerByReference(typesPointer);
         }
-        else {
-            typeInterfacePointers = new wl_interface.ByReference[]{new wl_interface.ByReference(Pointer.NULL)};
-        }
-
         //set name
         final Pointer m = new Memory(message.name()
                                             .length() + 1);
         m.setString(0,
                     message.name());
         messagePointer.name = m;
-
         //set signature
         final Pointer s = new Memory(message.signature()
                                             .length() + 1);
         s.setString(0,
                     message.signature());
         messagePointer.signature = s;
-
         //set types
-        messagePointer.types = typeInterfacePointers[0];
+        messagePointer.types = typesPointerPointer;
 
         new MessageMeta(messagePointer,
                         message);
