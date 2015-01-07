@@ -138,7 +138,7 @@ public abstract class Resource<I> implements WaylandObject {
     }
 
     public wl_object getNative() {
-        return this.pointer.object;
+        return new wl_object(this.pointer.getPointer());
     }
 
     @Override
