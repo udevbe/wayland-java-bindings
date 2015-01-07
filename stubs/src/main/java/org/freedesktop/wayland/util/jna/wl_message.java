@@ -2,6 +2,7 @@ package org.freedesktop.wayland.util.jna;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.ptr.PointerByReference;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +19,7 @@ public class wl_message extends Structure {
     /**
      * C type : wl_interface**
      */
-    public  wl_interface.ByReference types;
+    public PointerByReference types;
 
     public wl_message() {
         super();
@@ -37,7 +38,7 @@ public class wl_message extends Structure {
      */
     public wl_message(final Pointer name,
                       final Pointer signature,
-                      final wl_interface.ByReference types) {
+                      final PointerByReference types) {
         super();
         this.name = name;
         this.signature = signature;
@@ -60,7 +61,7 @@ public class wl_message extends Structure {
 
         public ByReference(final Pointer name,
                            final Pointer signature,
-                           final wl_interface.ByReference types) {
+                           final PointerByReference types) {
             super(name,
                   signature,
                   types);
@@ -77,7 +78,7 @@ public class wl_message extends Structure {
 
         public ByValue(final Pointer name,
                        final Pointer signature,
-                       final wl_interface.ByReference types) {
+                       final PointerByReference types) {
             super(name,
                   signature,
                   types);

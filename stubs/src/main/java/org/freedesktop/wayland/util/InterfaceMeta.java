@@ -82,28 +82,28 @@ public class InterfaceMeta implements HasNative<wl_interface> {
                                           final int version,
                                           final Message[] methods,
                                           final Message[] events) {
-        final wl_message[] methodPointer;
+        final wl_message.ByReference[] methodPointer;
         if (methods.length > 0) {
-            methodPointer = (wl_message[]) new wl_message().toArray(methods.length);
+            methodPointer = (wl_message.ByReference[]) new wl_message.ByReference().toArray(methods.length);
             for (int i = 0; i < methods.length; i++) {
                 MessageMeta.init(methodPointer[i],
                                  methods[i]);
             }
         }
         else {
-            methodPointer = new wl_message[]{new wl_message(Pointer.NULL)};
+            methodPointer = new wl_message.ByReference[]{new wl_message.ByReference(Pointer.NULL)};
         }
 
-        final wl_message[] eventPointer;
+        final wl_message.ByReference[] eventPointer;
         if (events.length > 0) {
-            eventPointer = (wl_message[]) new wl_message().toArray(events.length);
+            eventPointer = (wl_message.ByReference[]) new wl_message.ByReference().toArray(events.length);
             for (int i = 0; i < events.length; i++) {
                 MessageMeta.init(eventPointer[i],
                                  events[i]);
             }
         }
         else {
-            eventPointer = new wl_message[]{new wl_message(Pointer.NULL)};
+            eventPointer = new wl_message.ByReference[]{new wl_message.ByReference(Pointer.NULL)};
         }
 
         final wl_interface interfacePointer = new wl_interface();
@@ -115,10 +115,10 @@ public class InterfaceMeta implements HasNative<wl_interface> {
         //set version
         interfacePointer.version = version;
         //set methods
-        interfacePointer.methods = new wl_message.ByReference(methodPointer[0].getPointer());
+        interfacePointer.methods = methodPointer[0].getPointer();
         interfacePointer.method_count = methods.length;
         //set events
-        interfacePointer.events = new wl_message.ByReference(eventPointer[0].getPointer());
+        interfacePointer.events = eventPointer[0].getPointer();
         interfacePointer.event_count = events.length;
 
         return new InterfaceMeta(interfacePointer);
