@@ -3,17 +3,17 @@ package examples;
 
 import org.freedesktop.wayland.client.*;
 
-import javax.annotation.Nonnull;
-
 public class Display {
 
     private final WlDisplayProxy  displayProxy;
     private final WlRegistryProxy registryProxy;
+
     private int shmFormats = 0;
 
     private WlCompositorProxy compositorProxy;
-    private WlShellProxy      shellProxy;
     private WlShmProxy        shmProxy;
+    private WlSeatProxy       seatProxy;
+    private WlShellProxy      shellProxy;
 
 
     public Display() {
@@ -26,7 +26,7 @@ public class Display {
                                final int version) {
                 Display.this.global(emitter,
                                     name,
-                                    interface_,
+                                    interfaceName,
                                     version);
             }
 
@@ -48,33 +48,51 @@ public class Display {
 
     private void global(final WlRegistryProxy emitter,
                         final int name,
-                        final String interface_,
+                        final String interfaceName,
                         final int version) {
-        if (WlCompositorProxy.INTERFACE_NAME.equals(interface_)) {
+        if (WlCompositorProxy.INTERFACE_NAME.equals(interfaceName)) {
             this.compositorProxy = this.registryProxy.<WlCompositorEvents, WlCompositorProxy>bind(name,
-                                                                                             WlCompositorProxy.class,
-                                                                                             1,
-                                                                                             new WlCompositorEvents() {
-                                                                                             });
+                                                                                                  WlCompositorProxy.class,
+                                                                                                  WlCompositorEventsV3.VERSION,
+                                                                                                  new WlCompositorEventsV3() {
+                                                                                                  });
         }
-        else if (WlShellProxy.INTERFACE_NAME.equals(interface_)) {
-            this.shellProxy = this.registryProxy.<WlShellEvents, WlShellProxy>bind(name,
-                                                                              WlShellProxy.class,
-                                                                              1,
-                                                                              new WlShellEvents() {
-                                                                              });
-        }
-        else if (WlShmProxy.INTERFACE_NAME.equals(interface_)) {
+        else if (WlShmProxy.INTERFACE_NAME.equals(interfaceName)) {
             this.shmProxy = this.registryProxy.<WlShmEvents, WlShmProxy>bind(name,
-                                                                        WlShmProxy.class,
-                                                                        1,
-                                                                        new WlShmEvents() {
-                                                                            @Override
-                                                                            public void format(final WlShmProxy emitter,
-                                                                                               final int format) {
-                                                                                Display.this.shmFormats |= (1 << format);
-                                                                            }
-                                                                        });
+                                                                             WlShmProxy.class,
+                                                                             WlShmEvents.VERSION,
+                                                                             new WlShmEvents() {
+                                                                                 @Override
+                                                                                 public void format(final WlShmProxy emitter,
+                                                                                                    final int format) {
+                                                                                     Display.this.shmFormats |= (1 << format);
+                                                                                 }
+                                                                             });
+        }
+        else if (WlShellProxy.INTERFACE_NAME.equals(interfaceName)) {
+            this.shellProxy = this.registryProxy.<WlShellEvents, WlShellProxy>bind(name,
+                                                                                   WlShellProxy.class,
+                                                                                   WlShellEvents.VERSION,
+                                                                                   new WlShellEvents() {
+                                                                                   });
+        }
+        else if (WlSeatProxy.INTERFACE_NAME.equals(interfaceName)) {
+            this.seatProxy = this.registryProxy.<WlSeatEvents, WlSeatProxy>bind(name,
+                                                                                WlSeatProxy.class,
+                                                                                WlSeatEventsV4.VERSION,
+                                                                                new WlSeatEventsV4() {
+                                                                                    @Override
+                                                                                    public void capabilities(final WlSeatProxy emitter,
+                                                                                                             final int capabilities) {
+
+                                                                                    }
+
+                                                                                    @Override
+                                                                                    public void name(final WlSeatProxy emitter,
+                                                                                                     final String name) {
+                                                                                        System.out.println("Got seat with name " + name);
+                                                                                    }
+                                                                                });
         }
     }
 
@@ -107,6 +125,10 @@ public class Display {
 
     public WlCompositorProxy getCompositorProxy() {
         return this.compositorProxy;
+    }
+
+    public WlSeatProxy getSeatProxy() {
+        return this.seatProxy;
     }
 
     public WlShellProxy getShellProxy() {
