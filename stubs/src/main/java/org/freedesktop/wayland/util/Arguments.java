@@ -42,7 +42,6 @@ public class Arguments implements HasNative<wl_argument> {
               wl_argument[] args) {
         this.pointer = pointer;
         this.args = args;
-        //do not cache object, let the java GC finalize the object, which in turn will free the native context.
     }
 
     public static Arguments create(final int size) {
@@ -56,35 +55,35 @@ public class Arguments implements HasNative<wl_argument> {
     }
 
     public int getI(final int index) {
-        return this.args[index].i;
+        return (Integer)this.args[index].readField("i");
     }
 
     public int getU(final int index) {
-        return this.args[index].u;
+        return (Integer)this.args[index].readField("u");
     }
 
     public Fixed getFixed(final int index) {
-        return new Fixed(this.args[index].f);
+        return new Fixed((Integer)this.args[index].readField("f"));
     }
 
     public String getS(final int index) {
-        return this.args[index].s.getString(0);
+        return ((Pointer)this.args[index].readField("s")).getString(0);
     }
 
     public wl_object getO(final int index) {
-        return this.args[index].o;
+        return (wl_object)this.args[index].readField("o");
     }
 
     public int getN(final int index) {
-        return this.args[index].n;
+        return (Integer)this.args[index].readField("n");
     }
 
     public wl_array getA(final int index) {
-        return this.args[index].a;
+        return (wl_array)this.args[index].readField("a");
     }
 
     public int getH(final int index) {
-        return this.args[index].h;
+        return (Integer)this.args[index].readField("h");
     }
 
     /**
@@ -99,8 +98,8 @@ public class Arguments implements HasNative<wl_argument> {
      */
     public Arguments set(final int index,
                          final int iunh) {
-        this.args[index].h = this.args[index].n = this.args[index].f = this.args[index].u = this.args[index].i = iunh;
-        this.args[index].setType(int.class);
+        this.args[index].writeField("i",
+                                    iunh);
         return this;
     }
 
@@ -113,8 +112,8 @@ public class Arguments implements HasNative<wl_argument> {
      */
     public Arguments set(final int index,
                          final Resource<?> o) {
-        this.args[index].o = o.getNative();
-        this.args[index].setType(wl_object.class);
+        this.args[index].writeField("o",
+                                    o.getNative());
         return this;
     }
 
@@ -127,8 +126,8 @@ public class Arguments implements HasNative<wl_argument> {
      */
     public Arguments set(final int index,
                          final Proxy<?> o) {
-        this.args[index].o = o.getNative();
-        this.args[index].setType(wl_object.class);
+        this.args[index].writeField("o",
+                                    o.getNative());
         return this;
     }
 
@@ -141,8 +140,8 @@ public class Arguments implements HasNative<wl_argument> {
      */
     public Arguments set(final int index,
                          final Fixed f) {
-        this.args[index].f = f.getRaw();
-        this.args[index].setType(Integer.class);
+        this.args[index].writeField("f",
+                                    f.getRaw());
         return this;
     }
 
@@ -158,8 +157,8 @@ public class Arguments implements HasNative<wl_argument> {
         final Pointer m = new Memory(s.length() + 1);
         m.setString(0,
                     s);
-        this.args[index].s = m;
-        this.args[index].setType(Pointer.class);
+        this.args[index].writeField("s",
+                                    m);
         return this;
     }
 
@@ -176,8 +175,8 @@ public class Arguments implements HasNative<wl_argument> {
         wlArray.alloc = array.capacity();
         wlArray.size = array.capacity();
         wlArray.data = Native.getDirectBufferPointer(array);
-        this.args[index].a = wlArray;
-        this.args[index].setType(wl_array.ByReference.class);
+        this.args[index].writeField("a",
+                                   wlArray);
         return this;
     }
 
