@@ -176,7 +176,6 @@ public abstract class Proxy<I> implements WaylandObject {
                                                            final Class<T> newProxyCls,
                                                            final wl_argument argsPointer) {
         try {
-            argsPointer.write();
             final wl_proxy
                     wlProxy =
                     WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array_constructor(this.pointer,

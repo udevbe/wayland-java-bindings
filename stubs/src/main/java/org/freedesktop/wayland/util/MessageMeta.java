@@ -66,15 +66,15 @@ public class MessageMeta implements HasNative<wl_message> {
                                             .length() + 1);
         m.setString(0,
                     message.name());
-        messagePointer.name = m;
+        messagePointer.writeField("name",m);
         //set signature
         final Pointer s = new Memory(message.signature()
                                             .length() + 1);
         s.setString(0,
                     message.signature());
-        messagePointer.signature = s;
+        messagePointer.writeField("signature",s);
         //set types
-        messagePointer.types = typesPointerPointer;
+        messagePointer.writeField("types",typesPointerPointer);
 
         new MessageMeta(messagePointer,
                         message);
