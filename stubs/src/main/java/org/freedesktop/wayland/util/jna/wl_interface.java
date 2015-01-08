@@ -16,12 +16,12 @@ public class wl_interface extends Structure {
     /**
      * C type : wl_message*
      */
-    public Pointer methods;
+    public wl_message.ByReference methods;
     public int     event_count;
     /**
      * C type : wl_message*
      */
-    public Pointer events;
+    public wl_message.ByReference events;
 
     public wl_interface() {
         super();
@@ -44,9 +44,9 @@ public class wl_interface extends Structure {
     public wl_interface(final Pointer name,
                         final int version,
                         final int method_count,
-                        final Pointer methods,
+                        final wl_message.ByReference methods,
                         final int event_count,
-                        final Pointer events) {
+                        final wl_message.ByReference events) {
         super();
         this.name = name;
         this.version = version;
@@ -73,9 +73,9 @@ public class wl_interface extends Structure {
         public ByReference(final Pointer name,
                            final int version,
                            final int method_count,
-                           final Pointer methods,
+                           final wl_message.ByReference methods,
                            final int event_count,
-                           final Pointer events) {
+                           final wl_message.ByReference events) {
             super(name,
                   version,
                   method_count,
@@ -96,9 +96,9 @@ public class wl_interface extends Structure {
         public ByValue(final Pointer name,
                        final int version,
                        final int method_count,
-                       final Pointer methods,
+                       final wl_message.ByReference methods,
                        final int event_count,
-                       final Pointer events) {
+                       final wl_message.ByReference events) {
             super(name,
                   version,
                   method_count,
