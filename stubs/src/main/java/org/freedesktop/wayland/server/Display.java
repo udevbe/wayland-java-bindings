@@ -25,17 +25,15 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.server.jna.wl_display;
-import org.freedesktop.wayland.server.jna.wl_event_loop;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class Display implements HasNative<wl_display> {
+public class Display implements HasNative<Long> {
 
-    private final wl_display pointer;
+    private final long pointer;
 
-    public Display(final wl_display pointer) {
+    public Display(final long pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getNative().getPointer(),
+        ObjectCache.store(getNative(),
                           this);
     }
 
@@ -91,14 +89,13 @@ public class Display implements HasNative<wl_display> {
     }
 
     public EventLoop getEventLoop() {
-        final wl_event_loop wlEventLoop = WaylandServerLibrary.INSTANCE.wl_display_get_event_loop(getNative());
-        final Pointer eventLoopPointer = wlEventLoop.getPointer();
-        final EventLoop eventLoop = ObjectCache.from(eventLoopPointer);
+        final long wlEventLoop = WaylandServerLibrary.INSTANCE.wl_display_get_event_loop(getNative());
+        final EventLoop eventLoop = ObjectCache.from(wlEventLoop);
         return eventLoop == null ? new EventLoop(wlEventLoop) : eventLoop;
     }
 
     public void destroy() {
-        ObjectCache.remove(getNative().getPointer());
+        ObjectCache.remove(getNative());
         WaylandServerLibrary.INSTANCE.wl_display_destroy(getNative());
 
     }
@@ -135,7 +132,7 @@ public class Display implements HasNative<wl_display> {
                                             .getValue();
     }
 
-    public wl_display getNative() {
+    public Long getNative() {
         return this.pointer;
     }
 

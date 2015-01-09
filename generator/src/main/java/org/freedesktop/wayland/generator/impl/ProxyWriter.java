@@ -24,8 +24,6 @@ package org.freedesktop.wayland.generator.impl;
 import com.squareup.javawriter.JavaWriter;
 import org.freedesktop.wayland.client.Display;
 import org.freedesktop.wayland.client.Proxy;
-import org.freedesktop.wayland.client.jna.wl_display;
-import org.freedesktop.wayland.client.jna.wl_proxy;
 import org.freedesktop.wayland.util.Arguments;
 import org.freedesktop.wayland.util.Interface;
 import org.freedesktop.wayland.util.Message;
@@ -142,7 +140,7 @@ public class ProxyWriter {
         if (interfaceName.equals("wl_display")) {
             javaWriter.emitEmptyLine()
                       .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                        wl_display.class.getName(),
+                                        long.class.getName(),
                                         "pointer")
                       .emitStatement("super(pointer)")
                       .endConstructor();
@@ -150,7 +148,7 @@ public class ProxyWriter {
         else {
             javaWriter.emitEmptyLine()
                       .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                        wl_proxy.class.getName(),
+                                        long.class.getName(),
                                         "pointer",
                                         getJavaTypeNameEvents(clientPackage,
                                                               interfaceNode,

@@ -50,11 +50,11 @@ public abstract class Listener implements HasNative<wl_listener> {
         this.pointer.notify$ = new wl_notify_func_t() {
             @Override
             public void apply(final wl_listener listener,
-                              final Pointer data) {
+                              final long data) {
                 handle();
             }
         };
-        ObjectCache.store(getNative().getPointer(),
+        ObjectCache.store(Pointer.nativeValue(getNative().getPointer()),
                           this);
     }
 
@@ -63,7 +63,7 @@ public abstract class Listener implements HasNative<wl_listener> {
     }
 
     public void destroy() {
-        ObjectCache.remove(getNative().getPointer());
+        ObjectCache.remove(Pointer.nativeValue(getNative().getPointer()));
     }
 
     //called from jni

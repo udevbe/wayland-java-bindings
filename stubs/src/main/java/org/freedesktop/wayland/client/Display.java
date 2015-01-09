@@ -22,8 +22,6 @@
 package org.freedesktop.wayland.client;
 
 import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
-import org.freedesktop.wayland.client.jna.wl_display;
-import org.freedesktop.wayland.client.jna.wl_proxy;
 
 /**
  * Represents a connection to the compositor and acts as a proxy to
@@ -85,13 +83,10 @@ import org.freedesktop.wayland.client.jna.wl_proxy;
  */
 public abstract class Display extends Proxy<Void> {
 
-    private final wl_display wlDisplay;
-
-    protected Display(final wl_display wlDisplay) {
-        super(new wl_proxy(wlDisplay.getPointer()),
+    protected Display(final long wlDisplay) {
+        super(wlDisplay,
               null,
               1);
-        this.wlDisplay = wlDisplay;
     }
 
     /**
@@ -101,7 +96,7 @@ public abstract class Display extends Proxy<Void> {
      * with it.
      */
     public void disconnect() {
-        WaylandClientLibrary.INSTANCE.wl_display_disconnect(this.wlDisplay);
+        WaylandClientLibrary.INSTANCE.wl_display_disconnect(getNative());
     }
 
     /**
@@ -113,7 +108,7 @@ public abstract class Display extends Proxy<Void> {
      * @return Display object file descriptor
      */
     public int getFD() {
-        return WaylandClientLibrary.INSTANCE.wl_display_get_fd(this.wlDisplay);
+        return WaylandClientLibrary.INSTANCE.wl_display_get_fd(getNative());
     }
 
     /**
@@ -137,7 +132,7 @@ public abstract class Display extends Proxy<Void> {
      * @see #dispatchQueue(EventQueue)
      */
     public int dispatch() {
-        return WaylandClientLibrary.INSTANCE.wl_display_dispatch(this.wlDisplay);
+        return WaylandClientLibrary.INSTANCE.wl_display_dispatch(getNative());
     }
 
     /**
@@ -177,7 +172,7 @@ public abstract class Display extends Proxy<Void> {
      * @see #flush()
      */
     public int dispatchPending() {
-        return WaylandClientLibrary.INSTANCE.wl_display_dispatch_pending(this.wlDisplay);
+        return WaylandClientLibrary.INSTANCE.wl_display_dispatch_pending(getNative());
     }
 
     /**
@@ -195,7 +190,7 @@ public abstract class Display extends Proxy<Void> {
      * @return The number of dispatched events on success or -1 on failure
      */
     public int dispatchQueue(final EventQueue queue) {
-        return WaylandClientLibrary.INSTANCE.wl_display_dispatch_queue(this.wlDisplay,
+        return WaylandClientLibrary.INSTANCE.wl_display_dispatch_queue(getNative(),
                                                                        queue.getNative());
     }
 
@@ -211,7 +206,7 @@ public abstract class Display extends Proxy<Void> {
      * @since 1.0.2
      */
     public int dispatchQueuePending(final EventQueue queue) {
-        return WaylandClientLibrary.INSTANCE.wl_display_dispatch_queue_pending(this.wlDisplay,
+        return WaylandClientLibrary.INSTANCE.wl_display_dispatch_queue_pending(getNative(),
                                                                                queue.getNative());
     }
 
@@ -231,7 +226,7 @@ public abstract class Display extends Proxy<Void> {
      * @return The number of bytes sent on success or -1 on failure
      */
     public int flush() {
-        return WaylandClientLibrary.INSTANCE.wl_display_flush(this.wlDisplay);
+        return WaylandClientLibrary.INSTANCE.wl_display_flush(getNative());
     }
 
     /**
@@ -243,7 +238,7 @@ public abstract class Display extends Proxy<Void> {
      * @return The number of dispatched events on success or -1 on failure
      */
     public int roundtrip() {
-        return WaylandClientLibrary.INSTANCE.wl_display_roundtrip(this.wlDisplay);
+        return WaylandClientLibrary.INSTANCE.wl_display_roundtrip(getNative());
     }
 
     /**
@@ -254,7 +249,7 @@ public abstract class Display extends Proxy<Void> {
      * failure.
      */
     public EventQueue createQueue() {
-        return new EventQueue(WaylandClientLibrary.INSTANCE.wl_display_create_queue(this.wlDisplay));
+        return new EventQueue(WaylandClientLibrary.INSTANCE.wl_display_create_queue(getNative()));
     }
 
     /**
@@ -269,11 +264,11 @@ public abstract class Display extends Proxy<Void> {
      * @return The last error that occurred on display or 0 if no error occurred
      */
     public int getError() {
-        return WaylandClientLibrary.INSTANCE.wl_display_get_error(this.wlDisplay);
+        return WaylandClientLibrary.INSTANCE.wl_display_get_error(getNative());
     }
 
     public int prepareReadQueue(final EventQueue queue) {
-        return WaylandClientLibrary.INSTANCE.wl_display_prepare_read_queue(this.wlDisplay,
+        return WaylandClientLibrary.INSTANCE.wl_display_prepare_read_queue(getNative(),
                                                                            queue.getNative());
     }
 
@@ -345,7 +340,7 @@ public abstract class Display extends Proxy<Void> {
      * @return 0 on success or -1 if event queue was not empty
      */
     public int prepareRead() {
-        return WaylandClientLibrary.INSTANCE.wl_display_prepare_read(this.wlDisplay);
+        return WaylandClientLibrary.INSTANCE.wl_display_prepare_read(getNative());
     }
 
     /**
@@ -356,7 +351,7 @@ public abstract class Display extends Proxy<Void> {
      * to read from the fd anytime soon.
      */
     public void cancelRead() {
-        WaylandClientLibrary.INSTANCE.wl_display_cancel_read(this.wlDisplay);
+        WaylandClientLibrary.INSTANCE.wl_display_cancel_read(getNative());
     }
 
     /**
@@ -377,7 +372,7 @@ public abstract class Display extends Proxy<Void> {
      * be set accordingly
      */
     public int readEvents() {
-        return WaylandClientLibrary.INSTANCE.wl_display_read_events(this.wlDisplay);
+        return WaylandClientLibrary.INSTANCE.wl_display_read_events(getNative());
     }
 }
 

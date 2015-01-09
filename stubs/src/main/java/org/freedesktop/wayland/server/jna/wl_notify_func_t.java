@@ -5,5 +5,5 @@ import com.sun.jna.Pointer;
 
 public interface wl_notify_func_t extends Callback {
     void apply(wl_listener listener,
-               Pointer data);
+               long data);
 }

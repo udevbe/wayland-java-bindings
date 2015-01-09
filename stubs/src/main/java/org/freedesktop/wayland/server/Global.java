@@ -21,31 +21,28 @@
  */
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.server.jna.wl_client;
-import org.freedesktop.wayland.server.jna.wl_global;
 import org.freedesktop.wayland.server.jna.wl_global_bind_func_t;
 import org.freedesktop.wayland.util.InterfaceMeta;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public abstract class Global<R extends Resource<?>> implements HasNative<wl_global> {
+public abstract class Global<R extends Resource<?>> implements HasNative<Long> {
     private final wl_global_bind_func_t nativeCallback = new wl_global_bind_func_t() {
 
         @Override
-        public void apply(final wl_client wlClient,
-                          final Pointer data,
+        public void apply(final long wlClient,
+                          final long data,
                           final int version,
                           final int id) {
-            final Client client = ObjectCache.from(wlClient.getPointer());
+            final Client client = ObjectCache.from(wlClient);
             onBindClient(client == null ? new Client(wlClient) : client,
                          version,
                          id);
         }
     };
 
-    private final wl_global pointer;
+    private final long pointer;
 
     protected Global(final Display display,
                      final Class<R> resourceClass,
@@ -56,15 +53,15 @@ public abstract class Global<R extends Resource<?>> implements HasNative<wl_glob
 
         this.pointer = WaylandServerLibrary.INSTANCE.wl_global_create(display.getNative(),
                                                                       InterfaceMeta.get(resourceClass)
-                                                                                   .getNative(),
+                                                                          .getNative(),
                                                                       version,
-                                                                      Pointer.NULL,
+                                                                      0,
                                                                       this.nativeCallback);
-        ObjectCache.store(getNative().getPointer(),
-                          this);
+      ObjectCache.store(getNative(),
+                        this);
     }
 
-    public wl_global getNative() {
+    public Long getNative() {
         return this.pointer;
     }
 
@@ -77,8 +74,8 @@ public abstract class Global<R extends Resource<?>> implements HasNative<wl_glob
     }
 
     public void destroy() {
-        ObjectCache.remove(getNative().getPointer());
-        WaylandServerLibrary.INSTANCE.wl_global_destroy(getNative());
+        ObjectCache.remove(getNative());
+      WaylandServerLibrary.INSTANCE.wl_global_destroy(getNative());
     }
 
     public abstract R onBindClient(Client client,
