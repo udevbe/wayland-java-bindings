@@ -23,7 +23,6 @@ package org.freedesktop.wayland.client;
 
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
-import org.freedesktop.wayland.client.jna.wl_event_queue;
 import org.freedesktop.wayland.util.ObjectCache;
 
 /**
@@ -34,16 +33,16 @@ import org.freedesktop.wayland.util.ObjectCache;
  *
  * @see Display
  */
-public class EventQueue implements HasNative<wl_event_queue> {
-    private final wl_event_queue pointer;
+public class EventQueue implements HasNative<Long> {
+    private final long pointer;
 
-    protected EventQueue(final wl_event_queue pointer) {
+    protected EventQueue(final long pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getNative().getPointer(),
+        ObjectCache.store(getNative(),
                           this);
     }
 
-    public wl_event_queue getNative() {
+    public Long getNative() {
         return this.pointer;
     }
 
@@ -59,7 +58,7 @@ public class EventQueue implements HasNative<wl_event_queue> {
      */
     public void destroy() {
         WaylandClientLibrary.INSTANCE.wl_event_queue_destroy(getNative());
-        ObjectCache.remove(getNative().getPointer());
+        ObjectCache.remove(getNative());
     }
 
     @Override

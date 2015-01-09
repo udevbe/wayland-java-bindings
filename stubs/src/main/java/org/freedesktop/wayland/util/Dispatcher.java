@@ -21,11 +21,10 @@
  */
 package org.freedesktop.wayland.util;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import org.freedesktop.wayland.util.jna.wl_argument;
 import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jna.wl_message;
-import org.freedesktop.wayland.util.jna.wl_object;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -92,13 +91,13 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                 return arguments.getH(index);
             }
             case 'o': {
-                final wl_object objectPointer = arguments.getO(index);
+                final long objectPointer = arguments.getO(index);
                 final Object waylandObject;
-                if (objectPointer == null) {
+                if (objectPointer == 0) {
                     waylandObject = null;
                 }
                 else {
-                    final Object cachedObject = ObjectCache.from(objectPointer.getPointer());
+                    final Object cachedObject = ObjectCache.from(objectPointer);
                     if (cachedObject == null) {
                         waylandObject = reconstruct(objectPointer,
                                                     targetType);
@@ -121,11 +120,11 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         }
     }
 
-    private static Object reconstruct(final wl_object objectPointer,
+    private static Object reconstruct(final long objectPointer,
                                       final Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<?> constructor = CONSTRUCTOR_CACHE.get(targetType);
         if (constructor == null) {
-            constructor = targetType.getDeclaredConstructor(wl_object.class);
+            constructor = targetType.getDeclaredConstructor(long.class);
             constructor.setAccessible(true);
             CONSTRUCTOR_CACHE.put(targetType,
                                   constructor);
@@ -134,17 +133,17 @@ public final class Dispatcher implements wl_dispatcher_func_t {
     }
 
     @Override
-    public int apply(final Pointer implPointer,
-                     final Pointer implWlObject,
+    public int apply(final long implPointer,
+                     final long implWlObject,
                      final int opcode,
                      final wl_message wlMessage,
-                     final wl_argument wlArguments) {
+                     final long wlArguments) {
 
         Method method = null;
         Object[] jargs = null;
         Message message = null;
         try {
-            message = ObjectCache.<MessageMeta>from(wlMessage.getPointer())
+            message = ObjectCache.<MessageMeta>from(Pointer.nativeValue(wlMessage.getPointer()))
                                  .getMessage();
             method = get(this.waylandObject.getClass(),
                          this.waylandObject.getImplementation()
@@ -167,8 +166,10 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             jargs[0] = this.waylandObject;
 
             if (nroArgs > 0) {
-              final Arguments arguments = Arguments.create(wlArguments,
-                                                           nroArgs);
+
+              final long[] args = new Pointer(wlArguments).getLongArray(0,nroArgs);
+
+              final Arguments arguments = new Arguments(args);
               boolean optional = false;
                 int argIndex = 0;
                 for (final char signatureChar : messageSignature.toCharArray()) {

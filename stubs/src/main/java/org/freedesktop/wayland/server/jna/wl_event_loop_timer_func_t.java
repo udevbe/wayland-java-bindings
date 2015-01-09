@@ -4,5 +4,5 @@ import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 
 public interface wl_event_loop_timer_func_t extends Callback {
-    int apply(Pointer data);
+    int apply(long data);
 }

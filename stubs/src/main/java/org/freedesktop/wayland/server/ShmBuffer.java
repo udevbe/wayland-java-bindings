@@ -23,17 +23,15 @@ package org.freedesktop.wayland.server;
 
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.server.jna.wl_resource;
-import org.freedesktop.wayland.server.jna.wl_shm_buffer;
 import org.freedesktop.wayland.util.ObjectCache;
 
 import java.nio.ByteBuffer;
 
-public class ShmBuffer implements HasNative<wl_shm_buffer> {
+public class ShmBuffer implements HasNative<Long> {
 
-    private final wl_shm_buffer pointer;
+    private final long pointer;
 
-    protected ShmBuffer(final wl_shm_buffer pointer) {
+    protected ShmBuffer(final long pointer) {
         this.pointer = pointer;
     }
 
@@ -66,13 +64,12 @@ public class ShmBuffer implements HasNative<wl_shm_buffer> {
     }
 
     public static ShmBuffer get(final Resource<?> resource) {
-        final wl_shm_buffer
+        final long
                 wlShmBuffer =
-                WaylandServerLibrary.INSTANCE.wl_shm_buffer_get(new wl_resource(resource.getNative()
-                                                                                        .getPointer()));
+                WaylandServerLibrary.INSTANCE.wl_shm_buffer_get(resource.getNative());
 
         final ShmBuffer buffer;
-        if (wlShmBuffer == null) {
+        if (wlShmBuffer == 0) {
             buffer = null;
         }
         else {
@@ -83,11 +80,11 @@ public class ShmBuffer implements HasNative<wl_shm_buffer> {
 
     public void destroy() {
         //don't free the underlying native context, that's taking care of for us in the native layer.
-        ObjectCache.remove(getNative().getPointer());
+        ObjectCache.remove(getNative());
     }
 
     @Override
-    public wl_shm_buffer getNative() {
+    public Long getNative() {
         return this.pointer;
     }
 
