@@ -35,8 +35,8 @@ import java.nio.ByteBuffer;
 
 public class Arguments implements HasNative<wl_argument> {
 
+    private final wl_argument pointer;
     private final wl_argument[] args;
-    private final wl_argument   pointer;
 
     Arguments(wl_argument pointer,
               wl_argument[] args) {
@@ -44,14 +44,18 @@ public class Arguments implements HasNative<wl_argument> {
         this.args = args;
     }
 
+    public static Arguments create(wl_argument pointer,
+                                   int size){
+        return new Arguments(pointer,
+                             (wl_argument[]) pointer.toArray(size));
+    }
+
     public static Arguments create(final int size) {
         if (size < 1) {
             throw new IllegalArgumentException("Arguments size must be greater than 0");
         }
-        final wl_argument pointer = new wl_argument();
-        final wl_argument[] wlArguments = (wl_argument[]) pointer.toArray(size);
-        return new Arguments(pointer,
-                             wlArguments);
+        return create(new wl_argument(),
+                      size);
     }
 
     public int getI(final int index) {
