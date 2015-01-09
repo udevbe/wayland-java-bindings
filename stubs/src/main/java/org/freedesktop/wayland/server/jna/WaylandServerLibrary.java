@@ -140,11 +140,11 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
 
     void wl_resource_post_event_array(long resource,
                                       int opcode,
-                                      Pointer args);
+                                      long args);
 
     void wl_resource_queue_event_array(long resource,
                                        int opcode,
-                                       Pointer args);
+                                       long args);
 
     void wl_resource_post_no_memory(long resource);
 
