@@ -47,43 +47,11 @@ public class wl_argument extends Union {
     }
 
     /**
-     * @param o < object<br>
-     *          C type : wl_object*
-     */
-    public wl_argument(final wl_object o) {
-        super();
-        this.o = o;
-        setType(wl_object.class);
-    }
-
-    /**
      * @param s < string<br>
      *          C type : const char*
      */
     public wl_argument(final Pointer s) {
-        super();
-        this.s = s;
-        setType(Pointer.class);
-    }
-
-    /**
-     * @param a < array<br>
-     *          C type : wl_array*
-     */
-    public wl_argument(final wl_array.ByReference a) {
-        super();
-        this.a = a;
-        setType(wl_array.ByReference.class);
-    }
-
-    /**
-     * @param i_or_u_or_f_or_n_or_h < signed integer, or < unsigned integer, or < fixed point<br>
-     *                              C type : wl_fixed_t, or < new_id, or < file descriptor
-     */
-    public wl_argument(final int i_or_u_or_f_or_n_or_h) {
-        super();
-        this.h = this.n = this.f = this.u = this.i = i_or_u_or_f_or_n_or_h;
-        setType(Integer.TYPE);
+        super(s);
     }
 
     protected ByReference newByReference() { return new ByReference(); }
