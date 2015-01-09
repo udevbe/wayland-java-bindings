@@ -22,11 +22,9 @@
 package org.freedesktop.wayland.client;
 
 import com.sun.jna.Pointer;
+
 import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
-import org.freedesktop.wayland.client.jna.wl_proxy;
 import org.freedesktop.wayland.util.*;
-import org.freedesktop.wayland.util.jna.wl_argument;
-import org.freedesktop.wayland.util.jna.wl_object;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -56,7 +54,7 @@ public abstract class Proxy<I> implements WaylandObject {
             PROXY_CONSTRUCTORS =
             new HashMap<Class<? extends Proxy<?>>, Constructor<? extends Proxy<?>>>();
 
-    private final wl_proxy pointer;
+    private final long pointer;
     private final int      version;
     private final I        implementation;
 
@@ -67,29 +65,33 @@ public abstract class Proxy<I> implements WaylandObject {
      * @param implementation The listener to be added to proxy
      * @param version
      */
-    protected Proxy(final wl_proxy pointer,
+    protected Proxy(final long pointer,
                     final I implementation,
                     final int version) {
         this.pointer = pointer;
         this.implementation = implementation;
         this.version = version;
-        ObjectCache.store(getNative().getPointer(),
+        ObjectCache.store(getNative(),
                           this);
         //Special casing implementation. For some proxies the underlying native library provides its own implementation.
         //We pass in a null implementation in those cases. (Eg Display proxy).
         if (implementation != null) {
             this.dispatcher = new Dispatcher(this);
-            WaylandClientLibrary.INSTANCE.wl_proxy_add_dispatcher(this.pointer,
+            WaylandClientLibrary.INSTANCE.wl_proxy_add_dispatcher(getNative(),
                                                                   this.dispatcher,
-                                                                  Pointer.NULL,
-                                                                  Pointer.NULL);
+                                                                  123,
+                                                                  123);
         }
         else {
             this.dispatcher = null;
         }
     }
 
-    public int getVersion() {
+  public Proxy(final long pointer) {
+    this(pointer,null,1);
+  }
+
+  public int getVersion() {
         return this.version;
     }
 
@@ -119,15 +121,15 @@ public abstract class Proxy<I> implements WaylandObject {
      * @see {@link #marshal(int, Arguments)}
      */
     protected void marshal(final int opcode) {
-        WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(this.pointer,
+        WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(getNative(),
                                                              opcode,
                                                              null);
     }
 
     //called from generated proxies
     protected void marshal(final int opcode,
-                           final wl_argument argsPointer) {
-        WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(this.pointer,
+                           final Pointer argsPointer) {
+        WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(getNative(),
                                                              opcode,
                                                              argsPointer);
     }
@@ -173,11 +175,11 @@ public abstract class Proxy<I> implements WaylandObject {
                                                            final J implementation,
                                                            final int version,
                                                            final Class<T> newProxyCls,
-                                                           final wl_argument argsPointer) {
+                                                           final Pointer argsPointer) {
         try {
-            final wl_proxy
+            final long
                     wlProxy =
-                    WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array_constructor(this.pointer,
+                    WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array_constructor(getNative(),
                                                                                      opcode,
                                                                                      argsPointer,
                                                                                      InterfaceMeta.get(newProxyCls)
@@ -205,7 +207,7 @@ public abstract class Proxy<I> implements WaylandObject {
         }
     }
 
-    protected <J, T extends Proxy<J>> T marshalProxy(final wl_proxy pointer,
+    protected <J, T extends Proxy<J>> T marshalProxy(final long pointer,
                                                      final J implementation,
                                                      final int version,
                                                      final Class<T> newProxyCls) throws NoSuchMethodException,
@@ -215,7 +217,7 @@ public abstract class Proxy<I> implements WaylandObject {
         Constructor<? extends Proxy<?>> proxyConstructor = PROXY_CONSTRUCTORS.get(newProxyCls);
         if (proxyConstructor == null) {
             proxyConstructor = findMatchingConstructor(newProxyCls,
-                                                       wl_proxy.class,
+                                                       long.class,
                                                        implementation.getClass(),
                                                        int.class);
             PROXY_CONSTRUCTORS.put(newProxyCls,
@@ -248,8 +250,8 @@ public abstract class Proxy<I> implements WaylandObject {
      * Destroy a proxy object
      */
     public void destroy() {
-        WaylandClientLibrary.INSTANCE.wl_proxy_destroy(this.pointer);
-        ObjectCache.remove(getNative().getPointer());
+        WaylandClientLibrary.INSTANCE.wl_proxy_destroy(getNative());
+        ObjectCache.remove(getNative());
     }
 
     /**
@@ -272,7 +274,7 @@ public abstract class Proxy<I> implements WaylandObject {
      * @return The id the object associated with the proxy
      */
     public int getId() {
-        return WaylandClientLibrary.INSTANCE.wl_proxy_get_id(this.pointer);
+        return WaylandClientLibrary.INSTANCE.wl_proxy_get_id(getNative());
     }
 
     /**
@@ -285,12 +287,12 @@ public abstract class Proxy<I> implements WaylandObject {
      * @see Display#dispatchQueue(EventQueue)
      */
     public void setQueue(final EventQueue queue) {
-        WaylandClientLibrary.INSTANCE.wl_proxy_set_queue(this.pointer,
+        WaylandClientLibrary.INSTANCE.wl_proxy_set_queue(getNative(),
                                                          queue.getNative());
     }
 
-    public wl_object getNative() {
-        return new wl_object(this.pointer.getPointer());
+    public Long getNative() {
+        return this.pointer;
     }
 
     @Override

@@ -23,19 +23,18 @@ package org.freedesktop.wayland.server;
 
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.server.jna.wl_event_source;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class EventSource implements HasNative<wl_event_source> {
-    private final wl_event_source pointer;
+public class EventSource implements HasNative<Long> {
+    private final long pointer;
 
-    protected EventSource(final wl_event_source pointer) {
+    protected EventSource(final long pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getNative().getPointer(),
+        ObjectCache.store(getNative(),
                           this);
     }
 
-    protected static EventSource create(final wl_event_source pointer) {
+    protected static EventSource create(final long pointer) {
         return new EventSource(pointer);
     }
 
@@ -50,7 +49,7 @@ public class EventSource implements HasNative<wl_event_source> {
     }
 
     public int remove() {
-        ObjectCache.remove(getNative().getPointer());
+        ObjectCache.remove(getNative());
         return WaylandServerLibrary.INSTANCE.wl_event_source_remove(getNative());
     }
 
@@ -58,7 +57,7 @@ public class EventSource implements HasNative<wl_event_source> {
         WaylandServerLibrary.INSTANCE.wl_event_source_check(getNative());
     }
 
-    public wl_event_source getNative() {
+    public Long getNative() {
         return this.pointer;
     }
 

@@ -102,6 +102,7 @@ public class Window {
                         0,
                         width,
                         height);
+      display.getDisplayProxy().roundtrip();
         this.surfaceProxy.setInputRegion(inputRegion);
 
         this.shellSurface = this.display.getShellProxy()

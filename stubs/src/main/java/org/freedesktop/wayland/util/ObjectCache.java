@@ -32,7 +32,7 @@ import java.util.Map;
  * value.
  */
 public class ObjectCache {
-    private static final Map<Pointer, Object> MAPPED_OBJECTS = new HashMap<Pointer, Object>();
+    private static final Map<Long, Object> MAPPED_OBJECTS = new HashMap<Long, Object>();
 
     /**
      * Retrieve a POJO that is mapped to a native pointer. This method should be used to easily retrieve a POJO with a
@@ -42,7 +42,7 @@ public class ObjectCache {
      * @param <T>     The type of the POJO to cast.
      * @return The cached object.
      */
-    public static <T> T from(final Pointer pointer) {
+    public static <T> T from(final long pointer) {
 
         return (T) MAPPED_OBJECTS.get(pointer);
     }
@@ -53,7 +53,7 @@ public class ObjectCache {
      * @param pointer The pointer of the associated object.
      * @param object  The object to cache.
      */
-    public static void store(final Pointer pointer,
+    public static void store(final long pointer,
                              final Object object) {
         MAPPED_OBJECTS.put(pointer,
                            object);
@@ -65,7 +65,7 @@ public class ObjectCache {
      * @param pointer The pointer of the associated object.
      * @return True if a pointer was cached, false if not. The value can be used to detected double frees.
      */
-    public static boolean remove(final Pointer pointer) {
+    public static boolean remove(final Long pointer) {
         return MAPPED_OBJECTS.remove(pointer) != null;
     }
 }

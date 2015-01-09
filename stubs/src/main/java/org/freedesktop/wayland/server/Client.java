@@ -23,16 +23,15 @@ package org.freedesktop.wayland.server;
 
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.server.jna.wl_client;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class Client implements HasNative<wl_client> {
+public class Client implements HasNative<Long> {
 
-    private final wl_client pointer;
+    private final long pointer;
 
-    protected Client(final wl_client pointer) {
+    protected Client(final long pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getNative().getPointer(),
+        ObjectCache.store(getNative(),
                           this);
     }
 
@@ -87,16 +86,15 @@ public class Client implements HasNative<wl_client> {
      * @return The display object the client is associated with.
      */
     public Display getDisplay() {
-        return ObjectCache.from(WaylandServerLibrary.INSTANCE.wl_client_get_display(getNative())
-                                                             .getPointer());
+        return ObjectCache.from(WaylandServerLibrary.INSTANCE.wl_client_get_display(getNative()));
     }
 
     public void destroy() {
-        ObjectCache.remove(getNative().getPointer());
+        ObjectCache.remove(getNative());
         WaylandServerLibrary.INSTANCE.wl_client_destroy(getNative());
     }
 
-    public wl_client getNative() {
+    public Long getNative() {
         return this.pointer;
     }
 

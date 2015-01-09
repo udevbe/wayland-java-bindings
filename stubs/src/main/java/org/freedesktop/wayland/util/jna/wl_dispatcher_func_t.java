@@ -21,9 +21,9 @@ import com.sun.jna.Pointer;
  * protocol.
  */
 public interface wl_dispatcher_func_t extends Callback {
-    int apply(Pointer implementation,
-              Pointer wlObject,
+    int apply(long implementation,
+              long wlObject,
               int opcode,
               wl_message wlMessage,
-              wl_argument wl_arguments);
+              long wl_arguments);
 }
