@@ -24,7 +24,6 @@ package org.freedesktop.wayland.util;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.server.Resource;
@@ -32,54 +31,59 @@ import org.freedesktop.wayland.util.jna.wl_array;
 
 import java.nio.ByteBuffer;
 
-public class Arguments implements HasNative<Pointer> {
+public class Arguments implements HasNative<Long> {
 
     private final Pointer pointer;
-    private final long[] args;
 
-    Arguments(long[] args) {
-        this.args = args;
-        this.pointer = new Memory(args.length*8);
+    Arguments(final Pointer pointer) {
+        this.pointer = pointer;
     }
 
     public static Arguments create(final int size) {
         if (size < 1) {
             throw new IllegalArgumentException("Arguments size must be greater than 0");
         }
-        return new Arguments(new long[size]);
+        return new Arguments(new Memory(size * Pointer.SIZE));
     }
 
     public int getI(final int index) {
-        return (int) this.args[index];
+        return getInt(index);
+    }
+
+    private int getInt(final int index) {
+        return this.pointer.getInt(index * Pointer.SIZE);
     }
 
     public int getU(final int index) {
-        return (int) this.args[index];
+        return getInt(index);
     }
 
     public Fixed getFixed(final int index) {
-        return new Fixed((int)this.args[index]);
+        return new Fixed(getInt(index));
     }
 
     public String getS(final int index) {
+        return getPointer(index).getString(0);
+    }
 
-        return new Pointer(this.args[index]).getString(0);
+    private Pointer getPointer(final int index) {
+        return this.pointer.getPointer(index * Pointer.SIZE);
     }
 
     public long getO(final int index) {
-        return this.args[index];
+        return Pointer.nativeValue(getPointer(index));
     }
 
     public int getN(final int index) {
-        return (int)this.args[index];
+        return getInt(index);
     }
 
     public wl_array getA(final int index) {
-        return new wl_array(Pointer.createConstant(this.args[index]));
+        return new wl_array(getPointer(index));
     }
 
     public int getH(final int index) {
-        return (int)this.args[index];
+        return getInt(index);
     }
 
     /**
@@ -94,9 +98,19 @@ public class Arguments implements HasNative<Pointer> {
      */
     public Arguments set(final int index,
                          final int iunh) {
-        this.args[index]=iunh;
+        setInt(index,
+               iunh);
         return this;
     }
+
+    private void setInt(final int index,
+                        final int integer) {
+        this.pointer.write(index * Pointer.SIZE,
+                           new int[]{integer},
+                           0,
+                           1);
+    }
+
 
     /**
      * struct wl_object *o; object
@@ -107,8 +121,15 @@ public class Arguments implements HasNative<Pointer> {
      */
     public Arguments set(final int index,
                          final Resource<?> o) {
-        this.args[index]=o.getNative();
+        setPointer(index,
+                   o.getNative());
         return this;
+    }
+
+    private void setPointer(final int index,
+                            final long pointer) {
+        this.pointer.setPointer(index * Pointer.SIZE,
+                                new Pointer(pointer));
     }
 
     /**
@@ -120,7 +141,8 @@ public class Arguments implements HasNative<Pointer> {
      */
     public Arguments set(final int index,
                          final Proxy<?> o) {
-        this.args[index]=o.getNative();
+        setPointer(index,
+                   o.getNative());
         return this;
     }
 
@@ -133,7 +155,8 @@ public class Arguments implements HasNative<Pointer> {
      */
     public Arguments set(final int index,
                          final Fixed f) {
-        this.args[index]=f.getRaw();
+        setInt(index,
+               f.getRaw());
         return this;
     }
 
@@ -149,7 +172,8 @@ public class Arguments implements HasNative<Pointer> {
         final Pointer m = new Memory(s.length() + 1);
         m.setString(0,
                     s);
-        this.args[index]=Pointer.nativeValue(m);
+        setPointer(index,
+                   Pointer.nativeValue(m));
         return this;
     }
 
@@ -166,13 +190,13 @@ public class Arguments implements HasNative<Pointer> {
         wlArray.alloc = array.capacity();
         wlArray.size = array.capacity();
         wlArray.data = Native.getDirectBufferPointer(array);
-        this.args[index] = Pointer.nativeValue(wlArray.getPointer());
+        setPointer(index,
+                   Pointer.nativeValue(wlArray.getPointer()));
         return this;
     }
 
     @Override
-    public Pointer getNative() {
-        this.pointer.write(0,this.args,0,args.length);
-        return pointer;
+    public Long getNative() {
+        return Pointer.nativeValue(this.pointer);
     }
 }
