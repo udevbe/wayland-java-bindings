@@ -25,5 +25,5 @@ public interface wl_dispatcher_func_t extends Callback {
               Pointer wlObject,
               int opcode,
               wl_message wlMessage,
-              wl_argument.ByReference wl_arguments);
+              wl_argument wl_arguments);
 }

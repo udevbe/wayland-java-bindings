@@ -114,8 +114,6 @@ public abstract class Resource<I> implements WaylandObject {
      */
     public void postEvent(final int opcode,
                           final Arguments args) {
-        args.getNative()
-            .write();
         WaylandServerLibrary.INSTANCE.wl_resource_post_event_array(this.pointer,
                                                                    opcode,
                                                                    args.getNative());
