@@ -21,7 +21,6 @@
  */
 package org.freedesktop.wayland.util;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jna.wl_message;
@@ -166,11 +165,8 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             jargs[0] = this.waylandObject;
 
             if (nroArgs > 0) {
-
-              final long[] args = new Pointer(wlArguments).getLongArray(0,nroArgs);
-
-              final Arguments arguments = new Arguments(args);
-              boolean optional = false;
+                final Arguments arguments = new Arguments(new Pointer(wlArguments));
+                boolean optional = false;
                 int argIndex = 0;
                 for (final char signatureChar : messageSignature.toCharArray()) {
                     if (signatureChar == '?') {

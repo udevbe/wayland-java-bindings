@@ -127,7 +127,7 @@ public abstract class Resource<I> implements WaylandObject<Long> {
     public void postEvent(final int opcode) {
         WaylandServerLibrary.INSTANCE.wl_resource_post_event_array(this.pointer,
                                                                    opcode,
-                                                                   null);
+                                                                   0);
     }
 
     public void postError(final int code,

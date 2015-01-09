@@ -4,7 +4,10 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import org.freedesktop.wayland.util.jna.*;
+import org.freedesktop.wayland.util.jna.WaylandUtilLibrary;
+import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
+import org.freedesktop.wayland.util.jna.wl_interface;
+import org.freedesktop.wayland.util.jna.wl_log_func_t;
 
 
 public interface WaylandClientLibrary extends WaylandUtilLibrary {
@@ -18,15 +21,15 @@ public interface WaylandClientLibrary extends WaylandUtilLibrary {
 
     void wl_proxy_marshal_array(long p,
                                 int opcode,
-                                Pointer args);
+                                long args);
 
-  long wl_proxy_create(long factory,
-                             wl_interface interface$);
+    long wl_proxy_create(long factory,
+                         wl_interface interface$);
 
-  long wl_proxy_marshal_array_constructor(long proxy,
-                                                int opcode,
-                                                Pointer args,
-                                                wl_interface interface$);
+    long wl_proxy_marshal_array_constructor(long proxy,
+                                            int opcode,
+                                            long args,
+                                            wl_interface interface$);
 
     void wl_proxy_destroy(long proxy);
 
@@ -34,7 +37,7 @@ public interface WaylandClientLibrary extends WaylandUtilLibrary {
                               long implementation,
                               long data);
 
-  long wl_proxy_get_listener(long proxy);
+    long wl_proxy_get_listener(long proxy);
 
     int wl_proxy_add_dispatcher(long proxy,
                                 wl_dispatcher_func_t dispatcher_func,
@@ -44,18 +47,18 @@ public interface WaylandClientLibrary extends WaylandUtilLibrary {
     void wl_proxy_set_user_data(long proxy,
                                 long user_data);
 
-  long wl_proxy_get_user_data(long proxy);
+    long wl_proxy_get_user_data(long proxy);
 
     int wl_proxy_get_id(long proxy);
 
     String wl_proxy_get_class(long proxy);
 
     void wl_proxy_set_queue(long proxy,
-                           long queue);
+                            long queue);
 
-  long wl_display_connect(Pointer name);
+    long wl_display_connect(Pointer name);
 
-  long wl_display_connect_to_fd(int fd);
+    long wl_display_connect_to_fd(int fd);
 
     void wl_display_disconnect(long display);
 
@@ -64,10 +67,10 @@ public interface WaylandClientLibrary extends WaylandUtilLibrary {
     int wl_display_dispatch(long display);
 
     int wl_display_dispatch_queue(long display,
-                                 long queue);
+                                  long queue);
 
     int wl_display_dispatch_queue_pending(long display,
-                                         long queue);
+                                          long queue);
 
     int wl_display_dispatch_pending(long display);
 
@@ -80,14 +83,14 @@ public interface WaylandClientLibrary extends WaylandUtilLibrary {
     int wl_display_flush(long display);
 
     int wl_display_roundtrip_queue(long display,
-                                  long queue);
+                                   long queue);
 
     int wl_display_roundtrip(long display);
 
-   long wl_display_create_queue(long display);
+    long wl_display_create_queue(long display);
 
     int wl_display_prepare_read_queue(long display,
-                                     long queue);
+                                      long queue);
 
     int wl_display_prepare_read(long display);
 

@@ -21,8 +21,6 @@
  */
 package org.freedesktop.wayland.client;
 
-import com.sun.jna.Pointer;
-
 import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
 import org.freedesktop.wayland.util.*;
 
@@ -55,8 +53,8 @@ public abstract class Proxy<I> implements WaylandObject {
             new HashMap<Class<? extends Proxy<?>>, Constructor<? extends Proxy<?>>>();
 
     private final long pointer;
-    private final int      version;
-    private final I        implementation;
+    private final int  version;
+    private final I    implementation;
 
     private final Dispatcher dispatcher;
 
@@ -87,11 +85,13 @@ public abstract class Proxy<I> implements WaylandObject {
         }
     }
 
-  public Proxy(final long pointer) {
-    this(pointer,null,1);
-  }
+    public Proxy(final long pointer) {
+        this(pointer,
+             null,
+             1);
+    }
 
-  public int getVersion() {
+    public int getVersion() {
         return this.version;
     }
 
@@ -123,12 +123,12 @@ public abstract class Proxy<I> implements WaylandObject {
     protected void marshal(final int opcode) {
         WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(getNative(),
                                                              opcode,
-                                                             null);
+                                                             0);
     }
 
     //called from generated proxies
     protected void marshal(final int opcode,
-                           final Pointer argsPointer) {
+                           final long argsPointer) {
         WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(getNative(),
                                                              opcode,
                                                              argsPointer);
@@ -175,7 +175,7 @@ public abstract class Proxy<I> implements WaylandObject {
                                                            final J implementation,
                                                            final int version,
                                                            final Class<T> newProxyCls,
-                                                           final Pointer argsPointer) {
+                                                           final long argsPointer) {
         try {
             final long
                     wlProxy =
