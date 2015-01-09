@@ -127,7 +127,6 @@ public abstract class Proxy<I> implements WaylandObject {
     //called from generated proxies
     protected void marshal(final int opcode,
                            final wl_argument argsPointer) {
-        argsPointer.write();
         WaylandClientLibrary.INSTANCE.wl_proxy_marshal_array(this.pointer,
                                                              opcode,
                                                              argsPointer);
