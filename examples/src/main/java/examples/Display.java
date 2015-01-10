@@ -3,6 +3,8 @@ package examples;
 
 import org.freedesktop.wayland.client.*;
 
+import javax.annotation.Nonnull;
+
 public class Display {
 
     private final WlDisplayProxy  displayProxy;
@@ -22,7 +24,7 @@ public class Display {
             @Override
             public void global(final WlRegistryProxy emitter,
                                final int name,
-                               final String interfaceName,
+                               @Nonnull final String interfaceName,
                                final int version) {
                 Display.this.global(emitter,
                                     name,
@@ -104,6 +106,9 @@ public class Display {
     public void destroy() {
         if (this.shmProxy != null) {
             this.shmProxy.destroy();
+        }
+        if (this.shellProxy != null) {
+            this.shellProxy.destroy();
         }
 
         this.compositorProxy.destroy();
