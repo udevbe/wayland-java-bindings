@@ -27,9 +27,6 @@ import org.freedesktop.wayland.util.ObjectCache;
 
 public abstract class Global<R extends Resource<?>> implements HasPointer {
 
-    private final Display  display;
-    private final Class<R> resourceClass;
-    private final int      version;
 
     private long pointer;
 
@@ -39,9 +36,14 @@ public abstract class Global<R extends Resource<?>> implements HasPointer {
         if (version <= 0) {
             throw new IllegalArgumentException("Version must be bigger than 0");
         }
-        this.display = display;
-        this.resourceClass = resourceClass;
-        this.version = version;
+
+        this.pointer = WlServerJNI.createGlobal(display.getPointer(),
+                                                InterfaceMeta.get(resourceClass)
+                                                             .getPointer(),
+                                                version,
+                                                this);
+        ObjectCache.store(getPointer(),
+                          this);
     }
 
     public long getPointer() {
@@ -60,17 +62,7 @@ public abstract class Global<R extends Resource<?>> implements HasPointer {
     }
 
     public void makeGlobal() {
-        if (this.pointer != 0) {
-            throw new IllegalStateException("A global already exists!");
-        }
 
-        this.pointer = WlServerJNI.createGlobal(this.display.getPointer(),
-                                                InterfaceMeta.get(this.resourceClass)
-                                                             .getPointer(),
-                                                this.version,
-                                                this);
-        ObjectCache.store(getPointer(),
-                          this);
     }
 
     public void destroyGlobal() {
