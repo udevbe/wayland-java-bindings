@@ -48,7 +48,7 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
 
     long wl_event_loop_add_idle(long loop,
                                            wl_event_loop_idle_func_t func,
-                                           Pointer data);
+                                           long data);
 
     int wl_event_loop_get_fd(long loop);
 
