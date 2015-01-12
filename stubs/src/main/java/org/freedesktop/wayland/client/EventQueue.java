@@ -21,6 +21,7 @@
  */
 package org.freedesktop.wayland.client;
 
+import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
 import org.freedesktop.wayland.util.ObjectCache;
@@ -33,16 +34,16 @@ import org.freedesktop.wayland.util.ObjectCache;
  *
  * @see Display
  */
-public class EventQueue implements HasNative<Long> {
-    private final long pointer;
+public class EventQueue implements HasNative<Pointer> {
+    private final Pointer pointer;
 
-    protected EventQueue(final long pointer) {
+    protected EventQueue(final Pointer pointer) {
         this.pointer = pointer;
         ObjectCache.store(getNative(),
                           this);
     }
 
-    public Long getNative() {
+    public Pointer getNative() {
         return this.pointer;
     }
 

@@ -1,6 +1,7 @@
 package org.freedesktop.wayland.util.jna;
 
 import com.sun.jna.Callback;
+import com.sun.jna.Pointer;
 
 /**
  * \brief A function pointer type for a dispatcher.
@@ -20,9 +21,9 @@ import com.sun.jna.Callback;
  * protocol.
  */
 public interface wl_dispatcher_func_t extends Callback {
-    int apply(long implementation,
-              long wlObject,
+    int apply(Pointer implementation,
+              Pointer wlObject,
               int opcode,
-              wl_message wlMessage,
-              long wl_arguments);
+              Pointer wlMessage,
+              Pointer wl_arguments);
 }

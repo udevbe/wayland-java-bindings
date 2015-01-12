@@ -29,5 +29,5 @@ public interface WaylandUtilLibrary extends Library {
     int wl_array_copy(wl_array array,
                       wl_array source);
 
-    void free(long pointer);
+    void free(Pointer pointer);
 }
