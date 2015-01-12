@@ -50,7 +50,7 @@ public class MessageMeta implements HasNative<wl_message> {
                             final Message message) {
         //init args interfaces
         final Class<?>[] types = message.types();
-        PointerByReference typesPointerPointer = null;
+        Pointer typesPointerPointer = null;
         if (types.length > 0) {
             final Pointer typesPointer = new Memory(Pointer.SIZE * types.length);
             for (int i = 0; i < types.length; i++) {
@@ -59,7 +59,7 @@ public class MessageMeta implements HasNative<wl_message> {
                                                      .getNative()
                                                      .getPointer());
             }
-            typesPointerPointer = new PointerByReference(typesPointer);
+            typesPointerPointer = typesPointer;
         }
         //set name
         final Pointer m = new Memory(message.name()

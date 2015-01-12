@@ -19,7 +19,7 @@ public class wl_message extends Structure {
     /**
      * C type : wl_interface**
      */
-    public PointerByReference types;
+    public Pointer types;
 
     public wl_message() {
         super();
@@ -29,20 +29,6 @@ public class wl_message extends Structure {
         return Arrays.asList("name",
                              "signature",
                              "types");
-    }
-
-    /**
-     * @param name      C type : const char*<br>
-     * @param signature C type : const char*<br>
-     * @param types     C type : wl_interface**
-     */
-    public wl_message(final Pointer name,
-                      final Pointer signature,
-                      final PointerByReference types) {
-        super();
-        this.name = name;
-        this.signature = signature;
-        this.types = types;
     }
 
     public wl_message(final Pointer peer) {
@@ -59,13 +45,6 @@ public class wl_message extends Structure {
         public ByReference() {
         }
 
-        public ByReference(final Pointer name,
-                           final Pointer signature,
-                           final PointerByReference types) {
-            super(name,
-                  signature,
-                  types);
-        }
 
         public ByReference(final Pointer peer) {
             super(peer);
@@ -74,14 +53,6 @@ public class wl_message extends Structure {
 
     public static class ByValue extends wl_message implements Structure.ByValue {
         public ByValue() {
-        }
-
-        public ByValue(final Pointer name,
-                       final Pointer signature,
-                       final PointerByReference types) {
-            super(name,
-                  signature,
-                  types);
         }
 
         public ByValue(final Pointer peer) {
