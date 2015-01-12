@@ -59,8 +59,9 @@ public class Client implements HasNative<Pointer> {
      */
     public static Client create(final Display display,
                                 final int fd) {
-        return new Client(WaylandServerLibrary.INSTANCE.wl_client_create(display.getNative(),
-                                                                         fd));
+        return new Client(WaylandServerLibrary.INSTANCE()
+                                              .wl_client_create(display.getNative(),
+                                                                fd));
     }
 
     /**
@@ -72,12 +73,14 @@ public class Client implements HasNative<Pointer> {
      * flushes all queued up events for a client immediately.
      */
     public void flush() {
-        WaylandServerLibrary.INSTANCE.wl_client_flush(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_client_flush(getNative());
     }
 
     public void addDestroyListener(final Listener listener) {
-        WaylandServerLibrary.INSTANCE.wl_client_add_destroy_listener(getNative(),
-                                                                     listener.getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_client_add_destroy_listener(getNative(),
+                                                            listener.getNative());
     }
 
     /**
@@ -87,12 +90,14 @@ public class Client implements HasNative<Pointer> {
      * @return The display object the client is associated with.
      */
     public Display getDisplay() {
-        return ObjectCache.from(WaylandServerLibrary.INSTANCE.wl_client_get_display(getNative()));
+        return ObjectCache.from(WaylandServerLibrary.INSTANCE()
+                                                    .wl_client_get_display(getNative()));
     }
 
     public void destroy() {
         ObjectCache.remove(getNative());
-        WaylandServerLibrary.INSTANCE.wl_client_destroy(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_client_destroy(getNative());
     }
 
     public Pointer getNative() {
