@@ -27,11 +27,11 @@ import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class Display implements HasNative<Long> {
+public class Display implements HasNative<Pointer> {
 
-    private final long pointer;
+    private final Pointer pointer;
 
-    public Display(final long pointer) {
+    public Display(final Pointer pointer) {
         this.pointer = pointer;
         ObjectCache.store(getNative(),
                           this);
@@ -89,7 +89,7 @@ public class Display implements HasNative<Long> {
     }
 
     public EventLoop getEventLoop() {
-        final long wlEventLoop = WaylandServerLibrary.INSTANCE.wl_display_get_event_loop(getNative());
+        final Pointer wlEventLoop = WaylandServerLibrary.INSTANCE.wl_display_get_event_loop(getNative());
         final EventLoop eventLoop = ObjectCache.from(wlEventLoop);
         return eventLoop == null ? new EventLoop(wlEventLoop) : eventLoop;
     }
@@ -132,7 +132,7 @@ public class Display implements HasNative<Long> {
                                             .getValue();
     }
 
-    public Long getNative() {
+    public Pointer getNative() {
         return this.pointer;
     }
 

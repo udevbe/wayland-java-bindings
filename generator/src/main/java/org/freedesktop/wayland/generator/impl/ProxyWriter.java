@@ -22,6 +22,7 @@
 package org.freedesktop.wayland.generator.impl;
 
 import com.squareup.javawriter.JavaWriter;
+import com.sun.jna.Pointer;
 import org.freedesktop.wayland.client.Display;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.util.Arguments;
@@ -140,7 +141,7 @@ public class ProxyWriter {
         if (interfaceName.equals("wl_display")) {
             javaWriter.emitEmptyLine()
                       .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                        long.class.getName(),
+                                        Pointer.class.getName(),
                                         "pointer")
                       .emitStatement("super(pointer)")
                       .endConstructor();
@@ -148,7 +149,7 @@ public class ProxyWriter {
         else {
             javaWriter.emitEmptyLine()
                       .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                        long.class.getName(),
+                                        Pointer.class.getName(),
                                         "pointer",
                                         getJavaTypeNameEvents(clientPackage,
                                                               interfaceNode,
@@ -159,11 +160,11 @@ public class ProxyWriter {
                       .emitStatement("super(pointer, implementation, version)")
                       .endConstructor()
                       .emitEmptyLine()
-                          .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                            long.class.getName(),
-                                            "pointer")
-                          .emitStatement("super(pointer)")
-                          .endConstructor();
+                      .beginConstructor(EnumSet.of(Modifier.PUBLIC),
+                                        Pointer.class.getName(),
+                                        "pointer")
+                      .emitStatement("super(pointer)")
+                      .endConstructor();
         }
         //methods
         for (int i = 0; i < requestNodes.getLength(); i++) {

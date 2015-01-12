@@ -18,12 +18,12 @@ public class wl_signal extends Structure {
         return Arrays.asList("listener_list");
     }
 
-    public wl_signal(wl_list listener_list) {
+    public wl_signal(final wl_list listener_list) {
         super();
         this.listener_list = listener_list;
     }
 
-    public wl_signal(Pointer peer) {
+    public wl_signal(final Pointer peer) {
         super(peer);
     }
 

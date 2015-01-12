@@ -21,18 +21,19 @@
  */
 package org.freedesktop.wayland.server;
 
+import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.server.jna.wl_global_bind_func_t;
 import org.freedesktop.wayland.util.InterfaceMeta;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public abstract class Global<R extends Resource<?>> implements HasNative<Long> {
+public abstract class Global<R extends Resource<?>> implements HasNative<Pointer> {
     private final wl_global_bind_func_t nativeCallback = new wl_global_bind_func_t() {
 
         @Override
-        public void apply(final long wlClient,
-                          final long data,
+        public void apply(final Pointer wlClient,
+                          final Pointer data,
                           final int version,
                           final int id) {
             final Client client = ObjectCache.from(wlClient);
@@ -42,7 +43,7 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Long> {
         }
     };
 
-    private final long pointer;
+    private final Pointer pointer;
 
     protected Global(final Display display,
                      final Class<R> resourceClass,
@@ -55,13 +56,13 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Long> {
                                                                       InterfaceMeta.get(resourceClass)
                                                                                    .getNative(),
                                                                       version,
-                                                                      0,
+                                                                      Pointer.NULL,
                                                                       this.nativeCallback);
         ObjectCache.store(getNative(),
                           this);
     }
 
-    public Long getNative() {
+    public Pointer getNative() {
         return this.pointer;
     }
 

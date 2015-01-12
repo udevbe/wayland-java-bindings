@@ -31,7 +31,7 @@ import org.freedesktop.wayland.util.jna.wl_array;
 
 import java.nio.ByteBuffer;
 
-public class Arguments implements HasNative<Long> {
+public class Arguments implements HasNative<Pointer> {
 
     private final Pointer pointer;
 
@@ -71,8 +71,8 @@ public class Arguments implements HasNative<Long> {
         return this.pointer.getPointer(index * Pointer.SIZE);
     }
 
-    public long getO(final int index) {
-        return Pointer.nativeValue(getPointer(index));
+    public Pointer getO(final int index) {
+        return getPointer(index);
     }
 
     public int getN(final int index) {
@@ -126,9 +126,9 @@ public class Arguments implements HasNative<Long> {
     }
 
     private void setPointer(final int index,
-                            final long pointer) {
+                            final Pointer pointer) {
         this.pointer.setPointer(index * Pointer.SIZE,
-                                new Pointer(pointer));
+                                pointer);
     }
 
     /**
@@ -172,7 +172,7 @@ public class Arguments implements HasNative<Long> {
         m.setString(0,
                     s);
         setPointer(index,
-                   Pointer.nativeValue(m));
+                   m);
         return this;
     }
 
@@ -190,12 +190,12 @@ public class Arguments implements HasNative<Long> {
         wlArray.size = array.capacity();
         wlArray.data = Native.getDirectBufferPointer(array);
         setPointer(index,
-                   Pointer.nativeValue(wlArray.getPointer()));
+                   wlArray.getPointer());
         return this;
     }
 
     @Override
-    public Long getNative() {
-        return Pointer.nativeValue(this.pointer);
+    public Pointer getNative() {
+        return this.pointer;
     }
 }

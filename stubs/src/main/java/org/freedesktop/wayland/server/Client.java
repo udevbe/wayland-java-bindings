@@ -21,15 +21,16 @@
  */
 package org.freedesktop.wayland.server;
 
+import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class Client implements HasNative<Long> {
+public class Client implements HasNative<Pointer> {
 
-    private final long pointer;
+    private final Pointer pointer;
 
-    protected Client(final long pointer) {
+    protected Client(final Pointer pointer) {
         this.pointer = pointer;
         ObjectCache.store(getNative(),
                           this);
@@ -94,7 +95,7 @@ public class Client implements HasNative<Long> {
         WaylandServerLibrary.INSTANCE.wl_client_destroy(getNative());
     }
 
-    public Long getNative() {
+    public Pointer getNative() {
         return this.pointer;
     }
 
