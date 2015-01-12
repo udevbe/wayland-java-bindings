@@ -58,7 +58,8 @@ public class EventQueue implements HasNative<Pointer> {
      * this function.
      */
     public void destroy() {
-        WaylandClientLibrary.INSTANCE.wl_event_queue_destroy(getNative());
+        WaylandClientLibrary.INSTANCE()
+                            .wl_event_queue_destroy(getNative());
         ObjectCache.remove(getNative());
     }
 
