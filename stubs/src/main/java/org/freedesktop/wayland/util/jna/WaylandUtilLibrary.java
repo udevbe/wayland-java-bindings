@@ -5,29 +5,29 @@ import com.sun.jna.Pointer;
 
 public interface WaylandUtilLibrary extends Library {
 
-    void wl_list_init(wl_list list);
+    void wl_list_init(Pointer list);
 
-    void wl_list_insert(wl_list list,
-                        wl_list elm);
+    void wl_list_insert(Pointer list,
+                        Pointer elm);
 
-    void wl_list_remove(wl_list elm);
+    void wl_list_remove(Pointer elm);
 
-    int wl_list_length(wl_list list);
+    int wl_list_length(Pointer list);
 
-    int wl_list_empty(wl_list list);
+    int wl_list_empty(Pointer list);
 
-    void wl_list_insert_list(wl_list list,
-                             wl_list other);
+    void wl_list_insert_list(Pointer list,
+                             Pointer other);
 
-    void wl_array_init(wl_array array);
+    void wl_array_init(Pointer array);
 
-    void wl_array_release(wl_array array);
+    void wl_array_release(Pointer array);
 
-    Pointer wl_array_add(wl_array array,
+    Pointer wl_array_add(Pointer array,
                          long size);
 
-    int wl_array_copy(wl_array array,
-                      wl_array source);
+    int wl_array_copy(Pointer array,
+                      Pointer source);
 
     void free(Pointer pointer);
 }
