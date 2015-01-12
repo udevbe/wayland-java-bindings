@@ -41,7 +41,7 @@ public class MessageMeta implements HasNative<wl_message> {
                           final Message message) {
         this.pointer = pointer;
         this.message = message;
-        ObjectCache.store(Pointer.nativeValue(getNative().getPointer()),
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 

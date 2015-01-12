@@ -44,7 +44,7 @@ public class InterfaceMeta implements HasNative<wl_interface> {
 
     protected InterfaceMeta(final wl_interface pointer) {
         this.pointer = pointer;
-        ObjectCache.store(Pointer.nativeValue(getNative().getPointer()),
+        ObjectCache.store(getNative().getPointer(),
                           this);
     }
 

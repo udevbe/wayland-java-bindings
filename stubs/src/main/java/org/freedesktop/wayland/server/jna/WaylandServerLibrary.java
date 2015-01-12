@@ -12,224 +12,224 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
     public static final WaylandServerLibrary INSTANCE         = (WaylandServerLibrary) Native.loadLibrary(WaylandServerLibrary.JNA_LIBRARY_NAME,
                                                                                                           WaylandServerLibrary.class);
 
-    long wl_event_loop_create();
+    Pointer wl_event_loop_create();
 
-    void wl_event_loop_destroy(long loop);
+    void wl_event_loop_destroy(Pointer loop);
 
-    long wl_event_loop_add_fd(long loop,
-                              int fd,
-                              int mask,
-                              wl_event_loop_fd_func_t func,
-                              long data);
+    Pointer wl_event_loop_add_fd(Pointer loop,
+                                 int fd,
+                                 int mask,
+                                 wl_event_loop_fd_func_t func,
+                                 Pointer data);
 
-    int wl_event_source_fd_update(long source,
+    int wl_event_source_fd_update(Pointer source,
                                   int mask);
 
-    long wl_event_loop_add_timer(long loop,
-                                 wl_event_loop_timer_func_t func,
-                                 long data);
+    Pointer wl_event_loop_add_timer(Pointer loop,
+                                    wl_event_loop_timer_func_t func,
+                                    Pointer data);
 
-    long wl_event_loop_add_signal(long loop,
-                                  int signal_number,
-                                  wl_event_loop_signal_func_t func,
-                                  long data);
+    Pointer wl_event_loop_add_signal(Pointer loop,
+                                     int signal_number,
+                                     wl_event_loop_signal_func_t func,
+                                     Pointer data);
 
-    int wl_event_source_timer_update(long source,
+    int wl_event_source_timer_update(Pointer source,
                                      int ms_delay);
 
-    int wl_event_source_remove(long source);
+    int wl_event_source_remove(Pointer source);
 
-    void wl_event_source_check(long source);
+    void wl_event_source_check(Pointer source);
 
-    int wl_event_loop_dispatch(long loop,
+    int wl_event_loop_dispatch(Pointer loop,
                                int timeout);
 
-    void wl_event_loop_dispatch_idle(long loop);
+    void wl_event_loop_dispatch_idle(Pointer loop);
 
-    long wl_event_loop_add_idle(long loop,
-                                wl_event_loop_idle_func_t func,
-                                long data);
+    Pointer wl_event_loop_add_idle(Pointer loop,
+                                   wl_event_loop_idle_func_t func,
+                                   Pointer data);
 
-    int wl_event_loop_get_fd(long loop);
+    int wl_event_loop_get_fd(Pointer loop);
 
-    void wl_event_loop_add_destroy_listener(long loop,
+    void wl_event_loop_add_destroy_listener(Pointer loop,
                                             wl_listener listener);
 
-    wl_listener wl_event_loop_get_destroy_listener(long loop,
+    wl_listener wl_event_loop_get_destroy_listener(Pointer loop,
                                                    wl_notify_func_t notify$);
 
-    long wl_display_create();
+    Pointer wl_display_create();
 
-    void wl_display_destroy(long display);
+    void wl_display_destroy(Pointer display);
 
-    long wl_display_get_event_loop(long display);
+    Pointer wl_display_get_event_loop(Pointer display);
 
-    int wl_display_add_socket(long display,
+    int wl_display_add_socket(Pointer display,
                               Pointer name);
 
-    String wl_display_add_socket_auto(long display);
+    String wl_display_add_socket_auto(Pointer display);
 
-    void wl_display_terminate(long display);
+    void wl_display_terminate(Pointer display);
 
-    void wl_display_run(long display);
+    void wl_display_run(Pointer display);
 
-    void wl_display_flush_clients(long display);
+    void wl_display_flush_clients(Pointer display);
 
-    int wl_display_get_serial(long display);
+    int wl_display_get_serial(Pointer display);
 
-    int wl_display_next_serial(long display);
+    int wl_display_next_serial(Pointer display);
 
-    void wl_display_add_destroy_listener(long display,
+    void wl_display_add_destroy_listener(Pointer display,
                                          wl_listener listener);
 
-    wl_listener wl_display_get_destroy_listener(long display,
+    wl_listener wl_display_get_destroy_listener(Pointer display,
                                                 wl_notify_func_t notify$);
 
-    long wl_global_create(long display,
-                          wl_interface interface$,
-                          int version,
-                          long data,
-                          wl_global_bind_func_t bind);
+    Pointer wl_global_create(Pointer display,
+                             wl_interface interface$,
+                             int version,
+                             Pointer data,
+                             wl_global_bind_func_t bind);
 
-    void wl_global_destroy(long global);
+    void wl_global_destroy(Pointer global);
 
-    long wl_client_create(long display,
-                          int fd);
+    Pointer wl_client_create(Pointer display,
+                             int fd);
 
-    void wl_client_destroy(long client);
+    void wl_client_destroy(Pointer client);
 
-    void wl_client_flush(long client);
+    void wl_client_flush(Pointer client);
 
-    void wl_client_get_credentials(long client,
+    void wl_client_get_credentials(Pointer client,
                                    IntByReference pid,
                                    IntByReference uid,
                                    IntByReference gid);
 
-    void wl_client_add_destroy_listener(long client,
+    void wl_client_add_destroy_listener(Pointer client,
                                         wl_listener listener);
 
-    wl_listener wl_client_get_destroy_listener(long client,
+    wl_listener wl_client_get_destroy_listener(Pointer client,
                                                wl_notify_func_t notify$);
 
-    long wl_client_get_object(long client,
-                              int id);
+    Pointer wl_client_get_object(Pointer client,
+                                 int id);
 
-    void wl_client_post_no_memory(long client);
+    void wl_client_post_no_memory(Pointer client);
 
-    int wl_client_add_resource(long client,
-                               long resource);
+    int wl_client_add_resource(Pointer client,
+                               Pointer resource);
 
-    long wl_client_add_object(long client,
-                              wl_interface interface$,
-                              long implementation,
-                              int id,
-                              long data);
+    Pointer wl_client_add_object(Pointer client,
+                                 wl_interface interface$,
+                                 Pointer implementation,
+                                 int id,
+                                 Pointer data);
 
-    long wl_client_new_object(long client,
-                              wl_interface interface$,
-                              long implementation,
-                              long data);
+    Pointer wl_client_new_object(Pointer client,
+                                 wl_interface interface$,
+                                 Pointer implementation,
+                                 Pointer data);
 
-    long wl_display_add_global(long display,
-                               wl_interface interface$,
-                               long data,
-                               wl_global_bind_func_t bind);
+    Pointer wl_display_add_global(Pointer display,
+                                  wl_interface interface$,
+                                  Pointer data,
+                                  wl_global_bind_func_t bind);
 
-    void wl_display_remove_global(long display,
-                                  long global);
+    void wl_display_remove_global(Pointer display,
+                                  Pointer global);
 
-    void wl_resource_post_event_array(long resource,
+    void wl_resource_post_event_array(Pointer resource,
                                       int opcode,
-                                      long args);
+                                      Pointer args);
 
-    void wl_resource_queue_event_array(long resource,
+    void wl_resource_queue_event_array(Pointer resource,
                                        int opcode,
-                                       long args);
+                                       Pointer args);
 
-    void wl_resource_post_no_memory(long resource);
+    void wl_resource_post_no_memory(Pointer resource);
 
-    long wl_client_get_display(long client);
+    Pointer wl_client_get_display(Pointer client);
 
-    long wl_resource_create(long client,
-                            wl_interface interface$,
-                            int version,
-                            int id);
+    Pointer wl_resource_create(Pointer client,
+                               wl_interface interface$,
+                               int version,
+                               int id);
 
-    void wl_resource_set_implementation(long resource,
-                                        long implementation,
-                                        long data,
+    void wl_resource_set_implementation(Pointer resource,
+                                        Pointer implementation,
+                                        Pointer data,
                                         wl_resource_destroy_func_t destroy);
 
-    void wl_resource_set_dispatcher(long resource,
+    void wl_resource_set_dispatcher(Pointer resource,
                                     wl_dispatcher_func_t dispatcher,
-                                    long implementation,
-                                    long data,
+                                    Pointer implementation,
+                                    Pointer data,
                                     wl_resource_destroy_func_t destroy);
 
-    void wl_resource_destroy(long resource);
+    void wl_resource_destroy(Pointer resource);
 
-    int wl_resource_get_id(long resource);
+    int wl_resource_get_id(Pointer resource);
 
-    wl_list wl_resource_get_link(long resource);
+    wl_list wl_resource_get_link(Pointer resource);
 
-    long wl_resource_from_link(wl_list resource);
+    Pointer wl_resource_from_link(wl_list resource);
 
-    long wl_resource_find_for_client(wl_list list,
-                                     long client);
+    Pointer wl_resource_find_for_client(wl_list list,
+                                        Pointer client);
 
-    long wl_resource_get_client(long resource);
+    Pointer wl_resource_get_client(Pointer resource);
 
-    void wl_resource_set_user_data(long resource,
+    void wl_resource_set_user_data(Pointer resource,
                                    Pointer data);
 
-    Pointer wl_resource_get_user_data(long resource);
+    Pointer wl_resource_get_user_data(Pointer resource);
 
-    int wl_resource_get_version(long resource);
+    int wl_resource_get_version(Pointer resource);
 
-    void wl_resource_set_destructor(long resource,
+    void wl_resource_set_destructor(Pointer resource,
                                     wl_resource_destroy_func_t destroy);
 
-    int wl_resource_instance_of(long resource,
+    int wl_resource_instance_of(Pointer resource,
                                 wl_interface interface$,
-                                long implementation);
+                                Pointer implementation);
 
-    void wl_resource_add_destroy_listener(long resource,
+    void wl_resource_add_destroy_listener(Pointer resource,
                                           wl_listener listener);
 
-    wl_listener wl_resource_get_destroy_listener(long resource,
+    wl_listener wl_resource_get_destroy_listener(Pointer resource,
                                                  wl_notify_func_t notify$);
 
-    void wl_shm_buffer_begin_access(long buffer);
+    void wl_shm_buffer_begin_access(Pointer buffer);
 
-    void wl_shm_buffer_end_access(long buffer);
+    void wl_shm_buffer_end_access(Pointer buffer);
 
-    long wl_shm_buffer_get(long resource);
+    Pointer wl_shm_buffer_get(Pointer resource);
 
-    Pointer wl_shm_buffer_get_data(long buffer);
+    Pointer wl_shm_buffer_get_data(Pointer buffer);
 
-    int wl_shm_buffer_get_stride(long buffer);
+    int wl_shm_buffer_get_stride(Pointer buffer);
 
-    int wl_shm_buffer_get_width(long buffer);
+    int wl_shm_buffer_get_width(Pointer buffer);
 
-    int wl_shm_buffer_get_height(long buffer);
+    int wl_shm_buffer_get_height(Pointer buffer);
 
-    int wl_display_init_shm(long display);
+    int wl_display_init_shm(Pointer display);
 
-    IntByReference wl_display_add_shm_format(long display,
+    IntByReference wl_display_add_shm_format(Pointer display,
                                              int format);
 
-    long wl_shm_buffer_create(long client,
-                              int id,
-                              int width,
-                              int height,
-                              int stride,
-                              int format);
+    Pointer wl_shm_buffer_create(Pointer client,
+                                 int id,
+                                 int width,
+                                 int height,
+                                 int stride,
+                                 int format);
 
     void wl_log_set_handler_server(wl_log_func_t handler);
 
-    int wl_shm_buffer_get_format(long buffer);
+    int wl_shm_buffer_get_format(Pointer buffer);
 
-    void wl_resource_post_error(long pointer,
+    void wl_resource_post_error(Pointer pointer,
                                 int code,
                                 String msg);
 }

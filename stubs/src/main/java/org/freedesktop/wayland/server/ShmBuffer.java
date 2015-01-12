@@ -21,17 +21,18 @@
  */
 package org.freedesktop.wayland.server;
 
+import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.util.ObjectCache;
 
 import java.nio.ByteBuffer;
 
-public class ShmBuffer implements HasNative<Long> {
+public class ShmBuffer implements HasNative<Pointer> {
 
-    private final long pointer;
+    private final Pointer pointer;
 
-    protected ShmBuffer(final long pointer) {
+    protected ShmBuffer(final Pointer pointer) {
         this.pointer = pointer;
     }
 
@@ -64,12 +65,12 @@ public class ShmBuffer implements HasNative<Long> {
     }
 
     public static ShmBuffer get(final Resource<?> resource) {
-        final long
+        final Pointer
                 wlShmBuffer =
                 WaylandServerLibrary.INSTANCE.wl_shm_buffer_get(resource.getNative());
 
         final ShmBuffer buffer;
-        if (wlShmBuffer == 0) {
+        if (wlShmBuffer == null) {
             buffer = null;
         }
         else {
@@ -84,7 +85,7 @@ public class ShmBuffer implements HasNative<Long> {
     }
 
     @Override
-    public Long getNative() {
+    public Pointer getNative() {
         return this.pointer;
     }
 

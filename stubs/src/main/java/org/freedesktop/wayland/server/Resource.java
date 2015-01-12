@@ -21,6 +21,7 @@
  */
 package org.freedesktop.wayland.server;
 
+import com.sun.jna.Pointer;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.server.jna.wl_resource_destroy_func_t;
 import org.freedesktop.wayland.util.*;
@@ -30,17 +31,17 @@ import org.freedesktop.wayland.util.*;
  *
  * @param <I> Type of implementation that will be used to handle client requests.
  */
-public abstract class Resource<I> implements WaylandObject<Long> {
+public abstract class Resource<I> implements WaylandObject<Pointer> {
     //keep refs to callbacks to they don't get garbage collected.
     private final Dispatcher                 dispatcher            = new Dispatcher(this);
     private final wl_resource_destroy_func_t nativeDestroyCallback = new wl_resource_destroy_func_t() {
         @Override
-        public void apply(final long resource) {
+        public void apply(final Pointer resource) {
             ObjectCache.remove(getNative());
         }
     };
-    private final long pointer;
-    private final I    implementation;
+    private final Pointer pointer;
+    private final I       implementation;
 
     protected Resource(final Client client,
                        final int version,
@@ -56,12 +57,12 @@ public abstract class Resource<I> implements WaylandObject<Long> {
                           this);
         WaylandServerLibrary.INSTANCE.wl_resource_set_dispatcher(this.pointer,
                                                                  this.dispatcher,
-                                                                 123,
-                                                                 123,
+                                                                 Pointer.NULL,
+                                                                 Pointer.NULL,
                                                                  this.nativeDestroyCallback);
     }
 
-    public Resource(final long pointer) {
+    public Resource(final Pointer pointer) {
         this.pointer = pointer;
         this.implementation = null;
     }
@@ -127,7 +128,7 @@ public abstract class Resource<I> implements WaylandObject<Long> {
     public void postEvent(final int opcode) {
         WaylandServerLibrary.INSTANCE.wl_resource_post_event_array(this.pointer,
                                                                    opcode,
-                                                                   0);
+                                                                   Pointer.NULL);
     }
 
     public void postError(final int code,
@@ -137,7 +138,7 @@ public abstract class Resource<I> implements WaylandObject<Long> {
                                                              msg);
     }
 
-    public Long getNative() {
+    public Pointer getNative() {
         return this.pointer;
     }
 

@@ -1,12 +1,13 @@
 package org.freedesktop.wayland.client.egl;
 
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.client.egl.jna.WaylandEglLibrary;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class EglWindow implements HasNative<Long> {
+public class EglWindow implements HasNative<Pointer> {
 
     public static final class Size {
 
@@ -49,7 +50,7 @@ public class EglWindow implements HasNative<Long> {
         }
     }
 
-    private final long pointer;
+    private final Pointer pointer;
 
     public static EglWindow create(final Proxy<?> wlSurfaceProxy,
                                    final int width,
@@ -59,7 +60,7 @@ public class EglWindow implements HasNative<Long> {
                                                                              height));
     }
 
-    protected EglWindow(final long pointer) {
+    protected EglWindow(final Pointer pointer) {
         this.pointer = pointer;
         ObjectCache.store(getNative(),
                           this);
@@ -92,7 +93,7 @@ public class EglWindow implements HasNative<Long> {
     }
 
     @Override
-    public Long getNative() {
+    public Pointer getNative() {
         return this.pointer;
     }
 

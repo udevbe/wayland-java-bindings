@@ -21,6 +21,7 @@
  */
 package org.freedesktop.wayland.client;
 
+import com.sun.jna.Pointer;
 import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
 
 /**
@@ -83,7 +84,7 @@ import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
  */
 public abstract class Display extends Proxy<Void> {
 
-    protected Display(final long wlDisplay) {
+    protected Display(final Pointer wlDisplay) {
         super(wlDisplay,
               null,
               1);
