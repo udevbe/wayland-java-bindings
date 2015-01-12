@@ -59,7 +59,7 @@ public abstract class Listener implements HasNative<wl_listener> {
     }
 
     public void remove() {
-        WaylandServerLibrary.INSTANCE.wl_list_remove(this.pointer.link);
+        WaylandServerLibrary.INSTANCE.wl_list_remove(this.pointer.link.getPointer());
     }
 
     public void destroy() {
