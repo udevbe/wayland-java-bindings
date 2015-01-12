@@ -1,102 +1,129 @@
 package org.freedesktop.wayland.client.jna;
 
 import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import org.freedesktop.wayland.util.jna.WaylandUtilLibraryMapping;
 import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
-import org.freedesktop.wayland.util.jna.wl_interface;
 import org.freedesktop.wayland.util.jna.wl_log_func_t;
 
+public class WaylandClientLibrary implements WaylandClientLibraryMapping {
 
-public interface WaylandClientLibrary extends WaylandUtilLibraryMapping {
+    private static WaylandClientLibraryMapping INSTANCE;
 
-    public static final String               JNA_LIBRARY_NAME = "wayland-client";
-    public static final NativeLibrary        JNA_NATIVE_LIB   = NativeLibrary.getInstance(WaylandClientLibrary.JNA_LIBRARY_NAME);
-    public static final WaylandClientLibrary INSTANCE         = (WaylandClientLibrary) Native.loadLibrary(WaylandClientLibrary.JNA_LIBRARY_NAME,
-                                                                                                          WaylandClientLibrary.class);
+    public static WaylandClientLibraryMapping INSTANCE() {
+        if (INSTANCE == null) {
+            Native.register(WaylandClientLibraryMapping.JNA_LIBRARY_NAME);
+            INSTANCE = new WaylandClientLibrary();
+        }
+        return INSTANCE;
+    }
 
-    void wl_event_queue_destroy(Pointer queue);
+    public native void wl_event_queue_destroy(final Pointer queue);
 
-    void wl_proxy_marshal_array(Pointer p,
-                                int opcode,
-                                Pointer args);
+    public native void wl_proxy_marshal_array(final Pointer p,
+                                              final int opcode,
+                                              final Pointer args);
 
-    Pointer wl_proxy_create(Pointer factory,
-                            wl_interface interface$);
+    public native Pointer wl_proxy_create(final Pointer factory,
+                                          final Pointer interface$);
 
-    Pointer wl_proxy_marshal_array_constructor(Pointer proxy,
-                                               int opcode,
-                                               Pointer args,
-                                               wl_interface interface$);
+    public native Pointer wl_proxy_marshal_array_constructor(final Pointer proxy,
+                                                             final int opcode,
+                                                             final Pointer args,
+                                                             final Pointer interface$);
 
-    void wl_proxy_destroy(Pointer proxy);
+    public native void wl_proxy_destroy(final Pointer proxy);
 
-    int wl_proxy_add_listener(Pointer proxy,
-                              Pointer implementation,
-                              Pointer data);
+    public native int wl_proxy_add_listener(final Pointer proxy,
+                                            final Pointer implementation,
+                                            final Pointer data);
 
-    Pointer wl_proxy_get_listener(Pointer proxy);
+    public native Pointer wl_proxy_get_listener(final Pointer proxy);
 
-    int wl_proxy_add_dispatcher(Pointer proxy,
-                                wl_dispatcher_func_t dispatcher_func,
-                                Pointer dispatcher_data,
-                                Pointer data);
+    public native int wl_proxy_add_dispatcher(final Pointer proxy,
+                                              final wl_dispatcher_func_t dispatcher_func,
+                                              final Pointer dispatcher_data,
+                                              final Pointer data);
 
-    void wl_proxy_set_user_data(Pointer proxy,
-                                Pointer user_data);
+    public native void wl_proxy_set_user_data(final Pointer proxy,
+                                              final Pointer user_data);
 
-    Pointer wl_proxy_get_user_data(Pointer proxy);
+    public native Pointer wl_proxy_get_user_data(final Pointer proxy);
 
-    int wl_proxy_get_id(Pointer proxy);
+    public native int wl_proxy_get_id(final Pointer proxy);
 
-    String wl_proxy_get_class(Pointer proxy);
+    public native String wl_proxy_get_class(final Pointer proxy);
 
-    void wl_proxy_set_queue(Pointer proxy,
-                            Pointer queue);
+    public native void wl_proxy_set_queue(final Pointer proxy,
+                                          final Pointer queue);
 
-    Pointer wl_display_connect(Pointer name);
+    public native Pointer wl_display_connect(final Pointer name);
 
-    Pointer wl_display_connect_to_fd(int fd);
+    public native Pointer wl_display_connect_to_fd(final int fd);
 
-    void wl_display_disconnect(Pointer display);
+    public native void wl_display_disconnect(final Pointer display);
 
-    int wl_display_get_fd(Pointer display);
+    public native int wl_display_get_fd(final Pointer display);
 
-    int wl_display_dispatch(Pointer display);
+    public native int wl_display_dispatch(final Pointer display);
 
-    int wl_display_dispatch_queue(Pointer display,
-                                  Pointer queue);
+    public native int wl_display_dispatch_queue(final Pointer display,
+                                                final Pointer queue);
 
-    int wl_display_dispatch_queue_pending(Pointer display,
-                                          Pointer queue);
+    public native int wl_display_dispatch_queue_pending(final Pointer display,
+                                                        final Pointer queue);
 
-    int wl_display_dispatch_pending(Pointer display);
+    public native int wl_display_dispatch_pending(final Pointer display);
 
-    int wl_display_get_error(Pointer display);
+    public native int wl_display_get_error(final Pointer display);
 
-    int wl_display_get_protocol_error(Pointer display,
-                                      wl_interface.ByReference interface$[],
-                                      IntByReference id);
+    public native int wl_display_get_protocol_error(final Pointer display,
+                                                    final Pointer interface$,
+                                                    final IntByReference id);
 
-    int wl_display_flush(Pointer display);
+    public native int wl_display_flush(final Pointer display);
 
-    int wl_display_roundtrip_queue(Pointer display,
-                                   Pointer queue);
+    public native int wl_display_roundtrip_queue(final Pointer display,
+                                                 final Pointer queue);
 
-    int wl_display_roundtrip(Pointer display);
+    public native int wl_display_roundtrip(final Pointer display);
 
-    Pointer wl_display_create_queue(Pointer display);
+    public native Pointer wl_display_create_queue(final Pointer display);
 
-    int wl_display_prepare_read_queue(Pointer display,
-                                      Pointer queue);
+    public native int wl_display_prepare_read_queue(final Pointer display,
+                                                    final Pointer queue);
 
-    int wl_display_prepare_read(Pointer display);
+    public native int wl_display_prepare_read(final Pointer display);
 
-    void wl_display_cancel_read(Pointer display);
+    public native void wl_display_cancel_read(final Pointer display);
 
-    int wl_display_read_events(Pointer display);
+    public native int wl_display_read_events(final Pointer display);
 
-    void wl_log_set_handler_client(wl_log_func_t handler);
+    public native void wl_log_set_handler_client(final wl_log_func_t handler);
+
+    public native void wl_list_init(final Pointer list);
+
+    public native void wl_list_insert(final Pointer list,
+                                      final Pointer elm);
+
+    public native void wl_list_remove(final Pointer elm);
+
+    public native int wl_list_length(final Pointer list);
+
+    public native int wl_list_empty(final Pointer list);
+
+    public native void wl_list_insert_list(final Pointer list,
+                                           final Pointer other);
+
+    public native void wl_array_init(final Pointer array);
+
+    public native void wl_array_release(final Pointer array);
+
+    public native Pointer wl_array_add(final Pointer array,
+                                       final long size);
+
+    public native int wl_array_copy(final Pointer array,
+                                    final Pointer source);
+
+    public native void free(final Pointer pointer);
 }

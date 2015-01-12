@@ -314,7 +314,7 @@ public class ProxyWriter {
                                    "name")
                       .emitStatement("final com.sun.jna.Pointer m = new com.sun.jna.Memory(name.length() + 1)")
                       .emitStatement("m.setString(0,name)")
-                      .emitStatement("return new %s(org.freedesktop.wayland.client.jna.WaylandClientLibrary.INSTANCE.wl_display_connect(m))",
+                      .emitStatement("return new %s(org.freedesktop.wayland.client.jna.WaylandClientLibrary.INSTANCE().wl_display_connect(m))",
                                      getSimpleJavaTypeNameProxy(interfaceNode,
                                                                 1))
                       .endMethod()
@@ -334,7 +334,7 @@ public class ProxyWriter {
                                               Modifier.STATIC),
                                    int.class.getName(),
                                    "fd")
-                      .emitStatement("return new %s(org.freedesktop.wayland.client.jna.WaylandClientLibrary.INSTANCE.wl_display_connect_to_fd(fd))",
+                      .emitStatement("return new %s(org.freedesktop.wayland.client.jna.WaylandClientLibrary.INSTANCE().wl_display_connect_to_fd(fd))",
                                      getSimpleJavaTypeNameProxy(interfaceNode,
                                                                 1))
                       .endMethod();
