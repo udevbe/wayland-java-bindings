@@ -33,9 +33,9 @@ import java.nio.ByteBuffer;
 
 public class Arguments implements HasNative<Long> {
 
-    private final Pointer pointer;
+    private final Memory pointer;
 
-    Arguments(final Pointer pointer) {
+    Arguments(final Memory pointer) {
         this.pointer = pointer;
     }
 
@@ -43,7 +43,9 @@ public class Arguments implements HasNative<Long> {
         if (size < 1) {
             throw new IllegalArgumentException("Arguments size must be greater than 0");
         }
-        return new Arguments(new Memory(size * Pointer.SIZE));
+        final Memory memory = new Memory(size * Pointer.SIZE);
+        memory.clear();
+        return new Arguments(memory);
     }
 
     public int getI(final int index) {
@@ -106,7 +108,7 @@ public class Arguments implements HasNative<Long> {
     private void setInt(final int index,
                         final int integer) {
         this.pointer.setInt(index * Pointer.SIZE,
-                           integer);
+                            integer);
     }
 
 

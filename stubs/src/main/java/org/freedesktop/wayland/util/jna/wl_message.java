@@ -2,7 +2,6 @@ package org.freedesktop.wayland.util.jna;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import com.sun.jna.ptr.PointerByReference;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,11 +10,11 @@ public class wl_message extends Structure {
     /**
      * C type : const char*
      */
-    public Pointer            name;
+    public Pointer name;
     /**
      * C type : const char*
      */
-    public Pointer            signature;
+    public Pointer signature;
     /**
      * C type : wl_interface**
      */

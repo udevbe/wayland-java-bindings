@@ -10,14 +10,14 @@ public class wl_interface extends Structure {
     /**
      * C type : const char*
      */
-    public Pointer name;
-    public int     version;
-    public int     method_count;
+    public Pointer                name;
+    public int                    version;
+    public int                    method_count;
     /**
      * C type : wl_message*
      */
     public wl_message.ByReference methods;
-    public int     event_count;
+    public int                    event_count;
     /**
      * C type : wl_message*
      */

@@ -17,22 +17,22 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
     void wl_event_loop_destroy(long loop);
 
     long wl_event_loop_add_fd(long loop,
-                                         int fd,
-                                         int mask,
-                                         wl_event_loop_fd_func_t func,
-                                         long data);
+                              int fd,
+                              int mask,
+                              wl_event_loop_fd_func_t func,
+                              long data);
 
     int wl_event_source_fd_update(long source,
                                   int mask);
 
     long wl_event_loop_add_timer(long loop,
-                                            wl_event_loop_timer_func_t func,
-                                            long data);
+                                 wl_event_loop_timer_func_t func,
+                                 long data);
 
     long wl_event_loop_add_signal(long loop,
-                                             int signal_number,
-                                             wl_event_loop_signal_func_t func,
-                                             long data);
+                                  int signal_number,
+                                  wl_event_loop_signal_func_t func,
+                                  long data);
 
     int wl_event_source_timer_update(long source,
                                      int ms_delay);
@@ -47,8 +47,8 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
     void wl_event_loop_dispatch_idle(long loop);
 
     long wl_event_loop_add_idle(long loop,
-                                           wl_event_loop_idle_func_t func,
-                                           long data);
+                                wl_event_loop_idle_func_t func,
+                                long data);
 
     int wl_event_loop_get_fd(long loop);
 
@@ -86,15 +86,15 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
                                                 wl_notify_func_t notify$);
 
     long wl_global_create(long display,
-                               wl_interface interface$,
-                               int version,
-                               long data,
-                               wl_global_bind_func_t bind);
+                          wl_interface interface$,
+                          int version,
+                          long data,
+                          wl_global_bind_func_t bind);
 
     void wl_global_destroy(long global);
 
     long wl_client_create(long display,
-                               int fd);
+                          int fd);
 
     void wl_client_destroy(long client);
 
@@ -112,7 +112,7 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
                                                wl_notify_func_t notify$);
 
     long wl_client_get_object(long client,
-                                     int id);
+                              int id);
 
     void wl_client_post_no_memory(long client);
 
@@ -120,20 +120,20 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
                                long resource);
 
     long wl_client_add_object(long client,
-                                     wl_interface interface$,
-                                     long implementation,
-                                     int id,
-                                     long data);
+                              wl_interface interface$,
+                              long implementation,
+                              int id,
+                              long data);
 
     long wl_client_new_object(long client,
-                                     wl_interface interface$,
-                                     long implementation,
-                                     long data);
+                              wl_interface interface$,
+                              long implementation,
+                              long data);
 
     long wl_display_add_global(long display,
-                                    wl_interface interface$,
-                                    long data,
-                                    wl_global_bind_func_t bind);
+                               wl_interface interface$,
+                               long data,
+                               wl_global_bind_func_t bind);
 
     void wl_display_remove_global(long display,
                                   long global);
@@ -151,9 +151,9 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
     long wl_client_get_display(long client);
 
     long wl_resource_create(long client,
-                                   wl_interface interface$,
-                                   int version,
-                                   int id);
+                            wl_interface interface$,
+                            int version,
+                            int id);
 
     void wl_resource_set_implementation(long resource,
                                         long implementation,
@@ -175,7 +175,7 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
     long wl_resource_from_link(wl_list resource);
 
     long wl_resource_find_for_client(wl_list list,
-                                            long client);
+                                     long client);
 
     long wl_resource_get_client(long resource);
 
@@ -219,11 +219,11 @@ public interface WaylandServerLibrary extends WaylandUtilLibrary {
                                              int format);
 
     long wl_shm_buffer_create(long client,
-                                       int id,
-                                       int width,
-                                       int height,
-                                       int stride,
-                                       int format);
+                              int id,
+                              int width,
+                              int height,
+                              int stride,
+                              int format);
 
     void wl_log_set_handler_server(wl_log_func_t handler);
 
