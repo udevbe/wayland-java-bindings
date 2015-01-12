@@ -88,7 +88,7 @@ public abstract class Proxy<I> implements WaylandObject {
     public Proxy(final long pointer) {
         this(pointer,
              null,
-             1);
+             99);
     }
 
     public int getVersion() {
