@@ -157,7 +157,13 @@ public class ProxyWriter {
                                         int.class.getName(),
                                         "version")
                       .emitStatement("super(pointer, implementation, version)")
-                      .endConstructor();
+                      .endConstructor()
+                      .emitEmptyLine()
+                          .beginConstructor(EnumSet.of(Modifier.PUBLIC),
+                                            long.class.getName(),
+                                            "pointer")
+                          .emitStatement("super(pointer)")
+                          .endConstructor();
         }
         //methods
         for (int i = 0; i < requestNodes.getLength(); i++) {

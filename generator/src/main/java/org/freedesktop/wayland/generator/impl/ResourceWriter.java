@@ -134,17 +134,23 @@ public class ResourceWriter {
                                     "implementation")
                   .emitStatement("super(client, version, id, implementation)")
                   .endConstructor()
+                  .emitEmptyLine()
+                  .beginConstructor(EnumSet.of(Modifier.PUBLIC),
+                                    long.class.getName(),
+                                    "pointer")
+                  .emitStatement("super(pointer)")
+                  .endConstructor()
                   .emitEmptyLine();
 
-        //methods
-        for (int i = 0; i < eventNodes.getLength(); i++) {
-            final Element eventElement = (Element) eventNodes.item(i);
-            String javaDoc = getDoc(eventElement);
+      //methods
+      for (int i = 0; i < eventNodes.getLength(); i++) {
+        final Element eventElement = (Element) eventNodes.item(i);
+        String javaDoc = getDoc(eventElement);
 
-            //construct java method arg types & names
-            final String eventName = eventElement.getAttribute(ATTRIBUTE_NAME);
-            final NodeList argElements = eventElement.getElementsByTagName(ELEMENT_ARG);
-            final String sinceAttr = eventElement.getAttribute(ATTRIBUTE_SINCE);
+        //construct java method arg types & names
+        final String eventName = eventElement.getAttribute(ATTRIBUTE_NAME);
+        final NodeList argElements = eventElement.getElementsByTagName(ELEMENT_ARG);
+        final String sinceAttr = eventElement.getAttribute(ATTRIBUTE_SINCE);
             final String since = sinceAttr.isEmpty() ? "1" : sinceAttr;
             final String[] args = new String[argElements.getLength() * 2];
             for (int j = 0; j < argElements.getLength(); j++) {
