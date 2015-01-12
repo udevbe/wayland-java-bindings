@@ -56,18 +56,20 @@ public class ShmBuffer implements HasNative<Pointer> {
                      final int height,
                      final int stride,
                      final int format) {
-        this(WaylandServerLibrary.INSTANCE.wl_shm_buffer_create(client.getNative(),
-                                                                id,
-                                                                width,
-                                                                height,
-                                                                stride,
-                                                                format));
+        this(WaylandServerLibrary.INSTANCE()
+                                 .wl_shm_buffer_create(client.getNative(),
+                                                       id,
+                                                       width,
+                                                       height,
+                                                       stride,
+                                                       format));
     }
 
     public static ShmBuffer get(final Resource<?> resource) {
         final Pointer
                 wlShmBuffer =
-                WaylandServerLibrary.INSTANCE.wl_shm_buffer_get(resource.getNative());
+                WaylandServerLibrary.INSTANCE()
+                                    .wl_shm_buffer_get(resource.getNative());
 
         final ShmBuffer buffer;
         if (wlShmBuffer == null) {
@@ -123,7 +125,8 @@ public class ShmBuffer implements HasNative<Pointer> {
      * buffer from multiple threads.
      */
     public void beginAccess() {
-        WaylandServerLibrary.INSTANCE.wl_shm_buffer_begin_access(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_shm_buffer_begin_access(getNative());
     }
 
     /**
@@ -135,7 +138,8 @@ public class ShmBuffer implements HasNative<Pointer> {
      * given buffer will be sent an error.
      */
     public void endAccess() {
-        WaylandServerLibrary.INSTANCE.wl_shm_buffer_end_access(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_shm_buffer_end_access(getNative());
     }
 
     /**
@@ -154,25 +158,30 @@ public class ShmBuffer implements HasNative<Pointer> {
      * @return a direct ByteBuffer.
      */
     public ByteBuffer getData() {
-        return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_data(getNative())
-                                            .getByteBuffer(0,
-                                                           getHeight() * getStride());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_shm_buffer_get_data(getNative())
+                                   .getByteBuffer(0,
+                                                  getHeight() * getStride());
     }
 
     public int getFormat() {
-        return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_format(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_shm_buffer_get_format(getNative());
     }
 
     public int getStride() {
-        return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_stride(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_shm_buffer_get_stride(getNative());
     }
 
     public int getWidth() {
-        return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_width(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_shm_buffer_get_width(getNative());
     }
 
     public int getHeight() {
-        return WaylandServerLibrary.INSTANCE.wl_shm_buffer_get_height(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_shm_buffer_get_height(getNative());
     }
 
     @Override

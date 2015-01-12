@@ -45,27 +45,32 @@ public class Display implements HasNative<Pointer> {
      * @return The Wayland display object. Null if failed to create
      */
     public static Display create() {
-        return new Display(WaylandServerLibrary.INSTANCE.wl_display_create());
+        return new Display(WaylandServerLibrary.INSTANCE()
+                                               .wl_display_create());
     }
 
     public int addSocket(final String name) {
         final Pointer m = new Memory(name.length() + 1);
         m.setString(0,
                     name);
-        return WaylandServerLibrary.INSTANCE.wl_display_add_socket(getNative(),
-                                                                   m);
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_display_add_socket(getNative(),
+                                                          m);
     }
 
     public void terminate() {
-        WaylandServerLibrary.INSTANCE.wl_display_terminate(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_display_terminate(getNative());
     }
 
     public void run() {
-        WaylandServerLibrary.INSTANCE.wl_display_run(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_display_run(getNative());
     }
 
     public void flushClients() {
-        WaylandServerLibrary.INSTANCE.wl_display_flush_clients(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_display_flush_clients(getNative());
     }
 
     /**
@@ -75,7 +80,8 @@ public class Display implements HasNative<Pointer> {
      * increment it.
      */
     public int getSerial() {
-        return WaylandServerLibrary.INSTANCE.wl_display_get_serial(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_display_get_serial(getNative());
     }
 
     /**
@@ -85,28 +91,33 @@ public class Display implements HasNative<Pointer> {
      * new value.
      */
     public int nextSerial() {
-        return WaylandServerLibrary.INSTANCE.wl_display_next_serial(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_display_next_serial(getNative());
     }
 
     public EventLoop getEventLoop() {
-        final Pointer wlEventLoop = WaylandServerLibrary.INSTANCE.wl_display_get_event_loop(getNative());
+        final Pointer wlEventLoop = WaylandServerLibrary.INSTANCE()
+                                                        .wl_display_get_event_loop(getNative());
         final EventLoop eventLoop = ObjectCache.from(wlEventLoop);
         return eventLoop == null ? new EventLoop(wlEventLoop) : eventLoop;
     }
 
     public void destroy() {
         ObjectCache.remove(getNative());
-        WaylandServerLibrary.INSTANCE.wl_display_destroy(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_display_destroy(getNative());
 
     }
 
     public void addDestroyListener(final Listener listener) {
-        WaylandServerLibrary.INSTANCE.wl_display_add_destroy_listener(getNative(),
-                                                                      listener.getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_display_add_destroy_listener(getNative(),
+                                                             listener.getNative());
     }
 
     public int initShm() {
-        return WaylandServerLibrary.INSTANCE.wl_display_init_shm(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_display_init_shm(getNative());
     }
 
     /**
@@ -127,9 +138,10 @@ public class Display implements HasNative<Pointer> {
      * @return A pointer to the wl_shm format that was added to the list or NULL if adding it to the list failed.
      */
     public int addShmFormat(final int format) {
-        return WaylandServerLibrary.INSTANCE.wl_display_add_shm_format(getNative(),
-                                                                       format)
-                                            .getValue();
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_display_add_shm_format(getNative(),
+                                                              format)
+                                   .getValue();
     }
 
     public Pointer getNative() {

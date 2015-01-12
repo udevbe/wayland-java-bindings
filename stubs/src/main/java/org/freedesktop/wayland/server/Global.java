@@ -52,12 +52,13 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
             throw new IllegalArgumentException("Version must be bigger than 0");
         }
 
-        this.pointer = WaylandServerLibrary.INSTANCE.wl_global_create(display.getNative(),
-                                                                      InterfaceMeta.get(resourceClass)
-                                                                                   .getNative(),
-                                                                      version,
-                                                                      Pointer.NULL,
-                                                                      this.nativeCallback);
+        this.pointer = WaylandServerLibrary.INSTANCE()
+                                           .wl_global_create(display.getNative(),
+                                                             InterfaceMeta.get(resourceClass)
+                                                                          .getNative(),
+                                                             version,
+                                                             Pointer.NULL,
+                                                             this.nativeCallback);
         ObjectCache.store(getNative(),
                           this);
     }
@@ -76,7 +77,8 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
 
     public void destroy() {
         ObjectCache.remove(getNative());
-        WaylandServerLibrary.INSTANCE.wl_global_destroy(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_global_destroy(getNative());
     }
 
     public abstract R onBindClient(Client client,
@@ -88,7 +90,7 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Global)) {
+        if (!(o instanceof Global)){
             return false;
         }
 

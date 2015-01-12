@@ -1,235 +1,269 @@
 package org.freedesktop.wayland.server.jna;
 
 import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import org.freedesktop.wayland.util.jna.*;
+import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
+import org.freedesktop.wayland.util.jna.wl_interface;
+import org.freedesktop.wayland.util.jna.wl_list;
+import org.freedesktop.wayland.util.jna.wl_log_func_t;
 
-public interface WaylandServerLibrary extends WaylandUtilLibrary {
-    public static final String               JNA_LIBRARY_NAME = "wayland-server";
-    public static final NativeLibrary        JNA_NATIVE_LIB   = NativeLibrary.getInstance(WaylandServerLibrary.JNA_LIBRARY_NAME);
-    public static final WaylandServerLibrary INSTANCE         = (WaylandServerLibrary) Native.loadLibrary(WaylandServerLibrary.JNA_LIBRARY_NAME,
-                                                                                                          WaylandServerLibrary.class);
+public class WaylandServerLibrary implements WaylandServerLibraryMapping {
 
-    Pointer wl_event_loop_create();
+    private static WaylandServerLibraryMapping INSTANCE;
 
-    void wl_event_loop_destroy(Pointer loop);
+    public static WaylandServerLibraryMapping INSTANCE() {
+        if (INSTANCE == null) {
+            Native.register(WaylandServerLibraryMapping.JNA_LIBRARY_NAME);
+            INSTANCE = new WaylandServerLibrary();
+        }
+        return INSTANCE;
+    }
 
-    Pointer wl_event_loop_add_fd(Pointer loop,
-                                 int fd,
-                                 int mask,
-                                 wl_event_loop_fd_func_t func,
-                                 Pointer data);
+    public native Pointer wl_event_loop_create();
 
-    int wl_event_source_fd_update(Pointer source,
-                                  int mask);
+    public native void wl_event_loop_destroy(final Pointer loop);
 
-    Pointer wl_event_loop_add_timer(Pointer loop,
-                                    wl_event_loop_timer_func_t func,
-                                    Pointer data);
+    public native Pointer wl_event_loop_add_fd(final Pointer loop,
+                                               final int fd,
+                                               final int mask,
+                                               final wl_event_loop_fd_func_t func,
+                                               final Pointer data);
 
-    Pointer wl_event_loop_add_signal(Pointer loop,
-                                     int signal_number,
-                                     wl_event_loop_signal_func_t func,
-                                     Pointer data);
+    public native int wl_event_source_fd_update(final Pointer source,
+                                                final int mask);
 
-    int wl_event_source_timer_update(Pointer source,
-                                     int ms_delay);
+    public native Pointer wl_event_loop_add_timer(final Pointer loop,
+                                                  final wl_event_loop_timer_func_t func,
+                                                  final Pointer data);
 
-    int wl_event_source_remove(Pointer source);
+    public native Pointer wl_event_loop_add_signal(final Pointer loop,
+                                                   final int signal_number,
+                                                   final wl_event_loop_signal_func_t func,
+                                                   final Pointer data);
 
-    void wl_event_source_check(Pointer source);
+    public native int wl_event_source_timer_update(final Pointer source,
+                                                   final int ms_delay);
 
-    int wl_event_loop_dispatch(Pointer loop,
-                               int timeout);
+    public native int wl_event_source_remove(final Pointer source);
 
-    void wl_event_loop_dispatch_idle(Pointer loop);
+    public native void wl_event_source_check(final Pointer source);
 
-    Pointer wl_event_loop_add_idle(Pointer loop,
-                                   wl_event_loop_idle_func_t func,
-                                   Pointer data);
+    public native int wl_event_loop_dispatch(final Pointer loop,
+                                             final int timeout);
 
-    int wl_event_loop_get_fd(Pointer loop);
+    public native void wl_event_loop_dispatch_idle(final Pointer loop);
 
-    void wl_event_loop_add_destroy_listener(Pointer loop,
-                                            wl_listener listener);
+    public native Pointer wl_event_loop_add_idle(final Pointer loop,
+                                                 final wl_event_loop_idle_func_t func,
+                                                 final Pointer data);
 
-    wl_listener wl_event_loop_get_destroy_listener(Pointer loop,
-                                                   wl_notify_func_t notify$);
+    public native int wl_event_loop_get_fd(final Pointer loop);
 
-    Pointer wl_display_create();
+    public native void wl_event_loop_add_destroy_listener(final Pointer loop,
+                                                          final wl_listener listener);
 
-    void wl_display_destroy(Pointer display);
+    public native wl_listener wl_event_loop_get_destroy_listener(final Pointer loop,
+                                                                 final wl_notify_func_t notify$);
 
-    Pointer wl_display_get_event_loop(Pointer display);
+    public native Pointer wl_display_create();
 
-    int wl_display_add_socket(Pointer display,
-                              Pointer name);
+    public native void wl_display_destroy(final Pointer display);
 
-    String wl_display_add_socket_auto(Pointer display);
+    public native Pointer wl_display_get_event_loop(final Pointer display);
 
-    void wl_display_terminate(Pointer display);
+    public native int wl_display_add_socket(final Pointer display,
+                                            final Pointer name);
 
-    void wl_display_run(Pointer display);
+    public native String wl_display_add_socket_auto(final Pointer display);
 
-    void wl_display_flush_clients(Pointer display);
+    public native void wl_display_terminate(final Pointer display);
 
-    int wl_display_get_serial(Pointer display);
+    public native void wl_display_run(final Pointer display);
 
-    int wl_display_next_serial(Pointer display);
+    public native void wl_display_flush_clients(final Pointer display);
 
-    void wl_display_add_destroy_listener(Pointer display,
-                                         wl_listener listener);
+    public native int wl_display_get_serial(final Pointer display);
 
-    wl_listener wl_display_get_destroy_listener(Pointer display,
-                                                wl_notify_func_t notify$);
+    public native int wl_display_next_serial(final Pointer display);
 
-    Pointer wl_global_create(Pointer display,
-                             wl_interface interface$,
-                             int version,
-                             Pointer data,
-                             wl_global_bind_func_t bind);
+    public native void wl_display_add_destroy_listener(final Pointer display,
+                                                       final wl_listener listener);
 
-    void wl_global_destroy(Pointer global);
+    public native wl_listener wl_display_get_destroy_listener(final Pointer display,
+                                                              final wl_notify_func_t notify$);
 
-    Pointer wl_client_create(Pointer display,
-                             int fd);
+    public native Pointer wl_global_create(final Pointer display,
+                                           final wl_interface interface$,
+                                           final int version,
+                                           final Pointer data,
+                                           final wl_global_bind_func_t bind);
 
-    void wl_client_destroy(Pointer client);
+    public native void wl_global_destroy(final Pointer global);
 
-    void wl_client_flush(Pointer client);
+    public native Pointer wl_client_create(final Pointer display,
+                                           final int fd);
 
-    void wl_client_get_credentials(Pointer client,
-                                   IntByReference pid,
-                                   IntByReference uid,
-                                   IntByReference gid);
+    public native void wl_client_destroy(final Pointer client);
 
-    void wl_client_add_destroy_listener(Pointer client,
-                                        wl_listener listener);
+    public native void wl_client_flush(final Pointer client);
 
-    wl_listener wl_client_get_destroy_listener(Pointer client,
-                                               wl_notify_func_t notify$);
+    public native void wl_client_get_credentials(final Pointer client,
+                                                 final IntByReference pid,
+                                                 final IntByReference uid,
+                                                 final IntByReference gid);
 
-    Pointer wl_client_get_object(Pointer client,
-                                 int id);
+    public native void wl_client_add_destroy_listener(final Pointer client,
+                                                      final wl_listener listener);
 
-    void wl_client_post_no_memory(Pointer client);
+    public native wl_listener wl_client_get_destroy_listener(final Pointer client,
+                                                             final wl_notify_func_t notify$);
 
-    int wl_client_add_resource(Pointer client,
-                               Pointer resource);
+    public native Pointer wl_client_get_object(final Pointer client,
+                                               final int id);
 
-    Pointer wl_client_add_object(Pointer client,
-                                 wl_interface interface$,
-                                 Pointer implementation,
-                                 int id,
-                                 Pointer data);
+    public native void wl_client_post_no_memory(final Pointer client);
 
-    Pointer wl_client_new_object(Pointer client,
-                                 wl_interface interface$,
-                                 Pointer implementation,
-                                 Pointer data);
+    public native int wl_client_add_resource(final Pointer client,
+                                             final Pointer resource);
 
-    Pointer wl_display_add_global(Pointer display,
-                                  wl_interface interface$,
-                                  Pointer data,
-                                  wl_global_bind_func_t bind);
+    public native Pointer wl_client_add_object(final Pointer client,
+                                               final wl_interface interface$,
+                                               final Pointer implementation,
+                                               final int id,
+                                               final Pointer data);
 
-    void wl_display_remove_global(Pointer display,
-                                  Pointer global);
+    public native Pointer wl_client_new_object(final Pointer client,
+                                               final wl_interface interface$,
+                                               final Pointer implementation,
+                                               final Pointer data);
 
-    void wl_resource_post_event_array(Pointer resource,
-                                      int opcode,
-                                      Pointer args);
+    public native Pointer wl_display_add_global(final Pointer display,
+                                                final wl_interface interface$,
+                                                final Pointer data,
+                                                final wl_global_bind_func_t bind);
 
-    void wl_resource_queue_event_array(Pointer resource,
-                                       int opcode,
-                                       Pointer args);
+    public native void wl_display_remove_global(final Pointer display,
+                                                final Pointer global);
 
-    void wl_resource_post_no_memory(Pointer resource);
+    public native void wl_resource_post_event_array(final Pointer resource,
+                                                    final int opcode,
+                                                    final Pointer args);
 
-    Pointer wl_client_get_display(Pointer client);
+    public native void wl_resource_queue_event_array(final Pointer resource,
+                                                     final int opcode,
+                                                     final Pointer args);
 
-    Pointer wl_resource_create(Pointer client,
-                               wl_interface interface$,
-                               int version,
-                               int id);
+    public native void wl_resource_post_no_memory(final Pointer resource);
 
-    void wl_resource_set_implementation(Pointer resource,
-                                        Pointer implementation,
-                                        Pointer data,
-                                        wl_resource_destroy_func_t destroy);
+    public native Pointer wl_client_get_display(final Pointer client);
 
-    void wl_resource_set_dispatcher(Pointer resource,
-                                    wl_dispatcher_func_t dispatcher,
-                                    Pointer implementation,
-                                    Pointer data,
-                                    wl_resource_destroy_func_t destroy);
+    public native Pointer wl_resource_create(final Pointer client,
+                                             final wl_interface interface$,
+                                             final int version,
+                                             final int id);
 
-    void wl_resource_destroy(Pointer resource);
+    public native void wl_resource_set_implementation(final Pointer resource,
+                                                      final Pointer implementation,
+                                                      final Pointer data,
+                                                      final wl_resource_destroy_func_t destroy);
 
-    int wl_resource_get_id(Pointer resource);
+    public native void wl_resource_set_dispatcher(final Pointer resource,
+                                                  final wl_dispatcher_func_t dispatcher,
+                                                  final Pointer implementation,
+                                                  final Pointer data,
+                                                  final wl_resource_destroy_func_t destroy);
 
-    wl_list wl_resource_get_link(Pointer resource);
+    public native void wl_resource_destroy(final Pointer resource);
 
-    Pointer wl_resource_from_link(wl_list resource);
+    public native int wl_resource_get_id(final Pointer resource);
 
-    Pointer wl_resource_find_for_client(wl_list list,
-                                        Pointer client);
+    public native wl_list wl_resource_get_link(final Pointer resource);
 
-    Pointer wl_resource_get_client(Pointer resource);
+    public native Pointer wl_resource_from_link(final wl_list resource);
 
-    void wl_resource_set_user_data(Pointer resource,
-                                   Pointer data);
+    public native Pointer wl_resource_find_for_client(final wl_list list,
+                                                      final Pointer client);
 
-    Pointer wl_resource_get_user_data(Pointer resource);
+    public native Pointer wl_resource_get_client(final Pointer resource);
 
-    int wl_resource_get_version(Pointer resource);
+    public native void wl_resource_set_user_data(final Pointer resource,
+                                                 final Pointer data);
 
-    void wl_resource_set_destructor(Pointer resource,
-                                    wl_resource_destroy_func_t destroy);
+    public native Pointer wl_resource_get_user_data(final Pointer resource);
 
-    int wl_resource_instance_of(Pointer resource,
-                                wl_interface interface$,
-                                Pointer implementation);
+    public native int wl_resource_get_version(final Pointer resource);
 
-    void wl_resource_add_destroy_listener(Pointer resource,
-                                          wl_listener listener);
+    public native void wl_resource_set_destructor(final Pointer resource,
+                                                  final wl_resource_destroy_func_t destroy);
 
-    wl_listener wl_resource_get_destroy_listener(Pointer resource,
-                                                 wl_notify_func_t notify$);
+    public native int wl_resource_instance_of(final Pointer resource,
+                                              final wl_interface interface$,
+                                              final Pointer implementation);
 
-    void wl_shm_buffer_begin_access(Pointer buffer);
+    public native void wl_resource_add_destroy_listener(final Pointer resource,
+                                                        final wl_listener listener);
 
-    void wl_shm_buffer_end_access(Pointer buffer);
+    public native wl_listener wl_resource_get_destroy_listener(final Pointer resource,
+                                                               final wl_notify_func_t notify$);
 
-    Pointer wl_shm_buffer_get(Pointer resource);
+    public native void wl_shm_buffer_begin_access(final Pointer buffer);
 
-    Pointer wl_shm_buffer_get_data(Pointer buffer);
+    public native void wl_shm_buffer_end_access(final Pointer buffer);
 
-    int wl_shm_buffer_get_stride(Pointer buffer);
+    public native Pointer wl_shm_buffer_get(final Pointer resource);
 
-    int wl_shm_buffer_get_width(Pointer buffer);
+    public native Pointer wl_shm_buffer_get_data(final Pointer buffer);
 
-    int wl_shm_buffer_get_height(Pointer buffer);
+    public native int wl_shm_buffer_get_stride(final Pointer buffer);
 
-    int wl_display_init_shm(Pointer display);
+    public native int wl_shm_buffer_get_width(final Pointer buffer);
 
-    IntByReference wl_display_add_shm_format(Pointer display,
-                                             int format);
+    public native int wl_shm_buffer_get_height(final Pointer buffer);
 
-    Pointer wl_shm_buffer_create(Pointer client,
-                                 int id,
-                                 int width,
-                                 int height,
-                                 int stride,
-                                 int format);
+    public native int wl_display_init_shm(final Pointer display);
 
-    void wl_log_set_handler_server(wl_log_func_t handler);
+    public native IntByReference wl_display_add_shm_format(final Pointer display,
+                                                           final int format);
 
-    int wl_shm_buffer_get_format(Pointer buffer);
+    public native Pointer wl_shm_buffer_create(final Pointer client,
+                                               final int id,
+                                               final int width,
+                                               final int height,
+                                               final int stride,
+                                               final int format);
 
-    void wl_resource_post_error(Pointer pointer,
-                                int code,
-                                String msg);
+    public native void wl_log_set_handler_server(final wl_log_func_t handler);
+
+    public native int wl_shm_buffer_get_format(final Pointer buffer);
+
+    public native void wl_resource_post_error(final Pointer pointer,
+                                              final int code,
+                                              final String msg);
+
+    public native void wl_list_init(final Pointer list);
+
+    public native void wl_list_insert(final Pointer list,
+                                      final Pointer elm);
+
+    public native void wl_list_remove(final Pointer elm);
+
+    public native int wl_list_length(final Pointer list);
+
+    public native int wl_list_empty(final Pointer list);
+
+    public native void wl_list_insert_list(final Pointer list,
+                                           final Pointer other);
+
+    public native void wl_array_init(final Pointer array);
+
+    public native void wl_array_release(final Pointer array);
+
+    public native Pointer wl_array_add(final Pointer array,
+                                       final long size);
+
+    public native int wl_array_copy(final Pointer array,
+                                    final Pointer source);
+
+    public native void free(final Pointer pointer);
 }
