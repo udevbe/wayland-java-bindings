@@ -48,18 +48,20 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
                        final int id,
                        final I implementation) {
         this.implementation = implementation;
-        this.pointer = WaylandServerLibrary.INSTANCE.wl_resource_create(client.getNative(),
-                                                                        InterfaceMeta.get(getClass())
-                                                                                     .getNative(),
-                                                                        version,
-                                                                        id);
+        this.pointer = WaylandServerLibrary.INSTANCE()
+                                           .wl_resource_create(client.getNative(),
+                                                               InterfaceMeta.get(getClass())
+                                                                            .getNative(),
+                                                               version,
+                                                               id);
         ObjectCache.store(getNative(),
                           this);
-        WaylandServerLibrary.INSTANCE.wl_resource_set_dispatcher(this.pointer,
-                                                                 this.dispatcher,
-                                                                 Pointer.NULL,
-                                                                 Pointer.NULL,
-                                                                 this.nativeDestroyCallback);
+        WaylandServerLibrary.INSTANCE()
+                            .wl_resource_set_dispatcher(this.pointer,
+                                                        this.dispatcher,
+                                                        Pointer.NULL,
+                                                        Pointer.NULL,
+                                                        this.nativeDestroyCallback);
     }
 
     public Resource(final Pointer pointer) {
@@ -68,7 +70,8 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     }
 
     public int getVersion() {
-        return WaylandServerLibrary.INSTANCE.wl_resource_get_version(this.pointer);
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_resource_get_version(this.pointer);
     }
 
     public I getImplementation() {
@@ -76,21 +79,25 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     }
 
     public Client getClient() {
-        return ObjectCache.from(WaylandServerLibrary.INSTANCE.wl_resource_get_client(this.pointer));
+        return ObjectCache.from(WaylandServerLibrary.INSTANCE()
+                                                    .wl_resource_get_client(this.pointer));
     }
 
     public int getId() {
-        return WaylandServerLibrary.INSTANCE.wl_resource_get_id(this.pointer);
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_resource_get_id(this.pointer);
     }
 
     public void addDestroyListener(final Listener listener) {
-        WaylandServerLibrary.INSTANCE.wl_resource_add_destroy_listener(this.pointer,
-                                                                       listener.getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_resource_add_destroy_listener(this.pointer,
+                                                              listener.getNative());
     }
 
     public void destroy() {
         ObjectCache.remove(getNative());
-        WaylandServerLibrary.INSTANCE.wl_resource_destroy(this.pointer);
+        WaylandServerLibrary.INSTANCE()
+                            .wl_resource_destroy(this.pointer);
     }
 
     /**
@@ -116,9 +123,10 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
      */
     public void postEvent(final int opcode,
                           final Arguments args) {
-        WaylandServerLibrary.INSTANCE.wl_resource_post_event_array(this.pointer,
-                                                                   opcode,
-                                                                   args.getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_resource_post_event_array(this.pointer,
+                                                          opcode,
+                                                          args.getNative());
     }
 
     /**
@@ -126,16 +134,18 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
      * @see #postEvent(int, org.freedesktop.wayland.util.Arguments)
      */
     public void postEvent(final int opcode) {
-        WaylandServerLibrary.INSTANCE.wl_resource_post_event_array(this.pointer,
-                                                                   opcode,
-                                                                   Pointer.NULL);
+        WaylandServerLibrary.INSTANCE()
+                            .wl_resource_post_event_array(this.pointer,
+                                                          opcode,
+                                                          Pointer.NULL);
     }
 
     public void postError(final int code,
                           final String msg) {
-        WaylandServerLibrary.INSTANCE.wl_resource_post_error(this.pointer,
-                                                             code,
-                                                             msg);
+        WaylandServerLibrary.INSTANCE()
+                            .wl_resource_post_error(this.pointer,
+                                                    code,
+                                                    msg);
     }
 
     public Pointer getNative() {

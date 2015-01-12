@@ -4,13 +4,13 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import org.freedesktop.wayland.util.jna.WaylandUtilLibrary;
+import org.freedesktop.wayland.util.jna.WaylandUtilLibraryMapping;
 import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jna.wl_interface;
 import org.freedesktop.wayland.util.jna.wl_log_func_t;
 
 
-public interface WaylandClientLibrary extends WaylandUtilLibrary {
+public interface WaylandClientLibrary extends WaylandUtilLibraryMapping {
 
     public static final String               JNA_LIBRARY_NAME = "wayland-client";
     public static final NativeLibrary        JNA_NATIVE_LIB   = NativeLibrary.getInstance(WaylandClientLibrary.JNA_LIBRARY_NAME);

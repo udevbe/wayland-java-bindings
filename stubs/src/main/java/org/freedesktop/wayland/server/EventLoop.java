@@ -47,7 +47,8 @@ public class EventLoop implements HasNative<Pointer> {
     }
 
     public static EventLoop create() {
-        return new EventLoop(WaylandServerLibrary.INSTANCE.wl_event_loop_create());
+        return new EventLoop(WaylandServerLibrary.INSTANCE()
+                                                 .wl_event_loop_create());
     }
 
     public EventSource addFileDescriptor(final int fd,
@@ -65,11 +66,12 @@ public class EventLoop implements HasNative<Pointer> {
         };
         this.weakNativeCallbackReferences.put(handler,
                                               nativeCallback);
-        final Pointer wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_fd(getNative(),
-                                                                                         fd,
-                                                                                         mask,
-                                                                                         nativeCallback,
-                                                                                         Pointer.NULL);
+        final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
+                                                          .wl_event_loop_add_fd(getNative(),
+                                                                                fd,
+                                                                                mask,
+                                                                                nativeCallback,
+                                                                                Pointer.NULL);
         return EventSource.create(wlEventSource);
     }
 
@@ -83,9 +85,10 @@ public class EventLoop implements HasNative<Pointer> {
         };
         this.weakNativeCallbackReferences.put(handler,
                                               nativeCallback);
-        return EventSource.create(WaylandServerLibrary.INSTANCE.wl_event_loop_add_timer(getNative(),
-                                                                                        nativeCallback,
-                                                                                        Pointer.NULL));
+        return EventSource.create(WaylandServerLibrary.INSTANCE()
+                                                      .wl_event_loop_add_timer(getNative(),
+                                                                               nativeCallback,
+                                                                               Pointer.NULL));
     }
 
     public EventSource addSignal(final int signalNumber,
@@ -101,10 +104,11 @@ public class EventLoop implements HasNative<Pointer> {
         };
         this.weakNativeCallbackReferences.put(handler,
                                               callback);
-        final Pointer wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_signal(getNative(),
-                                                                                             signalNumber,
-                                                                                             callback,
-                                                                                             Pointer.NULL);
+        final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
+                                                          .wl_event_loop_add_signal(getNative(),
+                                                                                    signalNumber,
+                                                                                    callback,
+                                                                                    Pointer.NULL);
         return EventSource.create(wlEventSource);
     }
 
@@ -117,33 +121,39 @@ public class EventLoop implements HasNative<Pointer> {
         };
         this.weakNativeCallbackReferences.put(handler,
                                               callback);
-        final Pointer wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_idle(getNative(),
-                                                                                           callback,
-                                                                                           Pointer.NULL);
+        final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
+                                                          .wl_event_loop_add_idle(getNative(),
+                                                                                  callback,
+                                                                                  Pointer.NULL);
         return EventSource.create(wlEventSource);
     }
 
     public int dispatch(final int timeout) {
-        return WaylandServerLibrary.INSTANCE.wl_event_loop_dispatch(getNative(),
-                                                                    timeout);
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_event_loop_dispatch(getNative(),
+                                                           timeout);
     }
 
     public void dispatchIdle() {
-        WaylandServerLibrary.INSTANCE.wl_event_loop_dispatch_idle(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_event_loop_dispatch_idle(getNative());
     }
 
     public int getFileDescriptor() {
-        return WaylandServerLibrary.INSTANCE.wl_event_loop_get_fd(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_event_loop_get_fd(getNative());
     }
 
     public void addDestroyListener(final Listener listener) {
-        WaylandServerLibrary.INSTANCE.wl_event_loop_add_destroy_listener(getNative(),
-                                                                         listener.getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_event_loop_add_destroy_listener(getNative(),
+                                                                listener.getNative());
     }
 
     public void destroy() {
         ObjectCache.remove(getNative());
-        WaylandServerLibrary.INSTANCE.free(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .free(getNative());
     }
 
     public Pointer getNative() {

@@ -40,22 +40,26 @@ public class EventSource implements HasNative<Pointer> {
     }
 
     public int updateFileDescriptor(final int mask) {
-        return WaylandServerLibrary.INSTANCE.wl_event_source_fd_update(getNative(),
-                                                                       mask);
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_event_source_fd_update(getNative(),
+                                                              mask);
     }
 
     public int updateTimer(final int msDelay) {
-        return WaylandServerLibrary.INSTANCE.wl_event_source_timer_update(getNative(),
-                                                                          msDelay);
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_event_source_timer_update(getNative(),
+                                                                 msDelay);
     }
 
     public int remove() {
         ObjectCache.remove(getNative());
-        return WaylandServerLibrary.INSTANCE.wl_event_source_remove(getNative());
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_event_source_remove(getNative());
     }
 
     public void check() {
-        WaylandServerLibrary.INSTANCE.wl_event_source_check(getNative());
+        WaylandServerLibrary.INSTANCE()
+                            .wl_event_source_check(getNative());
     }
 
     public Pointer getNative() {

@@ -3,7 +3,7 @@ package org.freedesktop.wayland.util.jna;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
-public interface WaylandUtilLibrary extends Library {
+public interface WaylandUtilLibraryMapping extends Library {
 
     void wl_list_init(Pointer list);
 
