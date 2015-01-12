@@ -66,10 +66,10 @@ public class EventLoop implements HasNative<Long> {
         this.weakNativeCallbackReferences.put(handler,
                                               nativeCallback);
         final long wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_fd(getNative(),
-                                                                                                 fd,
-                                                                                                 mask,
-                                                                                                 nativeCallback,
-                                                                                                 0);
+                                                                                      fd,
+                                                                                      mask,
+                                                                                      nativeCallback,
+                                                                                      0);
         return EventSource.create(wlEventSource);
     }
 
@@ -102,9 +102,9 @@ public class EventLoop implements HasNative<Long> {
         this.weakNativeCallbackReferences.put(handler,
                                               callback);
         final long wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_signal(getNative(),
-                                                                                                     signalNumber,
-                                                                                                     callback,
-                                                                                                     0);
+                                                                                          signalNumber,
+                                                                                          callback,
+                                                                                          0);
         return EventSource.create(wlEventSource);
     }
 
@@ -118,8 +118,8 @@ public class EventLoop implements HasNative<Long> {
         this.weakNativeCallbackReferences.put(handler,
                                               callback);
         final long wlEventSource = WaylandServerLibrary.INSTANCE.wl_event_loop_add_idle(getNative(),
-                                                                                                   callback,
-                                                                                                   Pointer.NULL);
+                                                                                        callback,
+                                                                                        0);
         return EventSource.create(wlEventSource);
     }
 
