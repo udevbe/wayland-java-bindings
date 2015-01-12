@@ -40,7 +40,7 @@ public abstract class Resource<I> implements WaylandObject<Long> {
         }
     };
     private final long pointer;
-    private final I           implementation;
+    private final I    implementation;
 
     protected Resource(final Client client,
                        final int version,
@@ -61,12 +61,12 @@ public abstract class Resource<I> implements WaylandObject<Long> {
                                                                  this.nativeDestroyCallback);
     }
 
-  public Resource(final long pointer) {
-    this.pointer = pointer;
-    this.implementation = null;
-  }
+    public Resource(final long pointer) {
+        this.pointer = pointer;
+        this.implementation = null;
+    }
 
-  public int getVersion() {
+    public int getVersion() {
         return WaylandServerLibrary.INSTANCE.wl_resource_get_version(this.pointer);
     }
 

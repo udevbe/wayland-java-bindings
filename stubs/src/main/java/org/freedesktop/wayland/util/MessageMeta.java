@@ -23,7 +23,6 @@ package org.freedesktop.wayland.util;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.PointerByReference;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.util.jna.wl_message;
 
@@ -66,15 +65,18 @@ public class MessageMeta implements HasNative<wl_message> {
                                             .length() + 1);
         m.setString(0,
                     message.name());
-        messagePointer.writeField("name",m);
+        messagePointer.writeField("name",
+                                  m);
         //set signature
         final Pointer s = new Memory(message.signature()
                                             .length() + 1);
         s.setString(0,
                     message.signature());
-        messagePointer.writeField("signature",s);
+        messagePointer.writeField("signature",
+                                  s);
         //set types
-        messagePointer.writeField("types",typesPointerPointer);
+        messagePointer.writeField("types",
+                                  typesPointerPointer);
 
         new MessageMeta(messagePointer,
                         message);
