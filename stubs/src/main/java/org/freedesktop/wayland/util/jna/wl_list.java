@@ -10,11 +10,11 @@ public class wl_list extends Structure {
     /**
      * C type : wl_list*
      */
-    public wl_list.ByReference prev;
+    public transient wl_list.ByReference prev;
     /**
      * C type : wl_list*
      */
-    public wl_list.ByReference next;
+    public transient wl_list.ByReference next;
 
     public wl_list() {
         super();
