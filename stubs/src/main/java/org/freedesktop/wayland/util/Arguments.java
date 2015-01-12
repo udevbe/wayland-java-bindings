@@ -105,10 +105,8 @@ public class Arguments implements HasNative<Long> {
 
     private void setInt(final int index,
                         final int integer) {
-        this.pointer.write(index * Pointer.SIZE,
-                           new int[]{integer},
-                           0,
-                           1);
+        this.pointer.setInt(index * Pointer.SIZE,
+                           integer);
     }
 
 
