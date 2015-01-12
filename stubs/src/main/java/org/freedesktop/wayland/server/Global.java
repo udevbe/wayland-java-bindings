@@ -53,12 +53,12 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Long> {
 
         this.pointer = WaylandServerLibrary.INSTANCE.wl_global_create(display.getNative(),
                                                                       InterfaceMeta.get(resourceClass)
-                                                                          .getNative(),
+                                                                                   .getNative(),
                                                                       version,
                                                                       0,
                                                                       this.nativeCallback);
-      ObjectCache.store(getNative(),
-                        this);
+        ObjectCache.store(getNative(),
+                          this);
     }
 
     public Long getNative() {
@@ -75,7 +75,7 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Long> {
 
     public void destroy() {
         ObjectCache.remove(getNative());
-      WaylandServerLibrary.INSTANCE.wl_global_destroy(getNative());
+        WaylandServerLibrary.INSTANCE.wl_global_destroy(getNative());
     }
 
     public abstract R onBindClient(Client client,

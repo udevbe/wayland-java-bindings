@@ -3,7 +3,6 @@ package org.freedesktop.wayland.client.egl.jna;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 public interface WaylandEglLibrary extends Library {
@@ -13,8 +12,8 @@ public interface WaylandEglLibrary extends Library {
                                                                                                     WaylandEglLibrary.class);
 
     long wl_egl_window_create(long surface,
-                                       int width,
-                                       int height);
+                              int width,
+                              int height);
 
     void wl_egl_window_destroy(long egl_window);
 

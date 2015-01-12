@@ -111,15 +111,21 @@ public class InterfaceMeta implements HasNative<wl_interface> {
         final Pointer m = new Memory(name.length() + 1);
         m.setString(0,
                     name);
-        interfacePointer.writeField("name",m);
+        interfacePointer.writeField("name",
+                                    m);
         //set version
-        interfacePointer.writeField("version",version);
+        interfacePointer.writeField("version",
+                                    version);
         //set methods
-        interfacePointer.writeField("methods",methodPointer[0]);
-        interfacePointer.writeField("method_count",methods.length);
+        interfacePointer.writeField("methods",
+                                    methodPointer[0]);
+        interfacePointer.writeField("method_count",
+                                    methods.length);
         //set events
-        interfacePointer.writeField("events",eventPointer[0]);
-        interfacePointer.writeField("event_count",events.length);
+        interfacePointer.writeField("events",
+                                    eventPointer[0]);
+        interfacePointer.writeField("event_count",
+                                    events.length);
 
         return new InterfaceMeta(interfacePointer);
     }

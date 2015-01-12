@@ -1,7 +1,6 @@
 package org.freedesktop.wayland.util.jna;
 
 import com.sun.jna.Callback;
-import com.sun.jna.Pointer;
 
 /**
  * \brief A function pointer type for a dispatcher.
