@@ -66,10 +66,8 @@ public class ShmBuffer implements HasNative<Pointer> {
     }
 
     public static ShmBuffer get(final Resource<?> resource) {
-        final Pointer
-                wlShmBuffer =
-                WaylandServerLibrary.INSTANCE()
-                                    .wl_shm_buffer_get(resource.getNative());
+        final Pointer wlShmBuffer = WaylandServerLibrary.INSTANCE()
+                                                        .wl_shm_buffer_get(resource.getNative());
 
         final ShmBuffer buffer;
         if (wlShmBuffer == null) {
