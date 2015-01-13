@@ -37,7 +37,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     private final wl_resource_destroy_func_t nativeDestroyCallback = new wl_resource_destroy_func_t() {
         @Override
         public void apply(final Pointer resource) {
-            ObjectCache.remove(getNative());
+            ObjectCache.remove(resource);
         }
     };
     private final Pointer pointer;
@@ -57,7 +57,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
         ObjectCache.store(getNative(),
                           this);
         WaylandServerLibrary.INSTANCE()
-                            .wl_resource_set_dispatcher(this.pointer,
+                            .wl_resource_set_dispatcher(getNative(),
                                                         this.dispatcher,
                                                         Pointer.NULL,
                                                         Pointer.NULL,
@@ -71,7 +71,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
 
     public int getVersion() {
         return WaylandServerLibrary.INSTANCE()
-                                   .wl_resource_get_version(this.pointer);
+                                   .wl_resource_get_version(getNative());
     }
 
     public I getImplementation() {
@@ -80,24 +80,24 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
 
     public Client getClient() {
         return ObjectCache.from(WaylandServerLibrary.INSTANCE()
-                                                    .wl_resource_get_client(this.pointer));
+                                                    .wl_resource_get_client(getNative()));
     }
 
     public int getId() {
         return WaylandServerLibrary.INSTANCE()
-                                   .wl_resource_get_id(this.pointer);
+                                   .wl_resource_get_id(getNative());
     }
 
     public void addDestroyListener(final Listener listener) {
         WaylandServerLibrary.INSTANCE()
-                            .wl_resource_add_destroy_listener(this.pointer,
+                            .wl_resource_add_destroy_listener(getNative(),
                                                               listener.getNative());
     }
 
     public void destroy() {
         ObjectCache.remove(getNative());
         WaylandServerLibrary.INSTANCE()
-                            .wl_resource_destroy(this.pointer);
+                            .wl_resource_destroy(getNative());
     }
 
     /**
@@ -124,7 +124,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     public void postEvent(final int opcode,
                           final Arguments args) {
         WaylandServerLibrary.INSTANCE()
-                            .wl_resource_post_event_array(this.pointer,
+                            .wl_resource_post_event_array(getNative(),
                                                           opcode,
                                                           args.getNative());
     }
@@ -135,7 +135,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
      */
     public void postEvent(final int opcode) {
         WaylandServerLibrary.INSTANCE()
-                            .wl_resource_post_event_array(this.pointer,
+                            .wl_resource_post_event_array(getNative(),
                                                           opcode,
                                                           Pointer.NULL);
     }
@@ -143,7 +143,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     public void postError(final int code,
                           final String msg) {
         WaylandServerLibrary.INSTANCE()
-                            .wl_resource_post_error(this.pointer,
+                            .wl_resource_post_error(getNative(),
                                                     code,
                                                     msg);
     }
