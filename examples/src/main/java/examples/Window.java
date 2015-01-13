@@ -17,18 +17,18 @@ public class Window {
     public class Buffer {
 
         private final ShmPool       shmPool;
-        private       WlBufferProxy bufferProxy;
+        private final WlBufferProxy bufferProxy;
         private final ByteBuffer    byteBuffer;
 
         public Buffer() {
             try {
                 this.shmPool = new ShmPool(Window.this.width * Window.this.height * 4);
 
-                WlShmPoolProxy pool = Window.this.display.getShmProxy()
-                                                         .createPool(new WlShmPoolEvents() {
-                                                                     },
-                                                                     this.shmPool.getFileDescriptor(),
-                                                                     Window.this.width * Window.this.height * 4);
+                final WlShmPoolProxy pool = Window.this.display.getShmProxy()
+                                                               .createPool(new WlShmPoolEvents() {
+                                                                           },
+                                                                           this.shmPool.getFileDescriptor(),
+                                                                           Window.this.width * Window.this.height * 4);
                 this.bufferProxy = pool.createBuffer(new WlBufferEvents() {
                                                          @Override
                                                          public void release(final WlBufferProxy emitter) {
@@ -42,7 +42,7 @@ public class Window {
                 pool.destroy();
                 this.byteBuffer = this.shmPool.asByteBuffer();
             }
-            catch (IOException e) {
+            catch (final IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -61,13 +61,13 @@ public class Window {
     private int width;
     private int height;
 
-    private WlSurfaceProxy  surfaceProxy;
-    private WlCallbackProxy callbackProxy;
-    private Buffer          buffer;
+    private final WlSurfaceProxy  surfaceProxy;
+    private       WlCallbackProxy callbackProxy;
+    private final Buffer          buffer;
 
     public Window(final Display display,
-                  int width,
-                  int height) {
+                  final int width,
+                  final int height) {
         this.display = display;
         this.width = width;
         this.height = height;
@@ -185,18 +185,18 @@ public class Window {
         this.surfaceProxy.destroy();
     }
 
-    private int abs(int i) {
+    private int abs(final int i) {
         return i < 0 ? -i : i;
     }
 
-    private void paintPixels(ByteBuffer buffer,
-                             int padding,
-                             int time) {
+    private void paintPixels(final ByteBuffer buffer,
+                             final int padding,
+                             final int time) {
         final int halfh = padding + (this.height - padding * 2) / 2;
         final int halfw = padding + (this.width - padding * 2) / 2;
         int ir;
         int or;
-        IntBuffer image = buffer.asIntBuffer();
+        final IntBuffer image = buffer.asIntBuffer();
         image.clear();
         for (int i = 0; i < this.width * this.height; ++i) {
             image.put(0xffffffff);
@@ -211,13 +211,13 @@ public class Window {
 
         image.position(padding * this.width);
         for (int y = padding; y < this.height - padding; y++) {
-            int y2 = (y - halfh) * (y - halfh);
+            final int y2 = (y - halfh) * (y - halfh);
 
             image.position(image.position() + padding);
             for (int x = padding; x < this.width - padding; x++) {
                 int v;
 
-                int r2 = (x - halfw) * (x - halfw) + y2;
+                final int r2 = (x - halfw) * (x - halfw) + y2;
 
                 if (r2 < ir) {
                     v = (r2 / 32 + time / 64) * 0x0080401;
