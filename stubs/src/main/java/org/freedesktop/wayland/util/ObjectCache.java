@@ -55,8 +55,16 @@ public class ObjectCache {
      */
     public static void store(final Pointer pointer,
                              final Object object) {
-        MAPPED_OBJECTS.put(pointer,
-                           object);
+        final Object oldValue = MAPPED_OBJECTS.put(pointer,
+                                              object);
+        if(oldValue!=null){
+            //put it back!
+            MAPPED_OBJECTS.put(pointer,oldValue);
+            throw new IllegalStateException(String.format("Can not re-map existing pointer. Pointer=%s, old value=%s, new value=%s",
+                                                          pointer,
+                                                          oldValue,
+                                                          object));
+        }
     }
 
     /**
@@ -65,7 +73,7 @@ public class ObjectCache {
      * @param pointer The pointer of the associated object.
      * @return True if a pointer was cached, false if not. The value can be used to detected double frees.
      */
-    public static boolean remove(final Pointer pointer) {
-        return MAPPED_OBJECTS.remove(pointer) != null;
+    public static void remove(final Pointer pointer) {
+        MAPPED_OBJECTS.remove(pointer);
     }
 }

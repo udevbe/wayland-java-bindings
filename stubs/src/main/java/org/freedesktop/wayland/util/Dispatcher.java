@@ -122,6 +122,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                                       final Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<?> constructor = CONSTRUCTOR_CACHE.get(targetType);
         if (constructor == null) {
+          //FIXME use static get(Pointer) method instead of proxy or resource
             constructor = targetType.getDeclaredConstructor(Pointer.class);
             constructor.setAccessible(true);
             CONSTRUCTOR_CACHE.put(targetType,

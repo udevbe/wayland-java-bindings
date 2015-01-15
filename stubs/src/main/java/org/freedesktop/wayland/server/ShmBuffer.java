@@ -32,7 +32,7 @@ public class ShmBuffer implements HasNative<Pointer> {
 
     private final Pointer pointer;
 
-    protected ShmBuffer(final Pointer pointer) {
+  protected ShmBuffer(final Pointer pointer) {
         this.pointer = pointer;
     }
 
@@ -79,12 +79,13 @@ public class ShmBuffer implements HasNative<Pointer> {
         return buffer;
     }
 
-    public void destroy() {
-        //don't free the underlying native context, that's taking care of for us in the native layer.
-        ObjectCache.remove(getNative());
-    }
+  @Override
+  public boolean isValid() {
+    //we can not track the native lifecycle
+    return true;
+  }
 
-    @Override
+  @Override
     public Pointer getNative() {
         return this.pointer;
     }

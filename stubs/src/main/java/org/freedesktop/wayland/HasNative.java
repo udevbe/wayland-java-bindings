@@ -23,4 +23,6 @@ package org.freedesktop.wayland;
 
 public interface HasNative<T> {
     T getNative();
+
+    boolean isValid();
 }

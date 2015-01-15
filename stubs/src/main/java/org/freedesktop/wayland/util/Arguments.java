@@ -34,9 +34,11 @@ import java.nio.ByteBuffer;
 public class Arguments implements HasNative<Pointer> {
 
     private final Pointer pointer;
+    private boolean valid;
 
     Arguments(final Pointer pointer) {
         this.pointer = pointer;
+        this.valid = true;
     }
 
     public static Arguments create(final int size) {
@@ -197,5 +199,35 @@ public class Arguments implements HasNative<Pointer> {
     @Override
     public Pointer getNative() {
         return this.pointer;
+    }
+
+    @Override
+    public boolean isValid() {
+        return valid;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Arguments arguments = (Arguments) o;
+
+        return pointer.equals(arguments.pointer);
+    }
+
+    @Override
+    public int hashCode() {
+        return pointer.hashCode();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        this.valid = false;
+        super.finalize();
     }
 }

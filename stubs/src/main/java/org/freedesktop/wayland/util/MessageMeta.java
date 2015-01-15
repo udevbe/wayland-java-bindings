@@ -37,6 +37,8 @@ public class MessageMeta implements HasNative<wl_message> {
     private final wl_message pointer;
     private final Message    message;
 
+    private boolean valid;
+
     protected MessageMeta(final wl_message pointer,
                           final Message message) {
         this.pointer = pointer;
@@ -90,7 +92,12 @@ public class MessageMeta implements HasNative<wl_message> {
         return this.message;
     }
 
-    @Override
+  @Override
+  public boolean isValid() {
+    return this.valid;
+  }
+
+  @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -108,4 +115,10 @@ public class MessageMeta implements HasNative<wl_message> {
     public int hashCode() {
         return getNative().hashCode();
     }
+
+  @Override
+  protected void finalize() throws Throwable {
+    valid= false;
+    super.finalize();
+  }
 }
