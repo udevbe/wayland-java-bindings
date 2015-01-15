@@ -56,8 +56,9 @@ public abstract class Proxy<I> implements WaylandObject {
     private final I       implementation;
 
     private final Dispatcher dispatcher;
+    private boolean valid;
 
-    /**
+  /**
      * @param pointer
      * @param implementation The listener to be added to proxy
      * @param version
@@ -66,6 +67,7 @@ public abstract class Proxy<I> implements WaylandObject {
                     final I implementation,
                     final int version) {
         this.pointer = pointer;
+        this.valid = true;
         this.implementation = implementation;
         this.version = version;
         ObjectCache.store(getNative(),
@@ -85,11 +87,13 @@ public abstract class Proxy<I> implements WaylandObject {
         }
     }
 
-    public Proxy(final Pointer pointer) {
+    protected Proxy(final Pointer pointer) {
         this(pointer,
              null,
              99);
     }
+
+  //TODO add get(Pointer) method for each generated proxy
 
     public int getVersion() {
         return this.version;
@@ -250,13 +254,21 @@ public abstract class Proxy<I> implements WaylandObject {
         throw new NoSuchMethodException();
     }
 
-    /**
+  @Override
+  public boolean isValid() {
+    return this.valid;
+  }
+
+  /**
      * Destroy a proxy object
      */
     public void destroy() {
+      if(isValid()) {
+        this.valid = false;
         WaylandClientLibrary.INSTANCE()
-                            .wl_proxy_destroy(getNative());
+            .wl_proxy_destroy(getNative());
         ObjectCache.remove(getNative());
+      }
     }
 
     /**
@@ -320,4 +332,10 @@ public abstract class Proxy<I> implements WaylandObject {
     public int hashCode() {
         return getNative().hashCode();
     }
+
+  @Override
+  protected void finalize() throws Throwable {
+    destroy();
+    super.finalize();
+  }
 }

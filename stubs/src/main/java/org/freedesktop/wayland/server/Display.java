@@ -30,9 +30,11 @@ import org.freedesktop.wayland.util.ObjectCache;
 public class Display implements HasNative<Pointer> {
 
     private final Pointer pointer;
+  private boolean valid;
 
-    public Display(final Pointer pointer) {
+  protected Display(final Pointer pointer) {
         this.pointer = pointer;
+        this.valid =true;
         ObjectCache.store(getNative(),
                           this);
     }
@@ -45,9 +47,17 @@ public class Display implements HasNative<Pointer> {
      * @return The Wayland display object. Null if failed to create
      */
     public static Display create() {
-        return new Display(WaylandServerLibrary.INSTANCE()
-                                               .wl_display_create());
+        return Display.get(WaylandServerLibrary.INSTANCE()
+                               .wl_display_create());
     }
+
+  public static Display get(Pointer pointer){
+    Display display = ObjectCache.from(pointer);
+    if(display == null){
+      display = new Display(pointer);
+    }
+    return display;
+  }
 
     public int addSocket(final String name) {
         final Pointer m = new Memory(name.length() + 1);
@@ -96,17 +106,22 @@ public class Display implements HasNative<Pointer> {
     }
 
     public EventLoop getEventLoop() {
-        final Pointer wlEventLoop = WaylandServerLibrary.INSTANCE()
-                                                        .wl_display_get_event_loop(getNative());
-        final EventLoop eventLoop = ObjectCache.from(wlEventLoop);
-        return eventLoop == null ? new EventLoop(wlEventLoop) : eventLoop;
+        return EventLoop.get(WaylandServerLibrary.INSTANCE()
+                                 .wl_display_get_event_loop(getNative()));
     }
 
-    public void destroy() {
+  @Override
+  public boolean isValid() {
+    return this.valid;
+  }
+
+  public void destroy() {
+    if (isValid()){
+      this.valid = false;
         ObjectCache.remove(getNative());
         WaylandServerLibrary.INSTANCE()
-                            .wl_display_destroy(getNative());
-
+        .wl_display_destroy(getNative());
+      }
     }
 
     public void addDestroyListener(final Listener listener) {
@@ -166,5 +181,11 @@ public class Display implements HasNative<Pointer> {
     public int hashCode() {
         return getNative().hashCode();
     }
+
+  @Override
+  protected void finalize() throws Throwable {
+    destroy();
+    super.finalize();
+  }
 }
 

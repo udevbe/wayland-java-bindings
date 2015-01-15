@@ -51,24 +51,42 @@ public class EglWindow implements HasNative<Pointer> {
     }
 
     private final Pointer pointer;
+    private boolean valid;
 
     public static EglWindow create(final Proxy<?> wlSurfaceProxy,
                                    final int width,
                                    final int height) {
-        return new EglWindow(WaylandEglLibrary.INSTANCE.wl_egl_window_create(wlSurfaceProxy.getNative(),
+        return EglWindow.get(WaylandEglLibrary.INSTANCE.wl_egl_window_create(wlSurfaceProxy.getNative(),
                                                                              width,
                                                                              height));
     }
 
+    public static EglWindow get(Pointer pointer){
+        EglWindow eglWindow = ObjectCache.from(pointer);
+        if(eglWindow == null){
+            eglWindow = new EglWindow(pointer);
+        }
+        return eglWindow;
+    }
+
     protected EglWindow(final Pointer pointer) {
         this.pointer = pointer;
+        this.valid = true;
         ObjectCache.store(getNative(),
                           this);
     }
 
+    @Override
+    public boolean isValid() {
+        return this.valid;
+    }
+
     public void destroy() {
-        WaylandEglLibrary.INSTANCE.wl_egl_window_destroy(getNative());
-        ObjectCache.remove(getNative());
+        if(isValid()) {
+            this.valid = false;
+            WaylandEglLibrary.INSTANCE.wl_egl_window_destroy(getNative());
+            ObjectCache.remove(getNative());
+        }
     }
 
     public void resize(final int width,
@@ -114,5 +132,11 @@ public class EglWindow implements HasNative<Pointer> {
     @Override
     public int hashCode() {
         return getNative().hashCode();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        destroy();
+        super.finalize();
     }
 }

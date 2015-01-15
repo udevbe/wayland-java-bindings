@@ -31,8 +31,6 @@ public class EventSource implements HasNative<Pointer> {
 
     protected EventSource(final Pointer pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getNative(),
-                          this);
     }
 
     protected static EventSource create(final Pointer pointer) {
@@ -84,5 +82,11 @@ public class EventSource implements HasNative<Pointer> {
     @Override
     public int hashCode() {
         return getNative().hashCode();
+    }
+
+    @Override
+    public boolean isValid() {
+        //no way to track event source lifecycle, so it's always valid to us.
+        return true;
     }
 }

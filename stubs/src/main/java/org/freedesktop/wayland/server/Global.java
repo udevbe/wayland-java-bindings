@@ -36,14 +36,15 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
                           final Pointer data,
                           final int version,
                           final int id) {
-            final Client client = ObjectCache.from(wlClient);
-            onBindClient(client == null ? new Client(wlClient) : client,
+            onBindClient(Client.get(wlClient),
                          version,
                          id);
         }
     };
 
     private final Pointer pointer;
+
+    private boolean valid;
 
     protected Global(final Display display,
                      final Class<R> resourceClass,
@@ -59,6 +60,7 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
                                                              version,
                                                              Pointer.NULL,
                                                              this.nativeCallback);
+      this.valid = true;
         ObjectCache.store(getNative(),
                           this);
     }
@@ -75,10 +77,18 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
         //TODO add some extra checks?
     }
 
-    public void destroy() {
-        ObjectCache.remove(getNative());
-        WaylandServerLibrary.INSTANCE()
-                            .wl_global_destroy(getNative());
+  @Override
+  public boolean isValid() {
+    return valid;
+  }
+
+  public void destroy() {
+        if(isValid()) {
+          this.valid = false;
+          ObjectCache.remove(getNative());
+          WaylandServerLibrary.INSTANCE()
+              .wl_global_destroy(getNative());
+        }
     }
 
     public abstract R onBindClient(Client client,
@@ -103,5 +113,11 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
     public int hashCode() {
         return getNative().hashCode();
     }
+
+  @Override
+  protected void finalize() throws Throwable {
+    destroy();
+    super.finalize();
+  }
 }
 
