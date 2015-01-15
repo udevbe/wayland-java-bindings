@@ -67,9 +67,9 @@ public class Client implements HasNative<Pointer> {
                                                                 fd));
     }
 
-    public static Client get(final Pointer pointer){
+    public static Client get(final Pointer pointer) {
         Client client = ObjectCache.from(pointer);
-        if(client == null){
+        if (client == null) {
             client = new Client(pointer);
         }
         return client;
@@ -102,7 +102,7 @@ public class Client implements HasNative<Pointer> {
      */
     public Display getDisplay() {
         return Display.get(WaylandServerLibrary.INSTANCE()
-                                                    .wl_client_get_display(getNative()));
+                                               .wl_client_get_display(getNative()));
     }
 
     @Override
@@ -111,10 +111,10 @@ public class Client implements HasNative<Pointer> {
     }
 
     public void destroy() {
-        if(isValid()) {
+        if (isValid()) {
             ObjectCache.remove(getNative());
             WaylandServerLibrary.INSTANCE()
-                .wl_client_destroy(getNative());
+                                .wl_client_destroy(getNative());
         }
     }
 

@@ -2,14 +2,13 @@ package org.freedesktop.wayland.server.jna;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-
 import org.freedesktop.wayland.util.jna.wl_list;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class wl_listener extends Structure {
-    public wl_list.ByValue link;
+    public wl_list.ByValue  link;
     public wl_notify_func_t notify$;
 
     public wl_listener() {

@@ -37,6 +37,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     private final wl_resource_destroy_func_t nativeDestroyCallback = new wl_resource_destroy_func_t() {
         @Override
         public void apply(final Pointer resource) {
+            Resource.this.valid = false;
             ObjectCache.remove(resource);
         }
     };
@@ -56,7 +57,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
                                                                             .getNative(),
                                                                version,
                                                                id);
-      this.valid = true;
+        this.valid = true;
         ObjectCache.store(getNative(),
                           this);
         WaylandServerLibrary.INSTANCE()
@@ -71,11 +72,18 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
         this.pointer = pointer;
         this.implementation = null;
         this.valid = false;
+        addDestroyListener(new Listener() {
+            @Override
+            public void handle() {
+                ObjectCache.remove(Resource.this.getNative());
+                remove();
+            }
+        });
         ObjectCache.store(getNative(),
                           this);
     }
 
-  //TODO add static get(Pointer) method for each generated resource
+    //TODO add static get(Pointer) method for each generated resource
 
     public int getVersion() {
         return WaylandServerLibrary.INSTANCE()
@@ -88,7 +96,7 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
 
     public Client getClient() {
         return Client.get(WaylandServerLibrary.INSTANCE()
-                                                    .wl_resource_get_client(getNative()));
+                                              .wl_resource_get_client(getNative()));
     }
 
     public int getId() {
@@ -103,20 +111,20 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     }
 
     public void destroy() {
-        if(isValid()) {
-          this.valid= false;
-          ObjectCache.remove(getNative());
-          WaylandServerLibrary.INSTANCE()
-              .wl_resource_destroy(getNative());
+        if (isValid()) {
+            this.valid = false;
+            ObjectCache.remove(getNative());
+            WaylandServerLibrary.INSTANCE()
+                                .wl_resource_destroy(getNative());
         }
     }
 
-  @Override
-  public boolean isValid() {
-    return this.valid;
-  }
+    @Override
+    public boolean isValid() {
+        return this.valid;
+    }
 
-  /**
+    /**
      * Post an event to the client's object referred to by 'resource'.
      * 'opcode' is the event number generated from the protocol XML
      * description (the event name). The variable arguments are the event
@@ -187,9 +195,9 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
         return getNative().hashCode();
     }
 
-  @Override
-  protected void finalize() throws Throwable {
-    destroy();
-    super.finalize();
-  }
+    @Override
+    protected void finalize() throws Throwable {
+        destroy();
+        super.finalize();
+    }
 }

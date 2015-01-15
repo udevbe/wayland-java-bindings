@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
 public class Arguments implements HasNative<Pointer> {
 
     private final Pointer pointer;
-    private boolean valid;
+    private       boolean valid;
 
     Arguments(final Pointer pointer) {
         this.pointer = pointer;

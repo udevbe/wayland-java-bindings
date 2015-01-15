@@ -5,7 +5,7 @@ import com.sun.jna.ptr.IntByReference;
 import org.freedesktop.wayland.util.jna.*;
 
 public interface WaylandServerLibraryMapping extends WaylandUtilLibraryMapping {
-    public static final String                      JNA_LIBRARY_NAME = "wayland-server";
+    public static final String JNA_LIBRARY_NAME = "wayland-server";
 
     Pointer wl_event_loop_create();
 
