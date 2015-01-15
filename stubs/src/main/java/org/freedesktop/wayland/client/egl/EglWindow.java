@@ -51,7 +51,7 @@ public class EglWindow implements HasNative<Pointer> {
     }
 
     private final Pointer pointer;
-    private boolean valid;
+    private       boolean valid;
 
     public static EglWindow create(final Proxy<?> wlSurfaceProxy,
                                    final int width,
@@ -61,9 +61,9 @@ public class EglWindow implements HasNative<Pointer> {
                                                                              height));
     }
 
-    public static EglWindow get(Pointer pointer){
+    public static EglWindow get(Pointer pointer) {
         EglWindow eglWindow = ObjectCache.from(pointer);
-        if(eglWindow == null){
+        if (eglWindow == null) {
             eglWindow = new EglWindow(pointer);
         }
         return eglWindow;
@@ -82,7 +82,7 @@ public class EglWindow implements HasNative<Pointer> {
     }
 
     public void destroy() {
-        if(isValid()) {
+        if (isValid()) {
             this.valid = false;
             WaylandEglLibrary.INSTANCE.wl_egl_window_destroy(getNative());
             ObjectCache.remove(getNative());

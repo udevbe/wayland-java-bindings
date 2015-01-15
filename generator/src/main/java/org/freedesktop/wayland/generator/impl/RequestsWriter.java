@@ -37,14 +37,14 @@ import static org.freedesktop.wayland.generator.impl.StringUtil.*;
 
 public class RequestsWriter {
 
-    private static final String ELEMENT_REQUEST   = "request";
-    private static final String ATTRIBUTE_NAME    = "name";
-    private static final String ATTRIBUTE_VERSION = "version";
-    private static final String ELEMENT_ARG       = "arg";
-    private static final String ATTRIBUTE_SINCE   = "since";
+    private static final String ELEMENT_REQUEST      = "request";
+    private static final String ATTRIBUTE_NAME       = "name";
+    private static final String ATTRIBUTE_VERSION    = "version";
+    private static final String ELEMENT_ARG          = "arg";
+    private static final String ATTRIBUTE_SINCE      = "since";
     private static final String ATTRIBUTE_ALLOW_NULL = "allow-null";
 
-  public void write(final Filer filer,
+    public void write(final Filer filer,
                       final String serverPackage,
                       final String copyright,
                       final Element interfaceNode) throws IOException {
@@ -133,8 +133,8 @@ public class RequestsWriter {
                 final int k = (j + 1) * 2;
                 String argumentType = argumentForResource[0];
                 argumentType = allowNull ?
-                             "@"+javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType:
-                             "@"+javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;
+                        "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType :
+                        "@" + javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;
                 args[k] = argumentType;
                 args[k + 1] = StringUtil.escapeJavaKeyword(argumentForResource[1]);
 

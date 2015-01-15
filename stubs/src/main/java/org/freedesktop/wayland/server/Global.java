@@ -60,7 +60,7 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
                                                              version,
                                                              Pointer.NULL,
                                                              this.nativeCallback);
-      this.valid = true;
+        this.valid = true;
         ObjectCache.store(getNative(),
                           this);
     }
@@ -77,17 +77,17 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
         //TODO add some extra checks?
     }
 
-  @Override
-  public boolean isValid() {
-    return valid;
-  }
+    @Override
+    public boolean isValid() {
+        return valid;
+    }
 
-  public void destroy() {
-        if(isValid()) {
-          this.valid = false;
-          ObjectCache.remove(getNative());
-          WaylandServerLibrary.INSTANCE()
-              .wl_global_destroy(getNative());
+    public void destroy() {
+        if (isValid()) {
+            this.valid = false;
+            ObjectCache.remove(getNative());
+            WaylandServerLibrary.INSTANCE()
+                                .wl_global_destroy(getNative());
         }
     }
 
@@ -100,7 +100,7 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Global)){
+        if (!(o instanceof Global)) {
             return false;
         }
 
@@ -114,10 +114,10 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
         return getNative().hashCode();
     }
 
-  @Override
-  protected void finalize() throws Throwable {
-    destroy();
-    super.finalize();
-  }
+    @Override
+    protected void finalize() throws Throwable {
+        destroy();
+        super.finalize();
+    }
 }
 

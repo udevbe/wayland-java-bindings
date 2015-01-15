@@ -21,15 +21,11 @@
  */
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.server.jna.wl_listener;
 import org.freedesktop.wayland.server.jna.wl_notify_func_t;
 import org.freedesktop.wayland.util.ObjectCache;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A single listener for Wayland signals
@@ -54,26 +50,22 @@ public abstract class Listener implements HasNative<wl_listener> {
         this.pointer = new wl_listener();
         this.valid = true;
         this.pointer.notify$ = new wl_notify_func_t() {
-                @Override
-                public void apply() {
-                    Listener.this.handle();
-                }
-            };
+            @Override
+            public void apply() {
+                Listener.this.handle();
+            }
+        };
         ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
     public void remove() {
-        if(isValid()) {
+        if (isValid()) {
             this.valid = false;
             ObjectCache.remove(getNative().getPointer());
             WaylandServerLibrary.INSTANCE()
-                .wl_list_remove(this.pointer.link.getPointer());
+                                .wl_list_remove(this.pointer.link.getPointer());
         }
-    }
-
-    public void destroy() {
-        ObjectCache.remove(getNative().getPointer());
     }
 
     //called from jni

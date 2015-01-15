@@ -2,7 +2,6 @@ package org.freedesktop.wayland.server.jna;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-
 import org.freedesktop.wayland.util.jna.wl_list;
 
 import java.util.Arrays;

@@ -36,7 +36,7 @@ import org.freedesktop.wayland.util.ObjectCache;
  */
 public class EventQueue implements HasNative<Pointer> {
     private final Pointer pointer;
-    private boolean valid;
+    private       boolean valid;
 
     protected EventQueue(final Pointer pointer) {
         this.pointer = pointer;
@@ -45,9 +45,9 @@ public class EventQueue implements HasNative<Pointer> {
                           this);
     }
 
-    public static EventQueue get(Pointer pointer){
+    public static EventQueue get(Pointer pointer) {
         EventQueue eventQueue = ObjectCache.from(pointer);
-        if(eventQueue == null){
+        if (eventQueue == null) {
             eventQueue = new EventQueue(pointer);
         }
         return eventQueue;
@@ -73,10 +73,10 @@ public class EventQueue implements HasNative<Pointer> {
      * this function.
      */
     public void destroy() {
-        if(isValid()) {
+        if (isValid()) {
             this.valid = false;
             WaylandClientLibrary.INSTANCE()
-                .wl_event_queue_destroy(getNative());
+                                .wl_event_queue_destroy(getNative());
             ObjectCache.remove(getNative());
         }
     }
