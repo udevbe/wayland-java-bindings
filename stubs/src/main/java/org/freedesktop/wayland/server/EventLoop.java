@@ -40,11 +40,11 @@ public class EventLoop implements HasNative<Pointer> {
 
     private final Pointer pointer;
 
-  private boolean valid;
+    private boolean valid;
 
     protected EventLoop(final Pointer pointer) {
         this.pointer = pointer;
-      this.valid = true;
+        this.valid = true;
         ObjectCache.store(getNative(),
                           this);
     }
@@ -54,13 +54,13 @@ public class EventLoop implements HasNative<Pointer> {
                                                  .wl_event_loop_create());
     }
 
-  public static EventLoop get(Pointer pointer){
-    EventLoop eventLoop = ObjectCache.from(pointer);
-    if(eventLoop == null){
-      eventLoop = new EventLoop(pointer);
+    public static EventLoop get(Pointer pointer) {
+        EventLoop eventLoop = ObjectCache.from(pointer);
+        if (eventLoop == null) {
+            eventLoop = new EventLoop(pointer);
+        }
+        return eventLoop;
     }
-    return eventLoop;
-  }
 
     public EventSource addFileDescriptor(final int fd,
                                          final int mask,
@@ -161,18 +161,18 @@ public class EventLoop implements HasNative<Pointer> {
                                                                 listener.getNative());
     }
 
-  @Override
-  public boolean isValid() {
-    return this.valid;
-  }
-
-  public void destroy() {
-    if(isValid()) {
-      this.valid = false;
-      ObjectCache.remove(getNative());
-      WaylandServerLibrary.INSTANCE()
-          .free(getNative());
+    @Override
+    public boolean isValid() {
+        return this.valid;
     }
+
+    public void destroy() {
+        if (isValid()) {
+            this.valid = false;
+            ObjectCache.remove(getNative());
+            WaylandServerLibrary.INSTANCE()
+                                .free(getNative());
+        }
     }
 
     public Pointer getNative() {
@@ -215,10 +215,10 @@ public class EventLoop implements HasNative<Pointer> {
         void handle();
     }
 
-  @Override
-  protected void finalize() throws Throwable {
-    destroy();
-    super.finalize();
-  }
+    @Override
+    protected void finalize() throws Throwable {
+        destroy();
+        super.finalize();
+    }
 }
 

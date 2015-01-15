@@ -22,10 +22,6 @@
 package org.freedesktop.wayland.generator.impl;
 
 import com.squareup.javawriter.JavaWriter;
-
-import org.freedesktop.wayland.util.Arguments;
-import org.freedesktop.wayland.util.Interface;
-import org.freedesktop.wayland.util.Message;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -49,7 +45,7 @@ public class EventsWriter {
     private static final String ATTRIBUTE_ALLOW_NULL = "allow-null";
 
 
-  public void write(final Filer filer,
+    public void write(final Filer filer,
                       final String clientPackage,
                       final String copyright,
                       final Element interfaceNode) throws IOException {
@@ -138,8 +134,8 @@ public class EventsWriter {
                 final int k = (j + 1) * 2;
                 String argumentType = argumentForProxy[0];
                 argumentType = allowNull ?
-                               "@"+javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType:
-                               "@"+javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;
+                        "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType :
+                        "@" + javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;
                 args[k] = argumentType;
                 args[k + 1] = StringUtil.escapeJavaKeyword(argumentForProxy[1]);
 

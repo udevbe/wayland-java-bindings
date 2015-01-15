@@ -92,12 +92,12 @@ public class MessageMeta implements HasNative<wl_message> {
         return this.message;
     }
 
-  @Override
-  public boolean isValid() {
-    return this.valid;
-  }
+    @Override
+    public boolean isValid() {
+        return this.valid;
+    }
 
-  @Override
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -116,9 +116,9 @@ public class MessageMeta implements HasNative<wl_message> {
         return getNative().hashCode();
     }
 
-  @Override
-  protected void finalize() throws Throwable {
-    valid= false;
-    super.finalize();
-  }
+    @Override
+    protected void finalize() throws Throwable {
+        valid = false;
+        super.finalize();
+    }
 }

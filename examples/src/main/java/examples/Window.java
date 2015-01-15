@@ -13,6 +13,7 @@ import java.nio.IntBuffer;
 public class Window {
 
     private final WlShellSurfaceProxy shellSurface;
+    private       int                 time;
 
     public class Buffer {
 
@@ -32,6 +33,7 @@ public class Window {
                 this.bufferProxy = pool.createBuffer(new WlBufferEvents() {
                                                          @Override
                                                          public void release(final WlBufferProxy emitter) {
+                                                             //TODO use double buffering
                                                          }
                                                      },
                                                      0,
@@ -255,15 +257,14 @@ public class Window {
                                  this.height - 40,
                                  this.height - 40);
 
-        final WlCallbackEvents wlCallbackEvents = new WlCallbackEvents() {
+        this.callbackProxy = this.surfaceProxy.frame(new WlCallbackEvents() {
             @Override
             public void done(final WlCallbackProxy emitter,
-                             final int callbackData) {
+                             final int time) {
+                redraw(time);
                 Window.this.callbackProxy.destroy();
-                redraw(callbackData);
             }
-        };
-        this.callbackProxy = this.surfaceProxy.frame(wlCallbackEvents);
+        });
 
         this.surfaceProxy.commit();
     }

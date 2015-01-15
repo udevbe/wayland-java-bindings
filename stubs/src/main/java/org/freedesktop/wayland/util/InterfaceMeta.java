@@ -50,10 +50,10 @@ public class InterfaceMeta implements HasNative<wl_interface> {
                           this);
     }
 
-    public static InterfaceMeta get(wl_interface pointer){
+    public static InterfaceMeta get(wl_interface pointer) {
         InterfaceMeta interfaceMeta = ObjectCache.from(pointer.getPointer());
-        if(interfaceMeta == null){
-            interfaceMeta= new InterfaceMeta(pointer);
+        if (interfaceMeta == null) {
+            interfaceMeta = new InterfaceMeta(pointer);
         }
         return interfaceMeta;
     }

@@ -56,10 +56,11 @@ public class ObjectCache {
     public static void store(final Pointer pointer,
                              final Object object) {
         final Object oldValue = MAPPED_OBJECTS.put(pointer,
-                                              object);
-        if(oldValue!=null){
+                                                   object);
+        if (oldValue != null) {
             //put it back!
-            MAPPED_OBJECTS.put(pointer,oldValue);
+            MAPPED_OBJECTS.put(pointer,
+                               oldValue);
             throw new IllegalStateException(String.format("Can not re-map existing pointer. Pointer=%s, old value=%s, new value=%s",
                                                           pointer,
                                                           oldValue,
