@@ -30,8 +30,11 @@ public class Client implements HasNative<Pointer> {
 
     private final Pointer pointer;
 
+    private boolean valid;
+
     protected Client(final Pointer pointer) {
         this.pointer = pointer;
+        this.valid = true;
         ObjectCache.store(getNative(),
                           this);
     }
@@ -59,9 +62,17 @@ public class Client implements HasNative<Pointer> {
      */
     public static Client create(final Display display,
                                 final int fd) {
-        return new Client(WaylandServerLibrary.INSTANCE()
+        return Client.get(WaylandServerLibrary.INSTANCE()
                                               .wl_client_create(display.getNative(),
                                                                 fd));
+    }
+
+    public static Client get(final Pointer pointer){
+        Client client = ObjectCache.from(pointer);
+        if(client == null){
+            client = new Client(pointer);
+        }
+        return client;
     }
 
     /**
@@ -90,14 +101,21 @@ public class Client implements HasNative<Pointer> {
      * @return The display object the client is associated with.
      */
     public Display getDisplay() {
-        return ObjectCache.from(WaylandServerLibrary.INSTANCE()
+        return Display.get(WaylandServerLibrary.INSTANCE()
                                                     .wl_client_get_display(getNative()));
     }
 
+    @Override
+    public boolean isValid() {
+        return this.valid;
+    }
+
     public void destroy() {
-        ObjectCache.remove(getNative());
-        WaylandServerLibrary.INSTANCE()
-                            .wl_client_destroy(getNative());
+        if(isValid()) {
+            ObjectCache.remove(getNative());
+            WaylandServerLibrary.INSTANCE()
+                .wl_client_destroy(getNative());
+        }
     }
 
     public Pointer getNative() {
@@ -121,6 +139,12 @@ public class Client implements HasNative<Pointer> {
     @Override
     public int hashCode() {
         return getNative().hashCode();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        destroy();
+        super.finalize();
     }
 }
 

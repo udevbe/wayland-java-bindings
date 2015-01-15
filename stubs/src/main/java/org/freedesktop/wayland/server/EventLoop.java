@@ -40,16 +40,27 @@ public class EventLoop implements HasNative<Pointer> {
 
     private final Pointer pointer;
 
+  private boolean valid;
+
     protected EventLoop(final Pointer pointer) {
         this.pointer = pointer;
+      this.valid = true;
         ObjectCache.store(getNative(),
                           this);
     }
 
     public static EventLoop create() {
-        return new EventLoop(WaylandServerLibrary.INSTANCE()
+        return EventLoop.get(WaylandServerLibrary.INSTANCE()
                                                  .wl_event_loop_create());
     }
+
+  public static EventLoop get(Pointer pointer){
+    EventLoop eventLoop = ObjectCache.from(pointer);
+    if(eventLoop == null){
+      eventLoop = new EventLoop(pointer);
+    }
+    return eventLoop;
+  }
 
     public EventSource addFileDescriptor(final int fd,
                                          final int mask,
@@ -150,10 +161,18 @@ public class EventLoop implements HasNative<Pointer> {
                                                                 listener.getNative());
     }
 
-    public void destroy() {
-        ObjectCache.remove(getNative());
-        WaylandServerLibrary.INSTANCE()
-                            .free(getNative());
+  @Override
+  public boolean isValid() {
+    return this.valid;
+  }
+
+  public void destroy() {
+    if(isValid()) {
+      this.valid = false;
+      ObjectCache.remove(getNative());
+      WaylandServerLibrary.INSTANCE()
+          .free(getNative());
+    }
     }
 
     public Pointer getNative() {
@@ -195,5 +214,11 @@ public class EventLoop implements HasNative<Pointer> {
     public interface IdleHandler {
         void handle();
     }
+
+  @Override
+  protected void finalize() throws Throwable {
+    destroy();
+    super.finalize();
+  }
 }
 

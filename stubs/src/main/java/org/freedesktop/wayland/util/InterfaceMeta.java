@@ -42,15 +42,21 @@ public class InterfaceMeta implements HasNative<wl_interface> {
 
     private final wl_interface pointer;
 
+    private boolean valid;
+
     protected InterfaceMeta(final wl_interface pointer) {
         this.pointer = pointer;
         ObjectCache.store(getNative().getPointer(),
                           this);
     }
 
-//    protected InterfaceMeta() {
-//        this.pointer = 0;
-//    }
+    public static InterfaceMeta get(wl_interface pointer){
+        InterfaceMeta interfaceMeta = ObjectCache.from(pointer.getPointer());
+        if(interfaceMeta == null){
+            interfaceMeta= new InterfaceMeta(pointer);
+        }
+        return interfaceMeta;
+    }
 
     /**
      * Scans this type for {@link Interface} annotations and creates a native context if possible.
@@ -127,7 +133,12 @@ public class InterfaceMeta implements HasNative<wl_interface> {
         interfacePointer.writeField("event_count",
                                     events.length);
 
-        return new InterfaceMeta(interfacePointer);
+        return InterfaceMeta.get(interfacePointer);
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
     }
 
     public wl_interface getNative() {
@@ -155,5 +166,11 @@ public class InterfaceMeta implements HasNative<wl_interface> {
     @Override
     public int hashCode() {
         return getNative().hashCode();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        this.valid = false;
+        super.finalize();
     }
 }
