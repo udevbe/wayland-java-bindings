@@ -9,6 +9,8 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Window {
 
@@ -33,7 +35,7 @@ public class Window {
                 this.bufferProxy = pool.createBuffer(new WlBufferEvents() {
                                                          @Override
                                                          public void release(final WlBufferProxy emitter) {
-                                                             //TODO use double buffering
+                                                            bufferPool.add(Buffer.this);
                                                          }
                                                      },
                                                      0,
@@ -65,7 +67,7 @@ public class Window {
 
     private final WlSurfaceProxy  surfaceProxy;
     private       WlCallbackProxy callbackProxy;
-    private final Buffer          buffer;
+    private final LinkedList<Buffer> bufferPool = new LinkedList<Buffer>();
 
     public Window(final Display display,
                   final int width,
@@ -74,7 +76,9 @@ public class Window {
         this.width = width;
         this.height = height;
 
-        this.buffer = new Buffer();
+        bufferPool.add(new Buffer());
+        bufferPool.add(new Buffer());
+        bufferPool.add(new Buffer());
 
         this.surfaceProxy = display.getCompositorProxy()
                                    .createSurface(new WlSurfaceEvents() {
@@ -243,15 +247,14 @@ public class Window {
     }
 
     public void redraw(final int time) {
-        paintPixels(this.buffer.getByteBuffer(),
+        final Buffer buffer = bufferPool.pop();
+        paintPixels(buffer.getByteBuffer(),
                     20,
                     time);
 
-        this.surfaceProxy.attach(this.buffer.getProxy(),
+        this.surfaceProxy.attach(buffer.getProxy(),
                                  0,
                                  0);
-
-
         this.surfaceProxy.damage(20,
                                  20,
                                  this.height - 40,
