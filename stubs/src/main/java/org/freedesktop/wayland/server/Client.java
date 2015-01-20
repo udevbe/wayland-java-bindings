@@ -34,6 +34,13 @@ public class Client implements HasNative<Pointer> {
 
     protected Client(final Pointer pointer) {
         this.pointer = pointer;
+        addDestroyListener(new Listener() {
+            @Override
+            public void handle() {
+                Client.this.valid = false;
+                ObjectCache.remove(Client.this.getNative());
+            }
+        });
         this.valid = true;
         ObjectCache.store(getNative(),
                           this);
@@ -112,7 +119,6 @@ public class Client implements HasNative<Pointer> {
 
     public void destroy() {
         if (isValid()) {
-            ObjectCache.remove(getNative());
             WaylandServerLibrary.INSTANCE()
                                 .wl_client_destroy(getNative());
         }
