@@ -35,6 +35,13 @@ public class Display implements HasNative<Pointer> {
     protected Display(final Pointer pointer) {
         this.pointer = pointer;
         this.valid = true;
+        addDestroyListener(new Listener() {
+            @Override
+            public void handle() {
+                Display.this.valid = false;
+                ObjectCache.remove(Display.this.getNative());
+            }
+        });
         ObjectCache.store(getNative(),
                           this);
     }
@@ -117,8 +124,6 @@ public class Display implements HasNative<Pointer> {
 
     public void destroy() {
         if (isValid()) {
-            this.valid = false;
-            ObjectCache.remove(getNative());
             WaylandServerLibrary.INSTANCE()
                                 .wl_display_destroy(getNative());
         }
