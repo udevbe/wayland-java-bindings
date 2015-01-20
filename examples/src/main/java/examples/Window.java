@@ -15,7 +15,6 @@ import java.util.List;
 public class Window {
 
     private final WlShellSurfaceProxy shellSurface;
-    private       int                 time;
 
     public class Buffer {
 
@@ -185,9 +184,6 @@ public class Window {
     }
 
     public void destroy() {
-        if (this.callbackProxy != null) {
-            this.callbackProxy.destroy();
-        }
         this.surfaceProxy.destroy();
     }
 
@@ -259,13 +255,16 @@ public class Window {
                                  20,
                                  this.height - 40,
                                  this.height - 40);
-
+        //cleanup the previous frame callback
+        if(this.callbackProxy!=null){
+          Window.this.callbackProxy.destroy();
+        }
+        //allocate a new frame callback
         this.callbackProxy = this.surfaceProxy.frame(new WlCallbackEvents() {
             @Override
             public void done(final WlCallbackProxy emitter,
                              final int time) {
                 redraw(time);
-                Window.this.callbackProxy.destroy();
             }
         });
 
