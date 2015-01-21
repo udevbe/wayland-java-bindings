@@ -30,8 +30,12 @@ import org.freedesktop.wayland.server.Resource;
 import org.freedesktop.wayland.util.jna.wl_array;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Arguments implements HasNative<Pointer> {
+
+    private static final Map<Integer,Arguments> ARGUMENTS_CACHE = new HashMap<Integer, Arguments>();
 
     private final Pointer pointer;
     private       boolean valid;
@@ -42,11 +46,12 @@ public class Arguments implements HasNative<Pointer> {
     }
 
     public static Arguments create(final int size) {
-        if (size < 1) {
-            throw new IllegalArgumentException("Arguments size must be greater than 0");
+        Arguments arguments = ARGUMENTS_CACHE.get(size);
+        if(arguments == null){
+            arguments = new Arguments(new Memory(size * Pointer.SIZE));
+            ARGUMENTS_CACHE.put(size, arguments);
         }
-        final Pointer memory = new Memory(size * Pointer.SIZE);
-        return new Arguments(memory);
+        return arguments;
     }
 
     public int getI(final int index) {
