@@ -38,6 +38,7 @@ public class Display implements HasNative<Pointer> {
         addDestroyListener(new Listener() {
             @Override
             public void handle() {
+                remove();
                 Display.this.valid = false;
                 ObjectCache.remove(Display.this.getNative());
             }
