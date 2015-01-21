@@ -23,8 +23,7 @@ The project allows you to generate your own private wayland protocol bindings.
 
 State
 =====
- - Usable. 
- - No known memory leaks.
+ - Usable.
  - Pure Java (JNA)
 
 Known Issues
