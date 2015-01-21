@@ -29,7 +29,7 @@ State
 
 Known Issues
 ============
- - No unit tests.
+ - None.
 
 TODO
 ====
