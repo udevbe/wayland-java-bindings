@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class Arguments implements HasNative<Pointer> {
 
-    private static final Map<Integer,Arguments> ARGUMENTS_CACHE = new HashMap<Integer, Arguments>();
+    private static final Map<Integer, Arguments> ARGUMENTS_CACHE = new HashMap<Integer, Arguments>();
 
     private final Pointer pointer;
     private       boolean valid;
@@ -47,9 +47,10 @@ public class Arguments implements HasNative<Pointer> {
 
     public static Arguments create(final int size) {
         Arguments arguments = ARGUMENTS_CACHE.get(size);
-        if(arguments == null){
+        if (arguments == null) {
             arguments = new Arguments(new Memory(size * Pointer.SIZE));
-            ARGUMENTS_CACHE.put(size, arguments);
+            ARGUMENTS_CACHE.put(size,
+                                arguments);
         }
         return arguments;
     }
@@ -208,7 +209,7 @@ public class Arguments implements HasNative<Pointer> {
 
     @Override
     public boolean isValid() {
-        return valid;
+        return this.valid;
     }
 
     @Override
@@ -222,12 +223,12 @@ public class Arguments implements HasNative<Pointer> {
 
         final Arguments arguments = (Arguments) o;
 
-        return pointer.equals(arguments.pointer);
+        return this.pointer.equals(arguments.pointer);
     }
 
     @Override
     public int hashCode() {
-        return pointer.hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
