@@ -37,6 +37,7 @@ public class Client implements HasNative<Pointer> {
         addDestroyListener(new Listener() {
             @Override
             public void handle() {
+                remove();
                 Client.this.valid = false;
                 ObjectCache.remove(Client.this.getNative());
             }
