@@ -36,7 +36,6 @@ public abstract class Global<R extends Resource<?>> implements HasPointer {
         if (version <= 0) {
             throw new IllegalArgumentException("Version must be bigger than 0");
         }
-
         this.pointer = WlServerJNI.createGlobal(display.getPointer(),
                                                 InterfaceMeta.get(resourceClass)
                                                              .getPointer(),
@@ -59,10 +58,6 @@ public abstract class Global<R extends Resource<?>> implements HasPointer {
                                   version,
                                   id);
         //TODO add some extra checks?
-    }
-
-    public void makeGlobal() {
-
     }
 
     public void destroyGlobal() {
