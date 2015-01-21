@@ -75,8 +75,8 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
         addDestroyListener(new Listener() {
             @Override
             public void handle() {
-                ObjectCache.remove(Resource.this.getNative());
                 remove();
+                ObjectCache.remove(Resource.this.getNative());
             }
         });
         ObjectCache.store(getNative(),
