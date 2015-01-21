@@ -37,8 +37,8 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     private final wl_resource_destroy_func_t nativeDestroyCallback = new wl_resource_destroy_func_t() {
         @Override
         public void apply(final Pointer resource) {
-          Resource.this.valid = false;
-          ObjectCache.remove(Resource.this.getNative());
+            Resource.this.valid = false;
+            ObjectCache.remove(Resource.this.getNative());
         }
     };
     private final Pointer pointer;

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Window {
 
@@ -34,7 +33,7 @@ public class Window {
                 this.bufferProxy = pool.createBuffer(new WlBufferEvents() {
                                                          @Override
                                                          public void release(final WlBufferProxy emitter) {
-                                                            bufferPool.add(Buffer.this);
+                                                             Window.this.bufferPool.add(Buffer.this);
                                                          }
                                                      },
                                                      0,
@@ -75,9 +74,9 @@ public class Window {
         this.width = width;
         this.height = height;
 
-        bufferPool.add(new Buffer());
-        bufferPool.add(new Buffer());
-        bufferPool.add(new Buffer());
+        this.bufferPool.add(new Buffer());
+        this.bufferPool.add(new Buffer());
+        this.bufferPool.add(new Buffer());
 
         this.surfaceProxy = display.getCompositorProxy()
                                    .createSurface(new WlSurfaceEvents() {
@@ -113,15 +112,15 @@ public class Window {
                                         .getShellSurface(new WlShellSurfaceEvents() {
                                                              @Override
                                                              public void ping(final WlShellSurfaceProxy emitter,
-                                                                              @Nonnull final int serial) {
+                                                                              final int serial) {
                                                                  emitter.pong(serial);
                                                              }
 
                                                              @Override
                                                              public void configure(final WlShellSurfaceProxy emitter,
-                                                                                   @Nonnull final int edges,
-                                                                                   @Nonnull final int width,
-                                                                                   @Nonnull final int height) {
+                                                                                   final int edges,
+                                                                                   final int width,
+                                                                                   final int height) {
                                                                  Window.this.width = width;
                                                                  Window.this.height = height;
                                                              }
@@ -140,7 +139,7 @@ public class Window {
 
                         @Override
                         public void enter(final WlPointerProxy emitter,
-                                          @Nonnull final int serial,
+                                          final int serial,
                                           @Nonnull final WlSurfaceProxy surface,
                                           @Nonnull final Fixed surfaceX,
                                           @Nonnull final Fixed surfaceY) {
@@ -149,23 +148,23 @@ public class Window {
 
                         @Override
                         public void leave(final WlPointerProxy emitter,
-                                          @Nonnull final int serial,
+                                          final int serial,
                                           @Nonnull final WlSurfaceProxy surface) {
                         }
 
                         @Override
                         public void motion(final WlPointerProxy emitter,
-                                           @Nonnull final int time,
+                                           final int time,
                                            @Nonnull final Fixed surfaceX,
                                            @Nonnull final Fixed surfaceY) {
                         }
 
                         @Override
                         public void button(final WlPointerProxy emitter,
-                                           @Nonnull final int serial,
-                                           @Nonnull final int time,
-                                           @Nonnull final int button,
-                                           @Nonnull final int state) {
+                                           final int serial,
+                                           final int time,
+                                           final int button,
+                                           final int state) {
                             this.buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
                             if (this.buttonPressed) {
                                 Window.this.shellSurface.move(display.getSeatProxy(),
@@ -175,8 +174,8 @@ public class Window {
 
                         @Override
                         public void axis(final WlPointerProxy emitter,
-                                         @Nonnull final int time,
-                                         @Nonnull final int axis,
+                                         final int time,
+                                         final int axis,
                                          @Nonnull final Fixed value) {
 
                         }
@@ -243,7 +242,7 @@ public class Window {
     }
 
     public void redraw(final int time) {
-        final Buffer buffer = bufferPool.pop();
+        final Buffer buffer = this.bufferPool.pop();
         paintPixels(buffer.getByteBuffer(),
                     20,
                     time);
@@ -256,8 +255,8 @@ public class Window {
                                  this.height - 40,
                                  this.height - 40);
         //cleanup the previous frame callback
-        if(this.callbackProxy!=null){
-          Window.this.callbackProxy.destroy();
+        if (this.callbackProxy != null) {
+            Window.this.callbackProxy.destroy();
         }
         //allocate a new frame callback
         this.callbackProxy = this.surfaceProxy.frame(new WlCallbackEvents() {
