@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.nio.ByteBuffer;
+import java.util.HashSet;
 import java.util.Set;
 
 public class StringUtil {
@@ -254,6 +255,20 @@ public class StringUtil {
         }
     }
 
+    private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>(){{
+        add(byte.class.getName());
+        add(short.class.getName());
+        add(int.class.getName());
+        add(long.class.getName());
+        add(float.class.getName());
+        add(double.class.getName());
+        add(char.class.getName());
+        add(boolean.class.getName());
+    }};
+
+    public static boolean isPrimitive(String type){
+        return PRIMITIVE_TYPES.contains(type);
+    }
 
     public static String[] getArgumentForProxy(final String clientPackage,
                                                final Element argElement) {
