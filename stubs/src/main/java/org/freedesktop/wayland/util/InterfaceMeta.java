@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -50,7 +50,7 @@ public class InterfaceMeta implements HasNative<wl_interface> {
                           this);
     }
 
-    public static InterfaceMeta get(wl_interface pointer) {
+    public static InterfaceMeta get(final wl_interface pointer) {
         InterfaceMeta interfaceMeta = ObjectCache.from(pointer.getPointer());
         if (interfaceMeta == null) {
             interfaceMeta = new InterfaceMeta(pointer);
@@ -62,6 +62,7 @@ public class InterfaceMeta implements HasNative<wl_interface> {
      * Scans this type for {@link Interface} annotations and creates a native context if possible.
      *
      * @param type Any Java type.
+     *
      * @return The associated {@link InterfaceMeta} or {@link #NO_INTERFACE} if the type does not have a wayland interface
      * associated with it.
      */

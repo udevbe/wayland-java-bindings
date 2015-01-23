@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -161,7 +161,7 @@ public class ResourceWriter {
                                                                             argElement);
                 final int k = j * 2;
                 String argumentType = argumentForResource[0];
-                if(!StringUtil.isPrimitive(argumentType)) {
+                if (!StringUtil.isPrimitive(argumentType)) {
                     argumentType = allowNull ?
                                    "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType :
                                    "@" + javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;
@@ -185,7 +185,7 @@ public class ResourceWriter {
                           .beginControlFlow("if (getVersion() < %s)",
                                             since)
                           .emitStatement("throw new UnsupportedOperationException("
-                                                 + "\"This object is version \"+getVersion()+\" while version %s is required for this operation.\")",
+                                         + "\"This object is version \"+getVersion()+\" while version %s is required for this operation.\")",
                                          since)
                           .endControlFlow();
             }

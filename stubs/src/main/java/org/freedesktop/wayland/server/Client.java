@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -66,6 +66,7 @@ public class Client implements HasNative<Pointer> {
      *
      * @param display The display object
      * @param fd      The file descriptor for the socket to the client
+     *
      * @return The new client object or NULL on failure.
      */
     public static Client create(final Display display,
