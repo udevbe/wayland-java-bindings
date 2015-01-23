@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -212,7 +212,7 @@ public class ProxyWriter {
                 else {
                     final boolean allowNull = Boolean.valueOf(argElement.getAttribute(ATTRIBUTE_ALLOW_NULL));
                     String argumentType = argumentForProxy[0];
-                    if(!StringUtil.isPrimitive(argumentType)) {
+                    if (!StringUtil.isPrimitive(argumentType)) {
                         argumentType = allowNull ?
                                        "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " "
                                        + argumentType :
@@ -256,7 +256,7 @@ public class ProxyWriter {
                 javaWriter.beginControlFlow("if (getVersion() < %s)",
                                             since)
                           .emitStatement("throw new UnsupportedOperationException("
-                                                 + "\"This object is version \"+getVersion()+\" while version %s is required for this operation.\")",
+                                         + "\"This object is version \"+getVersion()+\" while version %s is required for this operation.\")",
                                          since)
                           .endControlFlow();
             }
@@ -301,13 +301,13 @@ public class ProxyWriter {
         if (interfaceName.equals("wl_display")) {
             javaWriter.emitEmptyLine()
                       .emitJavadoc("Connect to a Wayland display\n<p>\n"
-                                           + "Connect to the Wayland display named 'name'. If 'name' is 'null',\n"
-                                           + "its value will be replaced with the WAYLAND_DISPLAY environment\n"
-                                           + "variable if it is set, otherwise display \"wayland-0\" will be used.\n"
-                                           + "@param name Name of the Wayland display to connect to\n"
-                                           + "@param implementation The listener implementation to use."
-                                           + "@return A {@code WlDisplayProxy} object or null on failure."
-                      )
+                                   + "Connect to the Wayland display named 'name'. If 'name' is 'null',\n"
+                                   + "its value will be replaced with the WAYLAND_DISPLAY environment\n"
+                                   + "variable if it is set, otherwise display \"wayland-0\" will be used.\n"
+                                   + "@param name Name of the Wayland display to connect to\n"
+                                   + "@param implementation The listener implementation to use."
+                                   + "@return A {@code WlDisplayProxy} object or null on failure."
+                                  )
                       .beginMethod(getJavaTypeNameProxy(clientPackage,
                                                         interfaceNode,
                                                         1),
@@ -324,12 +324,12 @@ public class ProxyWriter {
                       .endMethod()
                       .emitEmptyLine()
                       .emitJavadoc("Connect to Wayland display on an already open fd\n<p>\n"
-                                           + "The {@code WlDisplayProxy} takes ownership of the fd and will close it when the\n"
-                                           + "display is destroyed.  The fd will also be closed in case of\n"
-                                           + "failure.\n"
-                                           + "@param fd The fd to use for the connection\n"
-                                           + "@parem implementation The listener implementation to use."
-                                           + "@return A {@code WlDisplayProxy object or null on failure.")
+                                   + "The {@code WlDisplayProxy} takes ownership of the fd and will close it when the\n"
+                                   + "display is destroyed.  The fd will also be closed in case of\n"
+                                   + "failure.\n"
+                                   + "@param fd The fd to use for the connection\n"
+                                   + "@parem implementation The listener implementation to use."
+                                   + "@return A {@code WlDisplayProxy object or null on failure.")
                       .beginMethod(getJavaTypeNameProxy(clientPackage,
                                                         interfaceNode,
                                                         1),

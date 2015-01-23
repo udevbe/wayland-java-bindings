@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -122,6 +122,7 @@ public abstract class Proxy<I> implements WaylandObject {
 
     /**
      * @param opcode Opcode of the request to be sent
+     *
      * @see {@link #marshal(int, Arguments)}
      */
     protected void marshal(final int opcode) {
@@ -162,6 +163,7 @@ public abstract class Proxy<I> implements WaylandObject {
      * @param args           Extra arguments for the given request
      * @param <J>            implementation Type
      * @param <T>            proxy Type
+     *
      * @return a new proxy
      */
     protected <J, T extends Proxy<J>> T marshalConstructor(final int opcode,
@@ -219,9 +221,9 @@ public abstract class Proxy<I> implements WaylandObject {
                                                      final J implementation,
                                                      final int version,
                                                      final Class<T> newProxyCls) throws NoSuchMethodException,
-            IllegalAccessException,
-            InvocationTargetException,
-            InstantiationException {
+                                                                                        IllegalAccessException,
+                                                                                        InvocationTargetException,
+                                                                                        InstantiationException {
         Constructor<? extends Proxy<?>> proxyConstructor = PROXY_CONSTRUCTORS.get(newProxyCls);
         if (proxyConstructor == null) {
             proxyConstructor = findMatchingConstructor(newProxyCls,
@@ -246,8 +248,8 @@ public abstract class Proxy<I> implements WaylandObject {
                 continue;
             }
             if (parameterTypes[0].isAssignableFrom(pointerClass) &&
-                    parameterTypes[1].isAssignableFrom(implementationClass) &&
-                    parameterTypes[2].isAssignableFrom(intClass)) {
+                parameterTypes[1].isAssignableFrom(implementationClass) &&
+                parameterTypes[2].isAssignableFrom(intClass)) {
                 return (Constructor<T>) constructor;
             }
         }
@@ -302,6 +304,7 @@ public abstract class Proxy<I> implements WaylandObject {
      * queued in {@code queue} instead of the display's main queue.
      *
      * @param queue The event queue that will handle this proxy
+     *
      * @see Display#dispatchQueue(EventQueue)
      */
     public void setQueue(final EventQueue queue) {

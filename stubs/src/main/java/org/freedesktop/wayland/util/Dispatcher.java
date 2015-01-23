@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -40,7 +40,6 @@ public final class Dispatcher implements wl_dispatcher_func_t {
     public Dispatcher(final WaylandObject waylandObject) {
         this.waylandObject = waylandObject;
     }
-
 
     private static Method get(final Class<? extends WaylandObject> waylandObjectType,
                               final Class<?> implementationType,
@@ -179,7 +178,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                                                      message.types()[argIndex]);
                     if (!optional && jarg == null) {
                         throw new IllegalArgumentException(String.format("Got non optional argument that is null!. "
-                                                                                 + "Message: %s(%s), violated arg index: %d",
+                                                                         + "Message: %s(%s), violated arg index: %d",
                                                                          message.name(),
                                                                          message.signature(),
                                                                          argIndex));
@@ -194,10 +193,10 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         }
         catch (final Exception e) {
             System.err.println(String.format("Got an exception, This is most likely a bug.\n"
-                                                     + "Method=%s, " +
-                                                     "implementation=%s, " +
-                                                     "arguments=%s, " +
-                                                     "message=%s",
+                                             + "Method=%s, " +
+                                             "implementation=%s, " +
+                                             "arguments=%s, " +
+                                             "message=%s",
                                              method,
                                              this.waylandObject.getImplementation(),
                                              Arrays.toString(jargs),

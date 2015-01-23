@@ -135,8 +135,8 @@ public class StringUtil {
     public static String getSimpleJavaTypeNameEnum(final Element interfaceNode,
                                                    final Element enumNode) {
         return upperCamelName(interfaceNode.getAttribute(InterfaceWriter.ATTRIBUTE_NAME) +
-                                      "_" +
-                                      enumNode.getAttribute(InterfaceWriter.ATTRIBUTE_NAME));
+                              "_" +
+                              enumNode.getAttribute(InterfaceWriter.ATTRIBUTE_NAME));
     }
 
     public static String getSimpleJavaTypeNameResource(final Element interfaceElement,
@@ -255,7 +255,7 @@ public class StringUtil {
         }
     }
 
-    private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>(){{
+    private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>() {{
         add(byte.class.getName());
         add(short.class.getName());
         add(int.class.getName());
@@ -266,7 +266,7 @@ public class StringUtil {
         add(boolean.class.getName());
     }};
 
-    public static boolean isPrimitive(String type){
+    public static boolean isPrimitive(String type) {
         return PRIMITIVE_TYPES.contains(type);
     }
 

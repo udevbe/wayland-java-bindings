@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -103,6 +103,7 @@ public class Arguments implements HasNative<Pointer> {
      *
      * @param index
      * @param iunh
+     *
      * @return
      */
     public Arguments set(final int index,
@@ -124,6 +125,7 @@ public class Arguments implements HasNative<Pointer> {
      *
      * @param index
      * @param o
+     *
      * @return
      */
     public Arguments set(final int index,
@@ -144,6 +146,7 @@ public class Arguments implements HasNative<Pointer> {
      *
      * @param index
      * @param o
+     *
      * @return
      */
     public Arguments set(final int index,
@@ -158,6 +161,7 @@ public class Arguments implements HasNative<Pointer> {
      *
      * @param index
      * @param f
+     *
      * @return
      */
     public Arguments set(final int index,
@@ -172,6 +176,7 @@ public class Arguments implements HasNative<Pointer> {
      *
      * @param index
      * @param s
+     *
      * @return
      */
     public Arguments set(final int index,
@@ -189,6 +194,7 @@ public class Arguments implements HasNative<Pointer> {
      *
      * @param index
      * @param array
+     *
      * @return
      */
     public Arguments set(final int index,
