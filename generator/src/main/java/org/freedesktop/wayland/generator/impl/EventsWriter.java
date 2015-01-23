@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -133,7 +133,7 @@ public class EventsWriter {
                                                                       argElement);
                 final int k = (j + 1) * 2;
                 String argumentType = argumentForProxy[0];
-                if(!StringUtil.isPrimitive(argumentType)) {
+                if (!StringUtil.isPrimitive(argumentType)) {
                     argumentType = allowNull ?
                                    "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType :
                                    "@" + javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;

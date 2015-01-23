@@ -40,6 +40,7 @@ public class ObjectCache {
      *
      * @param pointer The pointer of the associated object.
      * @param <T>     The type of the POJO to cast.
+     *
      * @return The cached object.
      */
     public static <T> T from(final Pointer pointer) {
@@ -72,7 +73,7 @@ public class ObjectCache {
      * Remove a mapped POJO. This method should be used when the native context of the POJO is no longer valid.
      *
      * @param pointer The pointer of the associated object.
-     * @return True if a pointer was cached, false if not. The value can be used to detected double frees.
+     *
      */
     public static void remove(final Pointer pointer) {
         MAPPED_OBJECTS.remove(pointer);

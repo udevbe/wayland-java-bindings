@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -156,6 +156,7 @@ public class Display implements HasNative<Pointer> {
      * <p/>
      *
      * @param format The wl_shm pixel format to advertise
+     *
      * @return A pointer to the wl_shm format that was added to the list or NULL if adding it to the list failed.
      */
     public int addShmFormat(final int format) {

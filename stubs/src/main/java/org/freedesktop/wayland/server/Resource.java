@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -140,8 +140,8 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
      * <li>type=object: (struct wl_object *) or (struct wl_resource *)</li>
      * </ul>
      *
-     * @param opcode
-     * @param args
+     * @param opcode the protocol opcode
+     * @param args the protocol arguments
      */
     public void postEvent(final int opcode,
                           final Arguments args) {
@@ -152,7 +152,8 @@ public abstract class Resource<I> implements WaylandObject<Pointer> {
     }
 
     /**
-     * @param opcode
+     * @param opcode the protocol opcode
+     *
      * @see #postEvent(int, org.freedesktop.wayland.util.Arguments)
      */
     public void postEvent(final int opcode) {

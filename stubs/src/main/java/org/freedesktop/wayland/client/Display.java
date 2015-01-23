@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Erik De Rijcke
+ * Copyright © 2015 Erik De Rijcke
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -131,6 +131,7 @@ public abstract class Display extends Proxy<Void> {
      * thread acquired it using wl_display_acquire_fd().
      *
      * @return The number of dispatched events on success or -1 on failure
+     *
      * @see #dispatchPending()
      * @see #dispatchQueue(EventQueue)
      */
@@ -171,6 +172,7 @@ public abstract class Display extends Proxy<Void> {
      * Calling this makes the current thread the main one.
      *
      * @return The number of dispatched events or -1 on failure
+     *
      * @see #dispatch()
      * @see #dispatchQueue(EventQueue)
      * @see #flush()
@@ -192,6 +194,7 @@ public abstract class Display extends Proxy<Void> {
      * passed as argument.
      *
      * @param queue The event queue to dispatch
+     *
      * @return The number of dispatched events on success or -1 on failure
      */
     public int dispatchQueue(final EventQueue queue) {
@@ -208,7 +211,9 @@ public abstract class Display extends Proxy<Void> {
      * If there are no events queued, this function returns immediately.
      *
      * @param queue The event queue to dispatch
+     *
      * @return The number of dispatched events on success or -1 on failure
+     *
      * @since 1.0.2
      */
     public int dispatchQueuePending(final EventQueue queue) {
