@@ -212,9 +212,13 @@ public class ProxyWriter {
                 else {
                     final boolean allowNull = Boolean.valueOf(argElement.getAttribute(ATTRIBUTE_ALLOW_NULL));
                     String argumentType = argumentForProxy[0];
-                    argumentType = allowNull ?
-                            "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType :
-                            "@" + javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;
+                    if(!StringUtil.isPrimitive(argumentType)) {
+                        argumentType = allowNull ?
+                                       "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " "
+                                       + argumentType :
+                                       "@" + javaWriter.compressType(Nonnull.class.getSimpleName()) + " "
+                                       + argumentType;
+                    }
                     args.add(argumentType);
                     args.add(StringUtil.escapeJavaKeyword(argumentForProxy[1]));
 

@@ -161,9 +161,11 @@ public class ResourceWriter {
                                                                             argElement);
                 final int k = j * 2;
                 String argumentType = argumentForResource[0];
-                argumentType = allowNull ?
-                        "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType :
-                        "@" + javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;
+                if(!StringUtil.isPrimitive(argumentType)) {
+                    argumentType = allowNull ?
+                                   "@" + javaWriter.compressType(Nullable.class.getSimpleName()) + " " + argumentType :
+                                   "@" + javaWriter.compressType(Nonnull.class.getSimpleName()) + " " + argumentType;
+                }
                 args[k] = argumentType;
                 args[k + 1] = StringUtil.escapeJavaKeyword(argumentForResource[1]);
 
