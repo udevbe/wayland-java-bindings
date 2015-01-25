@@ -23,7 +23,7 @@ import org.freedesktop.wayland.util.*;
  *
  * @param <I> Type of implementation that will be used to handle client requests.
  */
-public abstract class Resource<I> implements WaylandObject<Pointer> {
+public abstract class Resource<I> implements WaylandObject {
     //keep refs to callbacks to they don't get garbage collected.
     private final Dispatcher                 dispatcher            = new Dispatcher(this);
     private final wl_resource_destroy_func_t nativeDestroyCallback = new wl_resource_destroy_func_t() {
