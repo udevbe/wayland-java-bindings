@@ -1,24 +1,16 @@
-/*
- * Copyright © 2012-2013 Jason Ekstrand.
- *  
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that copyright
- * notice and this permission notice appear in supporting documentation, and
- * that the name of the copyright holders not be used in advertising or
- * publicity pertaining to distribution of the software without specific,
- * written prior permission.  The copyright holders make no representations
- * about the suitability of this software for any purpose.  It is provided "as
- * is" without express or implied warranty.
- * 
- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
- * OF THIS SOFTWARE.
- */
+//Copyright 2015 Erik De Rijcke
+//
+//Licensed under the Apache License,Version2.0(the"License");
+//you may not use this file except in compliance with the License.
+//You may obtain a copy of the License at
+//
+//http://www.apache.org/licenses/LICENSE-2.0
+//
+//Unless required by applicable law or agreed to in writing,software
+//distributed under the License is distributed on an"AS IS"BASIS,
+//WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.
+//See the License for the specific language governing permissions and
+//limitations under the License.
 package examples;
 
 import java.io.Closeable;
@@ -31,9 +23,9 @@ public final class ShmPool implements Closeable {
     private long       size;
     private ByteBuffer buffer;
 
-    private ShmPool(int fd,
-                    long size,
-                    boolean dupFD)
+    private ShmPool(final int fd,
+                    final long size,
+                    final boolean dupFD)
             throws IOException {
         this.fd = fd;
         this.size = size;
@@ -42,18 +34,18 @@ public final class ShmPool implements Closeable {
                           dupFD);
     }
 
-    private static ByteBuffer map(int fd,
-                                  long size,
-                                  boolean dupFD) throws IOException {
-        ByteBuffer tmpBuff = mapNative(fd,
-                                       size,
-                                       dupFD,
-                                       false);
+    private static ByteBuffer map(final int fd,
+                                  final long size,
+                                  final boolean dupFD) throws IOException {
+        final ByteBuffer tmpBuff = mapNative(fd,
+                                             size,
+                                             dupFD,
+                                             false);
         tmpBuff.order(ByteOrder.nativeOrder());
         return tmpBuff;
     }
 
-    public ShmPool(long size) throws IOException {
+    public ShmPool(final long size) throws IOException {
         this.fd = createTmpFileNative();
         this.size = size;
         try {
@@ -63,65 +55,65 @@ public final class ShmPool implements Closeable {
                               this.size,
                               false);
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             closeNative(this.fd);
             throw e;
         }
     }
 
-    public static ShmPool fromFileDescriptor(int fd,
-                                             long size,
-                                             boolean dupFD,
-                                             boolean readOnly) throws IOException {
+    public static ShmPool fromFileDescriptor(final int fd,
+                                             final long size,
+                                             final boolean dupFD,
+                                             final boolean readOnly) throws IOException {
         return new ShmPool(fd,
                            size,
                            dupFD);
     }
 
     public ByteBuffer asByteBuffer() {
-        if (buffer == null) {
+        if (this.buffer == null) {
             throw new IllegalStateException("ShmPool is closed");
         }
 
-        return buffer;
+        return this.buffer;
     }
 
     public int getFileDescriptor() {
-        return fd;
+        return this.fd;
     }
 
     public long size() {
-        return size;
+        return this.size;
     }
 
-    public void resize(long size,
-                       boolean truncate) throws IOException {
-        if (buffer == null) {
+    public void resize(final long size,
+                       final boolean truncate) throws IOException {
+        if (this.buffer == null) {
             throw new IllegalStateException("ShmPool is closed");
         }
 
-        unmapNative(buffer);
+        unmapNative(this.buffer);
 
         this.size = size;
         if (truncate) {
-            truncateNative(fd,
+            truncateNative(this.fd,
                            size);
         }
 
-        buffer = map(fd,
-                     size,
-                     false);
+        this.buffer = map(this.fd,
+                          size,
+                          false);
     }
 
-    public void resize(long size) throws IOException {
+    public void resize(final long size) throws IOException {
         resize(size,
                true);
     }
 
     @Override
     public void close() throws IOException {
-        if (buffer != null) {
-            unmapNative(buffer);
+        if (this.buffer != null) {
+            unmapNative(this.buffer);
             this.fd = -1;
             this.size = 0;
             this.buffer = null;
