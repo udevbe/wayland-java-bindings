@@ -31,6 +31,7 @@ Known Issues
 TODO
 ====
  - Unit tests.
+ - Debug logging.
 
 License
 =======
