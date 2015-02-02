@@ -23,17 +23,6 @@ public final class ShmPool implements Closeable {
     private long       size;
     private ByteBuffer buffer;
 
-    private ShmPool(final int fd,
-                    final long size,
-                    final boolean dupFD)
-            throws IOException {
-        this.fd = fd;
-        this.size = size;
-        this.buffer = map(fd,
-                          size,
-                          dupFD);
-    }
-
     private static ByteBuffer map(final int fd,
                                   final long size,
                                   final boolean dupFD) throws IOException {
@@ -59,15 +48,6 @@ public final class ShmPool implements Closeable {
             closeNative(this.fd);
             throw e;
         }
-    }
-
-    public static ShmPool fromFileDescriptor(final int fd,
-                                             final long size,
-                                             final boolean dupFD,
-                                             final boolean readOnly) throws IOException {
-        return new ShmPool(fd,
-                           size,
-                           dupFD);
     }
 
     public ByteBuffer asByteBuffer() {
