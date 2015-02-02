@@ -17,8 +17,6 @@ public class SimpleShm {
 
     public static void main(final String[] args) {
 
-        Native.loadLibrary("wayland-java-util");
-
         final Display display = new Display();
         final Window window = new Window(display,
                                          250,
