@@ -9,11 +9,12 @@ if (JavaVersion.current().isJava8Compatible()) {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
+    apply plugin: 'signing'
 
     sourceCompatibility = JavaVersion.VERSION_1_6
 
     group = 'org.freedesktop'
-    version = '1.1.0-SNAPSHOT'
+    version = '1.1.0'
 
     repositories {
         mavenCentral()
@@ -31,7 +32,6 @@ task alljavadoc(type: Javadoc) {
     destinationDir = file("${buildDir}/docs/javadoc")
 }
 
-
 alljavadoc.dependsOn(":wayland:compileJava")
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -45,6 +45,52 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 artifacts {
+    archives jar
+
     archives sourcesJar
     archives javadocJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                name 'wayland-java-bindings'
+                packaging 'jar'
+                description 'The Wayland protocol Java-language Binding'
+                url 'https://github.com/Zubnix/wayland-java-bindings'
+
+                scm {
+                    url 'scm:git@github.com:Zubnix/wayland-java-bindings.git'
+                    connection 'scm:git@github.com:Zubnix/wayland-java-bindings.git'
+                    developerConnection 'scm:git@github.com:Zubnix/wayland-java-bindings.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'Zubnix'
+                        name 'Erik De Rijcke'
+                    }
+                }
+            }
+        }
+    }
 }
