@@ -31,10 +31,3 @@ dependencies {
             'org.freedesktop:wayland:1.1.0-SNAPSHOT'
     )
 }
-
-task jni(type: Exec) {
-    workingDir = 'src/main/native'
-    commandLine 'make'
-}
-
-jar.dependsOn jni
