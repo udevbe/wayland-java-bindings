@@ -14,8 +14,8 @@ Run `gradle install` in the root of the project.
 Private protocol
 ================
 The project allows you to generate your own private wayland protocol bindings.
- - Add `org.freedesktop:generator:1.1.0-SNAPSHOT` to your build path, no need to put it on your classpath as it will only be used during compilation.
- - Add `org.freedesktop:stubs:1.1.0-SNAPSHOT` to your classpath.
+ - Add `org.freedesktop:generator:1.1.0` to your build path, no need to put it on your classpath as it will only be used during compilation.
+ - Add `org.freedesktop:stubs:1.1.0` to your classpath.
  - Add a `@Protocols` annotation to your own private `package-info.java` file and set it to use your own private protocol xml file. Here's an [example](wayland/src/main/java/org/freedesktop/wayland/package-info.java).
  - Build with maven or gradle. The generated bindings should automatically appear in the same package as your `package-info.java` file.
 
