@@ -7,9 +7,16 @@ Javadoc
 =======
 [Here](http://zubnix.github.io/wayland-java-bindings/)
 
-Building
-========
-Run `gradle install` in the root of the project.
+Usage
+====================
+Run `gradle install` in the root of the project and add the maven dependency 
+```xml
+ <dependency>
+  <groupId>org.freedesktop</groupId>
+  <artifactId>wayland</artifactId>
+  <version>1.1.0</version>
+ </dependency>
+```
 
 Private protocol
 ================
