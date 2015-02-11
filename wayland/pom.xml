@@ -14,6 +14,20 @@
     <description>Generated Wayland protocol Java-language Bindings</description>
     <url>https://github.com/Zubnix/wayland-java-bindings</url>
 
+    <developers>
+        <developer>
+            <id>Zubnix</id>
+            <name>Erik De Rijcke</name>
+            <email>DeRijcke.Erik@gmail.com</email>
+            <timezone>gmt+1</timezone>
+            <roles>
+                <role>Creator</role>
+                <role>Owner</role>
+                <role>Maintainer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <artifactId>wayland</artifactId>
 
     <licenses>

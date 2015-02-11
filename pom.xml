@@ -13,6 +13,20 @@
     <description>The Wayland protocol Java-language Binding</description>
     <url>https://github.com/Zubnix/wayland-java-bindings</url>
 
+    <developers>
+        <developer>
+            <id>Zubnix</id>
+            <name>Erik De Rijcke</name>
+            <email>DeRijcke.Erik@gmail.com</email>
+            <timezone>gmt+1</timezone>
+            <roles>
+                <role>Creator</role>
+                <role>Owner</role>
+                <role>Maintainer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
