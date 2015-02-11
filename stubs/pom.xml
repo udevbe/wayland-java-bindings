@@ -10,6 +10,10 @@
         <version>1.1.1</version>
     </parent>
 
+    <name>Wayland Java Stubs</name>
+    <description>Wayland protocol Java-language Binding Stubs</description>
+    <url>https://github.com/Zubnix/wayland-java-bindings</url>
+
     <artifactId>stubs</artifactId>
 
     <licenses>
