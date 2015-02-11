@@ -85,7 +85,7 @@ public class ProxyWriter {
         //class javadoc
         String typeDoc = getDoc(interfaceNode);
         if (interfaceName.equals("wl_display")) {
-            typeDoc += "\n<p>\n{@see " + javaWriter.compressType(Display.class.getName()) + "}";
+            typeDoc += "\n<p>\n@see " + javaWriter.compressType(Display.class.getName());
         }
         javaWriter.emitJavadoc(typeDoc);
         //class annotation
@@ -297,7 +297,6 @@ public class ProxyWriter {
                                    + "its value will be replaced with the WAYLAND_DISPLAY environment\n"
                                    + "variable if it is set, otherwise display \"wayland-0\" will be used.\n"
                                    + "@param name Name of the Wayland display to connect to\n"
-                                   + "@param implementation The listener implementation to use."
                                    + "@return A {@code WlDisplayProxy} object or null on failure."
                                   )
                       .beginMethod(getJavaTypeNameProxy(clientPackage,
@@ -320,8 +319,7 @@ public class ProxyWriter {
                                    + "display is destroyed.  The fd will also be closed in case of\n"
                                    + "failure.\n"
                                    + "@param fd The fd to use for the connection\n"
-                                   + "@parem implementation The listener implementation to use."
-                                   + "@return A {@code WlDisplayProxy object or null on failure.")
+                                   + "@return A {@code WlDisplayProxy} object or null on failure.")
                       .beginMethod(getJavaTypeNameProxy(clientPackage,
                                                         interfaceNode,
                                                         1),
