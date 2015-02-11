@@ -7,24 +7,49 @@ Javadoc
 =======
 [Here](http://zubnix.github.io/wayland-java-bindings/)
 
-Usage
-====================
-Run `gradle install` in the root of the project and add the maven dependency 
+Using
+=====
+Bindings are available in the maven central repository:
 ```xml
  <dependency>
   <groupId>org.freedesktop</groupId>
   <artifactId>wayland</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
+ </dependency>
+```
+
+Building
+========
+Run `mvn install` in the root of the project and add the following
+maven dependency to start using the bindings:
+```xml
+ <dependency>
+  <groupId>org.freedesktop</groupId>
+  <artifactId>wayland</artifactId>
+  <version>1.2.0-SNAPSHOT</version>
  </dependency>
 ```
 
 Private protocol
 ================
 The project allows you to generate your own private wayland protocol bindings.
- - Add `org.freedesktop:generator:1.1.0` to your build path, no need to put it on your classpath as it will only be used during compilation.
- - Add `org.freedesktop:stubs:1.1.0` to your classpath.
+ - Add ```xml
+ <dependency>
+  <groupId>org.freedesktop</groupId>
+  <artifactId>generator</artifactId>
+  <version>1.1.1</version>
+  <scope>provided</scope>
+ </dependency>
+ ``` to your build path, no need to put it on your classpath as it will only be used during compilation.
+ - Add ```xml
+ <dependency>
+  <groupId>org.freedesktop</groupId>
+  <artifactId>stubs</artifactId>
+  <version>1.1.1</version>
+ </dependency>
+ ``` to your classpath.
  - Add a `@Protocols` annotation to your own private `package-info.java` file and set it to use your own private protocol xml file. Here's an [example](wayland/src/main/java/org/freedesktop/wayland/package-info.java).
- - Build with maven or gradle. The generated bindings should automatically appear in the same package as your `package-info.java` file.
+ - Build your project with maven (or gradle). The generated bindings should automatically appear in the same package as your `package-info.java` file.
 
 State
 =====
