@@ -10,6 +10,10 @@
         <version>1.1.1</version>
     </parent>
 
+    <name>Wayland Java</name>
+    <description>Generated Wayland protocol Java-language Bindings</description>
+    <url>https://github.com/Zubnix/wayland-java-bindings</url>
+
     <artifactId>wayland</artifactId>
 
     <licenses>
