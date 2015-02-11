@@ -33,27 +33,30 @@ maven dependency to start using the bindings:
 Private protocol
 ================
 The project allows you to generate your own private wayland protocol bindings.
- - Add
- ```xml
+Add
+```xml
  <dependency>
   <groupId>org.freedesktop</groupId>
   <artifactId>generator</artifactId>
   <version>1.1.1</version>
   <scope>provided</scope>
  </dependency>
- ```
- to your build path, no need to put it on your classpath as it will only be used during compilation.
- - Add
- ```xml
+```
+to your build path, no need to put it on your classpath as it will only be used during compilation.
+
+Add
+```xml
  <dependency>
   <groupId>org.freedesktop</groupId>
   <artifactId>stubs</artifactId>
   <version>1.1.1</version>
  </dependency>
- ```
- to your classpath.
- - Add a `@Protocols` annotation to your own private `package-info.java` file and set it to use your own private protocol xml file. Here's an [example](wayland/src/main/java/org/freedesktop/wayland/package-info.java).
- - Build your project with maven (or gradle). The generated bindings should automatically appear in the same package as your `package-info.java` file.
+```
+to your classpath.
+
+Add a `@Protocols` annotation to your own private `package-info.java` file and set it to use your own private protocol xml file. Here's an [example](wayland/src/main/java/org/freedesktop/wayland/package-info.java).
+
+Build your project with maven (or gradle). The generated bindings should automatically appear in the same package as your `package-info.java` file.
 
 State
 =====
