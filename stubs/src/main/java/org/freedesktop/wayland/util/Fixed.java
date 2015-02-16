@@ -40,4 +40,19 @@ public final class Fixed {
     public int getRaw() {
         return this.raw;
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+
+        final Fixed fixed = (Fixed) o;
+
+        return raw == fixed.raw;
+    }
+
+    @Override
+    public int hashCode() {
+        return raw;
+    }
 }
