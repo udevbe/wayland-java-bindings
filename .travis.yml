@@ -1,5 +1,4 @@
 language: java
 before_install:
-  sudo apt-get update
-install:
-  sudo apt-get install libwayland-dev
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libwayland-dev
