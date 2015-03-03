@@ -234,10 +234,9 @@ public class Window {
     }
 
     private void paintPixels(final Buffer buffer,
-                             final int padding,
                              final int time) {
-        final int halfh = padding + (buffer.getHeight() - padding * 2) / 2;
-        final int halfw = padding + (buffer.getWidth() - padding * 2) / 2;
+        final int halfh = buffer.getHeight() / 2;
+        final int halfw = buffer.getWidth() / 2;
         int ir;
         int or;
         final IntBuffer image = buffer.getByteBuffer().asIntBuffer();
@@ -253,12 +252,12 @@ public class Window {
         or = or * or;
         ir = ir * ir;
 
-        image.position(padding * buffer.getWidth());
-        for (int y = padding; y < buffer.getHeight() - padding; y++) {
+        image.position(0);
+        for (int y = 0; y < buffer.getHeight(); y++) {
             final int y2 = (y - halfh) * (y - halfh);
 
-            image.position(image.position() + padding);
-            for (int x = padding; x < buffer.getWidth() - padding; x++) {
+            image.position(image.position());
+            for (int x = 0; x < buffer.getWidth(); x++) {
                 int v;
 
                 final int r2 = (x - halfw) * (x - halfw) + y2;
@@ -280,14 +279,13 @@ public class Window {
 
                 image.put(v);
             }
-            image.position(image.position() + padding);
+            image.position(image.position());
         }
     }
 
     public void redraw(final int time) {
         final Buffer buffer = this.bufferPool.pop();
         paintPixels(buffer,
-                    0,
                     time);
 
         this.surfaceProxy.attach(buffer.getProxy(),
