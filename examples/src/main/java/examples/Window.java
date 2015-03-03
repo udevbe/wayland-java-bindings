@@ -15,6 +15,7 @@ package examples;
 
 import org.freedesktop.wayland.client.*;
 import org.freedesktop.wayland.shared.WlPointerButtonState;
+import org.freedesktop.wayland.shared.WlShellSurfaceResize;
 import org.freedesktop.wayland.shared.WlShmFormat;
 import org.freedesktop.wayland.util.Fixed;
 
@@ -27,32 +28,40 @@ import java.util.LinkedList;
 public class Window {
 
     private final WlShellSurfaceProxy shellSurface;
+    private final WlRegionProxy inputRegion;
 
     public class Buffer {
 
         private final ShmPool       shmPool;
         private final WlBufferProxy bufferProxy;
         private final ByteBuffer    byteBuffer;
+        private final int width;
+        private final int height;
 
-        public Buffer() {
+        public Buffer(final LinkedList<Buffer> bufferPool,
+                      final int width,
+                      final int height) {
+            bufferPool.add(this);
+            this.width = width;
+            this.height = height;
             try {
-                this.shmPool = new ShmPool(Window.this.width * Window.this.height * 4);
+                this.shmPool = new ShmPool(width * height * 4);
 
                 final WlShmPoolProxy pool = Window.this.display.getShmProxy()
                                                                .createPool(new WlShmPoolEvents() {
                                                                            },
                                                                            this.shmPool.getFileDescriptor(),
-                                                                           Window.this.width * Window.this.height * 4);
+                                                                           width * height * 4);
                 this.bufferProxy = pool.createBuffer(new WlBufferEvents() {
                                                          @Override
                                                          public void release(final WlBufferProxy emitter) {
-                                                             Window.this.bufferPool.add(Buffer.this);
+                                                            bufferPool.add(Buffer.this);
                                                          }
                                                      },
                                                      0,
-                                                     Window.this.width,
-                                                     Window.this.height,
-                                                     Window.this.width * 4,
+                                                     width,
+                                                     height,
+                                                     width * 4,
                                                      WlShmFormat.XRGB8888.getValue());
                 pool.destroy();
                 this.byteBuffer = this.shmPool.asByteBuffer();
@@ -60,6 +69,14 @@ public class Window {
             catch (final IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public int getHeight() {
+            return height;
         }
 
         public ByteBuffer getByteBuffer() {
@@ -73,23 +90,21 @@ public class Window {
 
     private final Display display;
 
-    private int width;
-    private int height;
-
     private final WlSurfaceProxy  surfaceProxy;
     private       WlCallbackProxy callbackProxy;
-    private final LinkedList<Buffer> bufferPool = new LinkedList<Buffer>();
+    private LinkedList<Buffer> bufferPool = new LinkedList<Buffer>();
 
     public Window(final Display display,
                   final int width,
                   final int height) {
         this.display = display;
-        this.width = width;
-        this.height = height;
 
-        this.bufferPool.add(new Buffer());
-        this.bufferPool.add(new Buffer());
-        this.bufferPool.add(new Buffer());
+        new Buffer(this.bufferPool,
+                   width,
+                   height);
+        new Buffer(this.bufferPool,
+                   width,
+                   height);
 
         this.surfaceProxy = display.getCompositorProxy()
                                    .createSurface(new WlSurfaceEvents() {
@@ -112,9 +127,8 @@ public class Window {
                                  width,
                                  height);
 
-        final WlRegionProxy inputRegion = display.getCompositorProxy()
-                                                 .createRegion(new WlRegionEvents() {
-                                                 });
+        inputRegion = display.getCompositorProxy().createRegion(new WlRegionEvents() {
+        });
         inputRegion.add(0,
                         0,
                         width,
@@ -132,10 +146,21 @@ public class Window {
                                                              @Override
                                                              public void configure(final WlShellSurfaceProxy emitter,
                                                                                    final int edges,
-                                                                                   final int width,
-                                                                                   final int height) {
-                                                                 Window.this.width = width;
-                                                                 Window.this.height = height;
+                                                                                   int width,
+                                                                                   int height) {
+                                                                 LinkedList<Buffer> bufferPool = new LinkedList<Buffer>();
+
+                                                                 new Buffer(bufferPool,
+                                                                            width,
+                                                                            height);
+                                                                 new Buffer(bufferPool,
+                                                                            width,
+                                                                            height);
+                                                                 Window.this.bufferPool = bufferPool;
+                                                                 Window.this.inputRegion.add(0,
+                                                                                             0,
+                                                                                             width,
+                                                                                             height);
                                                              }
 
                                                              @Override
@@ -179,9 +204,14 @@ public class Window {
                                            final int button,
                                            final int state) {
                             this.buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
-                            if (this.buttonPressed) {
+                            if (this.buttonPressed && button == 1) {
                                 Window.this.shellSurface.move(display.getSeatProxy(),
                                                               serial);
+                            }
+                            else if(this.buttonPressed && button == 3){
+                                Window.this.shellSurface.resize(display.getSeatProxy(),
+                                                                serial,
+                                                                WlShellSurfaceResize.NONE.getValue());
                             }
                         }
 
@@ -203,16 +233,16 @@ public class Window {
         return i < 0 ? -i : i;
     }
 
-    private void paintPixels(final ByteBuffer buffer,
+    private void paintPixels(final Buffer buffer,
                              final int padding,
                              final int time) {
-        final int halfh = padding + (this.height - padding * 2) / 2;
-        final int halfw = padding + (this.width - padding * 2) / 2;
+        final int halfh = padding + (buffer.getHeight() - padding * 2) / 2;
+        final int halfw = padding + (buffer.getWidth() - padding * 2) / 2;
         int ir;
         int or;
-        final IntBuffer image = buffer.asIntBuffer();
+        final IntBuffer image = buffer.getByteBuffer().asIntBuffer();
         image.clear();
-        for (int i = 0; i < this.width * this.height; ++i) {
+        for (int i = 0; i < buffer.getWidth() * buffer.getHeight(); ++i) {
             image.put(0xffffffff);
         }
         image.clear();
@@ -223,12 +253,12 @@ public class Window {
         or = or * or;
         ir = ir * ir;
 
-        image.position(padding * this.width);
-        for (int y = padding; y < this.height - padding; y++) {
+        image.position(padding * buffer.getWidth());
+        for (int y = padding; y < buffer.getHeight() - padding; y++) {
             final int y2 = (y - halfh) * (y - halfh);
 
             image.position(image.position() + padding);
-            for (int x = padding; x < this.width - padding; x++) {
+            for (int x = padding; x < buffer.getWidth() - padding; x++) {
                 int v;
 
                 final int r2 = (x - halfw) * (x - halfw) + y2;
@@ -244,7 +274,7 @@ public class Window {
                 }
                 v &= 0x00ffffff;
 
-                if (abs(x - y) > 6 && abs(x + y - this.height) > 6) {
+                if (abs(x - y) > 6 && abs(x + y - buffer.getHeight()) > 6) {
                     v |= 0xff000000;
                 }
 
@@ -256,17 +286,17 @@ public class Window {
 
     public void redraw(final int time) {
         final Buffer buffer = this.bufferPool.pop();
-        paintPixels(buffer.getByteBuffer(),
-                    20,
+        paintPixels(buffer,
+                    0,
                     time);
 
         this.surfaceProxy.attach(buffer.getProxy(),
                                  0,
                                  0);
-        this.surfaceProxy.damage(20,
-                                 20,
-                                 this.height - 40,
-                                 this.height - 40);
+        this.surfaceProxy.damage(0,
+                                 0,
+                                 buffer.getWidth(),
+                                 buffer.getHeight());
         //cleanup the previous frame callback
         if (this.callbackProxy != null) {
             Window.this.callbackProxy.destroy();
