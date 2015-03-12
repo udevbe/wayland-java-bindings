@@ -62,73 +62,80 @@ public class EventLoop implements HasNative<Pointer> {
             public int apply(final int fd,
                              final int mask,
                              final Pointer data) {
-                handler.handle(fd,
-                               mask);
-                return 0;
+                return handler.handle(fd,
+                                      mask);
             }
         };
-        this.weakNativeCallbackReferences.put(handler,
-                                              nativeCallback);
         final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
                                                           .wl_event_loop_add_fd(getNative(),
                                                                                 fd,
                                                                                 mask,
                                                                                 nativeCallback,
                                                                                 Pointer.NULL);
-        return EventSource.create(wlEventSource);
+        final EventSource eventSource = EventSource.create(wlEventSource);
+        this.weakNativeCallbackReferences.put(eventSource,
+                                              nativeCallback);
+        return eventSource;
     }
 
     public EventSource addTimer(final TimerEventHandler handler) {
         final wl_event_loop_timer_func_t nativeCallback = new wl_event_loop_timer_func_t() {
             @Override
             public int apply(final Pointer data) {
-                handler.handle();
-                return 0;
+                return handler.handle();
             }
         };
         this.weakNativeCallbackReferences.put(handler,
                                               nativeCallback);
-        return EventSource.create(WaylandServerLibrary.INSTANCE()
-                                                      .wl_event_loop_add_timer(getNative(),
-                                                                               nativeCallback,
-                                                                               Pointer.NULL));
+        final EventSource eventSource = EventSource.create(WaylandServerLibrary.INSTANCE()
+                                                                               .wl_event_loop_add_timer(getNative(),
+                                                                                                        nativeCallback,
+                                                                                                        Pointer.NULL));
+        this.weakNativeCallbackReferences.put(eventSource,
+                                              nativeCallback);
+        return eventSource;
     }
 
     public EventSource addSignal(final int signalNumber,
                                  final SignalEventHandler handler) {
-        final wl_event_loop_signal_func_t callback = new wl_event_loop_signal_func_t() {
+        final wl_event_loop_signal_func_t nativeCallback = new wl_event_loop_signal_func_t() {
 
             @Override
             public int apply(final int signal_number,
                              final Pointer data) {
-                handler.handle(signalNumber);
-                return 0;
+                return handler.handle(signalNumber);
             }
         };
         this.weakNativeCallbackReferences.put(handler,
-                                              callback);
+                                              nativeCallback);
         final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
                                                           .wl_event_loop_add_signal(getNative(),
                                                                                     signalNumber,
-                                                                                    callback,
+                                                                                    nativeCallback,
                                                                                     Pointer.NULL);
-        return EventSource.create(wlEventSource);
+        final EventSource eventSource = EventSource.create(wlEventSource);
+        this.weakNativeCallbackReferences.put(eventSource,
+                                              nativeCallback);
+        return eventSource;
     }
 
     public EventSource addIdle(final IdleHandler handler) {
-        final wl_event_loop_idle_func_t callback = new wl_event_loop_idle_func_t() {
+        final wl_event_loop_idle_func_t nativeCallback = new wl_event_loop_idle_func_t() {
             @Override
             public void apply(final Pointer data) {
                 handler.handle();
             }
         };
         this.weakNativeCallbackReferences.put(handler,
-                                              callback);
+                                              nativeCallback);
         final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
                                                           .wl_event_loop_add_idle(getNative(),
-                                                                                  callback,
+                                                                                  nativeCallback,
                                                                                   Pointer.NULL);
-        return EventSource.create(wlEventSource);
+        final EventSource eventSource = EventSource.create(wlEventSource);
+        this.weakNativeCallbackReferences.put(eventSource,
+                                              nativeCallback);
+        return eventSource;
     }
 
     public int dispatch(final int timeout) {
