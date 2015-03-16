@@ -16,95 +16,26 @@ package examples;
 import org.freedesktop.wayland.client.*;
 import org.freedesktop.wayland.shared.WlPointerButtonState;
 import org.freedesktop.wayland.shared.WlShellSurfaceResize;
-import org.freedesktop.wayland.shared.WlShmFormat;
 import org.freedesktop.wayland.util.Fixed;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.LinkedList;
 
 public class Window {
 
     private final WlShellSurfaceProxy shellSurface;
     private final WlRegionProxy inputRegion;
 
-    public class Buffer {
-
-        private final ShmPool       shmPool;
-        private final WlBufferProxy bufferProxy;
-        private final ByteBuffer    byteBuffer;
-        private final int width;
-        private final int height;
-
-        public Buffer(final LinkedList<Buffer> bufferPool,
-                      final int width,
-                      final int height) {
-            bufferPool.add(this);
-            this.width = width;
-            this.height = height;
-            try {
-                this.shmPool = new ShmPool(width * height * 4);
-
-                final WlShmPoolProxy pool = Window.this.display.getShmProxy()
-                                                               .createPool(new WlShmPoolEvents() {
-                                                                           },
-                                                                           this.shmPool.getFileDescriptor(),
-                                                                           width * height * 4);
-                this.bufferProxy = pool.createBuffer(new WlBufferEvents() {
-                                                         @Override
-                                                         public void release(final WlBufferProxy emitter) {
-                                                            bufferPool.add(Buffer.this);
-                                                         }
-                                                     },
-                                                     0,
-                                                     width,
-                                                     height,
-                                                     width * 4,
-                                                     WlShmFormat.XRGB8888.getValue());
-                pool.destroy();
-                this.byteBuffer = this.shmPool.asByteBuffer();
-            }
-            catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public int getWidth() {
-            return width;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
-        public ByteBuffer getByteBuffer() {
-            return this.byteBuffer;
-        }
-
-        public WlBufferProxy getProxy() {
-            return this.bufferProxy;
-        }
-    }
-
-    private final Display display;
-
     private final WlSurfaceProxy  surfaceProxy;
     private       WlCallbackProxy callbackProxy;
-    private LinkedList<Buffer> bufferPool = new LinkedList<Buffer>();
+    private BufferPool bufferPool;
 
     public Window(final Display display,
                   final int width,
-                  final int height) {
-        this.display = display;
+                  final int height) throws IOException {
 
-        new Buffer(this.bufferPool,
-                   width,
-                   height);
-        new Buffer(this.bufferPool,
-                   width,
-                   height);
+        bufferPool = createBufferPool(display,width,height,2);
 
         this.surfaceProxy = display.getCompositorProxy()
                                    .createSurface(new WlSurfaceEvents() {
@@ -135,7 +66,7 @@ public class Window {
                         height);
         this.surfaceProxy.setInputRegion(inputRegion);
 
-        this.shellSurface = this.display.getShellProxy()
+        this.shellSurface = display.getShellProxy()
                                         .getShellSurface(new WlShellSurfaceEvents() {
                                                              @Override
                                                              public void ping(final WlShellSurfaceProxy emitter,
@@ -148,19 +79,18 @@ public class Window {
                                                                                    final int edges,
                                                                                    int width,
                                                                                    int height) {
-                                                                 LinkedList<Buffer> bufferPool = new LinkedList<Buffer>();
+                                                                 try {
+                                                                     bufferPool.destroy();
+                                                                     bufferPool = createBufferPool(display, width,
+                                                                                                   height, 2);
+                                                                     Window.this.inputRegion.add(0,
+                                                                                                 0,
+                                                                                                 width,
+                                                                                                 height);
+                                                                 } catch (IOException e) {
+                                                                     e.printStackTrace();
+                                                                 }
 
-                                                                 new Buffer(bufferPool,
-                                                                            width,
-                                                                            height);
-                                                                 new Buffer(bufferPool,
-                                                                            width,
-                                                                            height);
-                                                                 Window.this.bufferPool = bufferPool;
-                                                                 Window.this.inputRegion.add(0,
-                                                                                             0,
-                                                                                             width,
-                                                                                             height);
                                                              }
 
                                                              @Override
@@ -170,7 +100,7 @@ public class Window {
                                                          },
                                                          this.surfaceProxy);
 
-        this.display.getSeatProxy()
+        display.getSeatProxy()
                     .getPointer(new WlPointerEventsV3() {
 
                         boolean buttonPressed = false;
@@ -223,6 +153,15 @@ public class Window {
 
                         }
                     });
+    }
+
+    private BufferPool createBufferPool(Display display, int width, int height, int size) throws IOException {
+        final WlShmPoolProxy wlShmPoolProxy = new BufferPoolFactory(display).create(width,
+                                                                                    height,
+                                                                                    2);
+        final BufferPool bufferPool = (BufferPool) wlShmPoolProxy.getImplementation();
+        wlShmPoolProxy.destroy();
+        return bufferPool;
     }
 
     public void destroy() {
@@ -284,11 +223,12 @@ public class Window {
     }
 
     public void redraw(final int time) {
-        final Buffer buffer = this.bufferPool.pop();
+        final WlBufferProxy wlBufferProxy = bufferPool.popBuffer();
+        final Buffer buffer = (Buffer) wlBufferProxy.getImplementation();
         paintPixels(buffer,
                     time);
 
-        this.surfaceProxy.attach(buffer.getProxy(),
+        this.surfaceProxy.attach(wlBufferProxy,
                                  0,
                                  0);
         this.surfaceProxy.damage(0,
