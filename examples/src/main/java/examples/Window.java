@@ -13,160 +13,183 @@
 //limitations under the License.
 package examples;
 
-import org.freedesktop.wayland.client.*;
+import org.freedesktop.wayland.client.WlBufferProxy;
+import org.freedesktop.wayland.client.WlCallbackEvents;
+import org.freedesktop.wayland.client.WlCallbackProxy;
+import org.freedesktop.wayland.client.WlOutputProxy;
+import org.freedesktop.wayland.client.WlPointerEventsV3;
+import org.freedesktop.wayland.client.WlPointerProxy;
+import org.freedesktop.wayland.client.WlRegionEvents;
+import org.freedesktop.wayland.client.WlRegionProxy;
+import org.freedesktop.wayland.client.WlShellSurfaceEvents;
+import org.freedesktop.wayland.client.WlShellSurfaceProxy;
+import org.freedesktop.wayland.client.WlSurfaceEventsV3;
+import org.freedesktop.wayland.client.WlSurfaceProxy;
 import org.freedesktop.wayland.shared.WlPointerButtonState;
 import org.freedesktop.wayland.shared.WlShellSurfaceResize;
-import org.freedesktop.wayland.shared.WlShmFormat;
 import org.freedesktop.wayland.util.Fixed;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
+import javax.annotation.Nonnull;
+
 import static org.freedesktop.wayland.shared.WlShmFormat.XRGB8888;
 
-public class Window {
+public class Window implements WlShellSurfaceEvents,
+                               WlSurfaceEventsV3,
+                               WlPointerEventsV3,
+                               WlRegionEvents {
 
-    private final WlShellSurfaceProxy shellSurface;
-    private final WlRegionProxy inputRegion;
+    private final WlShellSurfaceProxy shellSurfaceProxy;
+    private final WlRegionProxy regionProxy;
 
-    private final WlSurfaceProxy  surfaceProxy;
-    private       WlCallbackProxy callbackProxy;
+    private final WlSurfaceProxy surfaceProxy;
+    private final Display display;
+    private final WlPointerProxy pointerProxy;
+
+    private WlCallbackProxy callbackProxy;
     private BufferPool bufferPool;
 
     public Window(final Display display,
                   final int width,
                   final int height) throws IOException {
+        this.display = display;
+        this.bufferPool = createBufferPool(this.display,
+                                           width,
+                                           height,
+                                           2);
+        this.surfaceProxy = this.display.getCompositorProxy()
+                                        .createSurface(this);
+        this.regionProxy = this.display.getCompositorProxy()
+                                       .createRegion(this);
+        this.surfaceProxy.setInputRegion(regionProxy);
+        this.shellSurfaceProxy = this.display.getShellProxy()
+                                        .getShellSurface(this,
+                                                         this.surfaceProxy);
+        this.pointerProxy = this.display.getSeatProxy()
+                                        .getPointer(this);
 
-        bufferPool = createBufferPool(display,width,height,2);
-
-        this.surfaceProxy = display.getCompositorProxy()
-                                   .createSurface(new WlSurfaceEvents() {
-                                       @Override
-                                       public void enter(final WlSurfaceProxy emitter,
-                                                         @Nonnull
-                                                         final WlOutputProxy output) {
-
-                                       }
-
-                                       @Override
-                                       public void leave(final WlSurfaceProxy emitter,
-                                                         @Nonnull
-                                                         final WlOutputProxy output) {
-
-                                       }
-                                   });
         this.surfaceProxy.damage(0,
                                  0,
                                  width,
                                  height);
-
-        inputRegion = display.getCompositorProxy().createRegion(new WlRegionEvents() {
-        });
-        inputRegion.add(0,
-                        0,
-                        width,
-                        height);
-        this.surfaceProxy.setInputRegion(inputRegion);
-
-        this.shellSurface = display.getShellProxy()
-                                        .getShellSurface(new WlShellSurfaceEvents() {
-                                                             @Override
-                                                             public void ping(final WlShellSurfaceProxy emitter,
-                                                                              final int serial) {
-                                                                 emitter.pong(serial);
-                                                             }
-
-                                                             @Override
-                                                             public void configure(final WlShellSurfaceProxy emitter,
-                                                                                   final int edges,
-                                                                                   int width,
-                                                                                   int height) {
-                                                                 try {
-                                                                     bufferPool.destroy();
-                                                                     bufferPool = createBufferPool(display, width,
-                                                                                                   height, 2);
-                                                                     Window.this.inputRegion.add(0,
-                                                                                                 0,
-                                                                                                 width,
-                                                                                                 height);
-                                                                 } catch (IOException e) {
-                                                                     e.printStackTrace();
-                                                                 }
-
-                                                             }
-
-                                                             @Override
-                                                             public void popupDone(final WlShellSurfaceProxy emitter) {
-
-                                                             }
-                                                         },
-                                                         this.surfaceProxy);
-
-        display.getSeatProxy()
-                    .getPointer(new WlPointerEventsV3() {
-
-                        boolean buttonPressed = false;
-
-                        @Override
-                        public void enter(final WlPointerProxy emitter,
-                                          final int serial,
-                                          @Nonnull final WlSurfaceProxy surface,
-                                          @Nonnull final Fixed surfaceX,
-                                          @Nonnull final Fixed surfaceY) {
-
-                        }
-
-                        @Override
-                        public void leave(final WlPointerProxy emitter,
-                                          final int serial,
-                                          @Nonnull final WlSurfaceProxy surface) {
-                        }
-
-                        @Override
-                        public void motion(final WlPointerProxy emitter,
-                                           final int time,
-                                           @Nonnull final Fixed surfaceX,
-                                           @Nonnull final Fixed surfaceY) {
-                        }
-
-                        @Override
-                        public void button(final WlPointerProxy emitter,
-                                           final int serial,
-                                           final int time,
-                                           final int button,
-                                           final int state) {
-                            this.buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
-                            if (this.buttonPressed && button == 1) {
-                                Window.this.shellSurface.move(display.getSeatProxy(),
-                                                              serial);
-                            }
-                            else if(this.buttonPressed && button == 3){
-                                Window.this.shellSurface.resize(display.getSeatProxy(),
-                                                                serial,
-                                                                WlShellSurfaceResize.NONE.getValue());
-                            }
-                        }
-
-                        @Override
-                        public void axis(final WlPointerProxy emitter,
-                                         final int time,
-                                         final int axis,
-                                         @Nonnull final Fixed value) {
-
-                        }
-                    });
+        this.regionProxy.add(0,
+                             0,
+                             width,
+                             height);
     }
 
-    private BufferPool createBufferPool(Display display, int width, int height, int size) throws IOException {
+    private BufferPool createBufferPool(final Display display,
+                                        final int width,
+                                        final int height,
+                                        final int size) throws IOException {
         return new BufferPoolFactory(display).create(width,
-                                                    height,
-                                                    2,
-                                                    XRGB8888);
+                                                     height,
+                                                     2,
+                                                     XRGB8888);
+    }
+
+    @Override
+    public void enter(final WlPointerProxy emitter,
+                      final int serial,
+                      @Nonnull final WlSurfaceProxy surface,
+                      @Nonnull final Fixed surfaceX,
+                      @Nonnull final Fixed surfaceY) {
+
+    }
+
+    @Override
+    public void leave(final WlPointerProxy emitter,
+                      final int serial,
+                      @Nonnull final WlSurfaceProxy surface) {
+    }
+
+    @Override
+    public void motion(final WlPointerProxy emitter,
+                       final int time,
+                       @Nonnull final Fixed surfaceX,
+                       @Nonnull final Fixed surfaceY) {
+    }
+
+    @Override
+    public void button(final WlPointerProxy emitter,
+                       final int serial,
+                       final int time,
+                       final int button,
+                       final int state) {
+        final boolean buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
+        if (buttonPressed && button == 1) {
+            this.shellSurfaceProxy.move(display.getSeatProxy(),
+                                   serial);
+        } else if (buttonPressed && button == 3) {
+            this.shellSurfaceProxy.resize(display.getSeatProxy(),
+                                     serial,
+                                     WlShellSurfaceResize.NONE.getValue());
+        }
+    }
+
+    @Override
+    public void axis(final WlPointerProxy emitter,
+                     final int time,
+                     final int axis,
+                     @Nonnull final Fixed value) {
+
+    }
+
+    @Override
+    public void ping(final WlShellSurfaceProxy emitter,
+                     final int serial) {
+        emitter.pong(serial);
+    }
+
+    @Override
+    public void configure(final WlShellSurfaceProxy emitter,
+                          final int edges,
+                          int width,
+                          int height) {
+        try {
+            this.bufferPool.destroy();
+            this.bufferPool = createBufferPool(display,
+                                               width,
+                                               height,
+                                               2);
+            this.regionProxy.add(0,
+                                 0,
+                                 width,
+                                 height);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void popupDone(final WlShellSurfaceProxy emitter) {
+
+    }
+
+    @Override
+    public void enter(final WlSurfaceProxy emitter,
+                      @Nonnull final WlOutputProxy output) {
+
+    }
+
+    @Override
+    public void leave(final WlSurfaceProxy emitter,
+                      @Nonnull final WlOutputProxy output) {
+
     }
 
     public void destroy() {
+        this.shellSurfaceProxy.destroy();
         this.surfaceProxy.destroy();
+        this.regionProxy.destroy();
+        this.pointerProxy.destroy();
+        if(callbackProxy!=null) {
+            this.callbackProxy.destroy();
+        }
+        this.bufferPool.destroy();
     }
 
     private int abs(final int i) {
@@ -204,11 +227,9 @@ public class Window {
 
                 if (r2 < ir) {
                     v = (r2 / 32 + time / 64) * 0x0080401;
-                }
-                else if (r2 < or) {
+                } else if (r2 < or) {
                     v = (y + time / 32) * 0x0080401;
-                }
-                else {
+                } else {
                     v = (x + time / 16) * 0x0080401;
                 }
                 v &= 0x00ffffff;
@@ -238,7 +259,7 @@ public class Window {
                                  buffer.getHeight());
         //cleanup the previous frame callback
         if (this.callbackProxy != null) {
-            Window.this.callbackProxy.destroy();
+            this.callbackProxy.destroy();
         }
         //allocate a new frame callback
         this.callbackProxy = this.surfaceProxy.frame(new WlCallbackEvents() {
