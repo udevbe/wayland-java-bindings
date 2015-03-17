@@ -15,33 +15,32 @@ public class BufferPoolFactory {
         this.display = display;
     }
 
-    public WlShmPoolProxy create(int width, int height, int size) throws IOException {
-        final int bufferSize = width * height * 4;
-        final ShmPool shmPool = new ShmPool(bufferSize *size);
-        final BufferPool bufferPool = new BufferPool();
-        final WlShmPoolProxy
-                wlShmPoolProxy =
-                this.display.getShmProxy()
-                        .createPool(bufferPool,
-                                    shmPool.getFileDescriptor(),
-                                    bufferSize * size);
-        for(int i = 0; i < size; i++){
-            final int offset = i * bufferSize;
-            final ByteBuffer poolByteBuffer = shmPool.asByteBuffer();
-            poolByteBuffer.position(offset);
-            final ByteBuffer byteBuffer = poolByteBuffer.slice();
+    public BufferPool create(int width, int height, int size, WlShmFormat shmFormat) throws IOException {
 
+        final BufferPool bufferPool = new BufferPool();
+        for(int i = 0; i < size; i++){
+            final int bufferSize = width * height * 4;
+            final ShmPool shmPool = new ShmPool(bufferSize);
+
+            final WlShmPoolProxy
+                    wlShmPoolProxy =
+                    this.display.getShmProxy()
+                            .createPool(bufferPool,
+                                        shmPool.getFileDescriptor(),
+                                        bufferSize);
+            final ByteBuffer byteBuffer = shmPool.asByteBuffer();
             final WlBufferProxy buffer = wlShmPoolProxy.createBuffer(new Buffer(bufferPool,
                                                            byteBuffer,
                                                            width,
                                                            height),
-                                                offset,
+                                                0,
                                                 width,
                                                 height,
                                                 width * 4,
-                                                WlShmFormat.XRGB8888.getValue());
+                                                shmFormat.getValue());
             bufferPool.queueBuffer(buffer);
+            wlShmPoolProxy.destroy();
         }
-        return wlShmPoolProxy;
+        return bufferPool;
     }
 }
