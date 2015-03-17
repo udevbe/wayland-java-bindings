@@ -55,4 +55,13 @@ public final class Fixed {
     public int hashCode() {
         return raw;
     }
+
+    @Override
+    public String toString() {
+        return "Fixed{" +
+               " raw=" + raw +
+               " asInt=" + asInt() +
+               " asFloat="+asFloat()+
+               '}';
+    }
 }
