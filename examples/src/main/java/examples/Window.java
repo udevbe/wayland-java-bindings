@@ -16,11 +16,14 @@ package examples;
 import org.freedesktop.wayland.client.*;
 import org.freedesktop.wayland.shared.WlPointerButtonState;
 import org.freedesktop.wayland.shared.WlShellSurfaceResize;
+import org.freedesktop.wayland.shared.WlShmFormat;
 import org.freedesktop.wayland.util.Fixed;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.IntBuffer;
+
+import static org.freedesktop.wayland.shared.WlShmFormat.XRGB8888;
 
 public class Window {
 
@@ -156,12 +159,10 @@ public class Window {
     }
 
     private BufferPool createBufferPool(Display display, int width, int height, int size) throws IOException {
-        final WlShmPoolProxy wlShmPoolProxy = new BufferPoolFactory(display).create(width,
-                                                                                    height,
-                                                                                    2);
-        final BufferPool bufferPool = (BufferPool) wlShmPoolProxy.getImplementation();
-        wlShmPoolProxy.destroy();
-        return bufferPool;
+        return new BufferPoolFactory(display).create(width,
+                                                    height,
+                                                    2,
+                                                    XRGB8888);
     }
 
     public void destroy() {
