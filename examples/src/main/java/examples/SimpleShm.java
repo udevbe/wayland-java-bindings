@@ -13,9 +13,11 @@
 //limitations under the License.
 package examples;
 
+import java.io.IOException;
+
 public class SimpleShm {
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws IOException {
 
         final Display display = new Display();
         final Window window = new Window(display,
