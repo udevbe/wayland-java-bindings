@@ -26,15 +26,14 @@ public class SimpleShm {
         window.redraw(0);
 
         try {
-            while (true) {
-                display.getDisplayProxy()
-                       .dispatch();
-            }
-        }
-        catch (final Exception e) {
+            int state;
+            do {
+                state = display.getDisplayProxy()
+                               .dispatch();
+            }while(state!=-1);
+        }finally {
             window.destroy();
             display.destroy();
-            throw new RuntimeException(e);
         }
     }
 }
