@@ -96,13 +96,20 @@ public class Window implements WlShellSurfaceEvents,
                       @Nonnull final WlSurfaceProxy surface,
                       @Nonnull final Fixed surfaceX,
                       @Nonnull final Fixed surfaceY) {
-
+        System.out.println(String.format("Pointer - enter : serial=%d, surface=%s, x=%s, y=%s",
+                                         serial,
+                                         surface,
+                                         surfaceX,
+                                         surfaceY));
     }
 
     @Override
     public void leave(final WlPointerProxy emitter,
                       final int serial,
                       @Nonnull final WlSurfaceProxy surface) {
+        System.out.println(String.format("Pointer - leave : serial=%d, surface=%s",
+                                         serial,
+                                         surface));
     }
 
     @Override
@@ -110,6 +117,10 @@ public class Window implements WlShellSurfaceEvents,
                        final int time,
                        @Nonnull final Fixed surfaceX,
                        @Nonnull final Fixed surfaceY) {
+        System.out.println(String.format("Pointer - motion : time=%d, x=%s, y=%s",
+                                         time,
+                                         surfaceX,
+                                         surfaceY));
     }
 
     @Override
@@ -118,6 +129,12 @@ public class Window implements WlShellSurfaceEvents,
                        final int time,
                        final int button,
                        final int state) {
+        System.out.println(String.format("Pointer - button : serial=%d, time=%d, button=%d, state=%d",
+                                         serial,
+                                         time,
+                                         button,
+                                         state));
+
         final boolean buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
         if (buttonPressed && button == 1) {
             this.shellSurfaceProxy.move(display.getSeatProxy(),
@@ -134,12 +151,18 @@ public class Window implements WlShellSurfaceEvents,
                      final int time,
                      final int axis,
                      @Nonnull final Fixed value) {
-
+        System.out.println(String.format("Pointer - axis : time=%d, axis=%d, value=%s",
+                                         time,
+                                         axis,
+                                         value));
     }
 
     @Override
     public void ping(final WlShellSurfaceProxy emitter,
                      final int serial) {
+//        System.out.println(String.format("shell surface - ping : serial=%d",
+//                                         serial));
+
         emitter.pong(serial);
     }
 
