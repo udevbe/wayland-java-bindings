@@ -22,7 +22,11 @@ public class Buffer implements WlBufferEvents {
 
     @Override
     public void release(final WlBufferProxy emitter) {
-        bufferPool.queueBuffer(emitter);
+        if(bufferPool.isDestroyed()){
+            emitter.destroy();
+        }else {
+            bufferPool.queueBuffer(emitter);
+        }
     }
 
     public ByteBuffer getByteBuffer() {
