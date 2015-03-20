@@ -67,7 +67,7 @@ public class ObjectCache {
      * @param pointer The pointer of the associated object.
      *
      */
-    public static void remove(final Pointer pointer) {
-        MAPPED_OBJECTS.remove(pointer);
+    public static <T> T remove(final Pointer pointer) {
+        return (T) MAPPED_OBJECTS.remove(pointer);
     }
 }

@@ -13,6 +13,7 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
+import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.server.jna.wl_listener;
@@ -34,6 +35,14 @@ import org.freedesktop.wayland.util.ObjectCache;
  */
 public abstract class Listener implements HasNative<wl_listener> {
 
+    private static final wl_notify_func_t WL_NOTIFY_FUNC = new wl_notify_func_t() {
+        @Override
+        public void apply(final Pointer listenerPointer) {
+            final Listener listener = ObjectCache.from(listenerPointer);
+            listener.handle();
+        }
+    };
+
     private final wl_listener pointer;
 
     private boolean valid;
@@ -41,12 +50,7 @@ public abstract class Listener implements HasNative<wl_listener> {
     public Listener() {
         this.pointer = new wl_listener();
         this.valid = true;
-        this.pointer.notify$ = new wl_notify_func_t() {
-            @Override
-            public void apply() {
-                Listener.this.handle();
-            }
-        };
+        this.pointer.notify$ = WL_NOTIFY_FUNC;
         ObjectCache.store(getNative().getPointer(),
                           this);
     }
