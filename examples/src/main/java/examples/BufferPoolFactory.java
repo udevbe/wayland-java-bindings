@@ -28,9 +28,8 @@ public class BufferPoolFactory {
                             .createPool(bufferPool,
                                         shmPool.getFileDescriptor(),
                                         bufferSize);
-            final ByteBuffer byteBuffer = shmPool.asByteBuffer();
             final WlBufferProxy buffer = wlShmPoolProxy.createBuffer(new Buffer(bufferPool,
-                                                           byteBuffer,
+                                                           shmPool,
                                                            width,
                                                            height),
                                                 0,

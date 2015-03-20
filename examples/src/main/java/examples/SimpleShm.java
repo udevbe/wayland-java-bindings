@@ -19,6 +19,13 @@ public class SimpleShm {
 
     public static void main(final String[] args) throws IOException {
 
+        Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(final Thread thread, final Throwable throwable) {
+                System.err.println(throwable.getCause().getMessage());
+            }
+        });
+
         final Display display = new Display();
         final Window window = new Window(display,
                                          250,

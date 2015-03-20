@@ -226,11 +226,6 @@ public class Window implements WlShellSurfaceEvents,
         int ir;
         int or;
         final IntBuffer image = buffer.getByteBuffer().asIntBuffer();
-        image.clear();
-        for (int i = 0; i < buffer.getWidth() * buffer.getHeight(); ++i) {
-            image.put(0xffffffff);
-        }
-        image.clear();
 
         /* squared radii thresholds */
         or = (halfw < halfh ? halfw : halfh) - 8;
@@ -238,11 +233,11 @@ public class Window implements WlShellSurfaceEvents,
         or = or * or;
         ir = ir * ir;
 
+        image.clear();
         image.position(0);
         for (int y = 0; y < buffer.getHeight(); y++) {
             final int y2 = (y - halfh) * (y - halfh);
 
-            image.position(image.position());
             for (int x = 0; x < buffer.getWidth(); x++) {
                 int v;
 
@@ -263,7 +258,6 @@ public class Window implements WlShellSurfaceEvents,
 
                 image.put(v);
             }
-            image.position(image.position());
         }
     }
 
