@@ -24,15 +24,15 @@ import org.freedesktop.wayland.util.*;
  * @param <I> Type of implementation that will be used to handle client requests.
  */
 public abstract class Resource<I> implements WaylandObject {
-    //keep refs to callbacks to they don't get garbage collected.
-    private final Dispatcher                 dispatcher            = new Dispatcher(this);
-    private final wl_resource_destroy_func_t nativeDestroyCallback = new wl_resource_destroy_func_t() {
+
+    private static final wl_resource_destroy_func_t RESOURCE_DESTROY_FUNC = new wl_resource_destroy_func_t() {
         @Override
-        public void apply(final Pointer resource) {
-            Resource.this.valid = false;
-            ObjectCache.remove(Resource.this.getNative());
+        public void apply(final Pointer resourcePointer) {
+            Resource<?> resource = ObjectCache.remove(resourcePointer);
+            resource.valid = false;
         }
     };
+
     private final Pointer pointer;
     private final I       implementation;
 
@@ -54,10 +54,10 @@ public abstract class Resource<I> implements WaylandObject {
                           this);
         WaylandServerLibrary.INSTANCE()
                             .wl_resource_set_dispatcher(getNative(),
-                                                        this.dispatcher,
+                                                        Dispatcher.INSTANCE,
                                                         Pointer.NULL,
                                                         Pointer.NULL,
-                                                        this.nativeDestroyCallback);
+                                                        RESOURCE_DESTROY_FUNC);
     }
 
     protected Resource(final Pointer pointer) {

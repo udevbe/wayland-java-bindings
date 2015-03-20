@@ -47,7 +47,6 @@ public abstract class Proxy<I> implements WaylandObject {
     private final int     version;
     private final I       implementation;
 
-    private final Dispatcher dispatcher;
     private       boolean    valid;
 
     /**
@@ -67,15 +66,11 @@ public abstract class Proxy<I> implements WaylandObject {
         //Special casing implementation. For some proxies the underlying native library provides its own implementation.
         //We pass in a null implementation in those cases. (Eg Display proxy).
         if (implementation != null) {
-            this.dispatcher = new Dispatcher(this);
             WaylandClientLibrary.INSTANCE()
                                 .wl_proxy_add_dispatcher(getNative(),
-                                                         this.dispatcher,
+                                                         Dispatcher.INSTANCE,
                                                          Pointer.NULL,
                                                          Pointer.NULL);
-        }
-        else {
-            this.dispatcher = null;
         }
     }
 

@@ -24,14 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class Dispatcher implements wl_dispatcher_func_t {
+
+    public static Dispatcher INSTANCE = new Dispatcher();
+
     private static final Map<Class<?>, Map<Message, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Message, Method>>();
     private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
-
-    private final WaylandObject waylandObject;
-
-    public Dispatcher(final WaylandObject waylandObject) {
-        this.waylandObject = waylandObject;
-    }
 
     private static Method get(final Class<? extends WaylandObject> waylandObjectType,
                               final Class<?> implementationType,
@@ -122,6 +119,9 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         return constructor.newInstance(objectPointer);
     }
 
+    Dispatcher() {
+    }
+
     @Override
     public int apply(final Pointer implPointer,
                      final Pointer implWlObject,
@@ -132,12 +132,14 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         Method method = null;
         Object[] jargs = null;
         Message message = null;
+        WaylandObject waylandObject = null;
         try {
             message = ObjectCache.<MessageMeta>from(wlMessage)
                                  .getMessage();
-            method = get(this.waylandObject.getClass(),
-                         this.waylandObject.getImplementation()
-                                           .getClass(),
+            waylandObject = ObjectCache.from(implWlObject);
+            method = get(waylandObject.getClass(),
+                         waylandObject.getImplementation()
+                                      .getClass(),
                          message);
 
             final String signature = message.signature();
@@ -153,7 +155,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
 
             final int nroArgs = message.types().length;
             jargs = new Object[nroArgs + 1];
-            jargs[0] = this.waylandObject;
+            jargs[0] = waylandObject;
 
             if (nroArgs > 0) {
                 final Arguments arguments = new Arguments(wlArguments);
@@ -180,7 +182,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                     optional = false;
                 }
             }
-            method.invoke(this.waylandObject.getImplementation(),
+            method.invoke(waylandObject.getImplementation(),
                           jargs);
         }
         catch (final Exception e) {
@@ -190,7 +192,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                                              "arguments=%s, " +
                                              "message=%s",
                                              method,
-                                             this.waylandObject.getImplementation(),
+                                             waylandObject.getImplementation(),
                                              Arrays.toString(jargs),
                                              message));
             e.printStackTrace();
