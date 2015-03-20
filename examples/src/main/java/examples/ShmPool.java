@@ -38,13 +38,13 @@ public final class ShmPool implements Closeable {
         this.fd = createTmpFileNative();
         this.size = size;
         try {
-            truncateNative(this.fd,
-                           this.size);
-            this.buffer = map(this.fd,
-                              this.size);
+            truncateNative(getFd(),
+                           getSize());
+            this.buffer = map(getFd(),
+                              getSize());
         }
         catch (final IOException e) {
-            closeNative(this.fd);
+            closeNative(getFd());
             throw e;
         }
     }
@@ -65,37 +65,23 @@ public final class ShmPool implements Closeable {
         return this.size;
     }
 
-    public void resize(final int size,
-                       final boolean truncate) throws IOException {
-        if (this.buffer == null) {
-            throw new IllegalStateException("ShmPool is closed");
-        }
-
-        unmapNative(this.buffer);
-
-        this.size = size;
-        if (truncate) {
-            truncateNative(this.fd,
-                           size);
-        }
-
-        this.buffer = map(this.fd,
-                          size);
-    }
-
-    public void resize(final int size) throws IOException {
-        resize(size,
-               true);
-    }
-
     @Override
     public void close() throws IOException {
         if (this.buffer != null) {
-            unmapNative(this.buffer);
+            unmapNative(asByteBuffer());
+            closeNative(getFd());
             this.fd = -1;
             this.size = 0;
             this.buffer = null;
         }
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getFd() {
+        return fd;
     }
 
     @Override
