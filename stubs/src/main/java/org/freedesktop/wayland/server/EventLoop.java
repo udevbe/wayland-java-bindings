@@ -18,17 +18,29 @@ import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.*;
 import org.freedesktop.wayland.util.ObjectCache;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 public class EventLoop implements HasNative<Pointer> {
+
+    private static final Map<Pointer, Object> HANDLER_REFS = new HashMap<Pointer, Object>();
+
+    private static final wl_event_loop_fd_func_t WL_EVENT_LOOP_FD_FUNC = new wl_event_loop_fd_func_t() {
+        @Override
+        public int apply(final int fd,
+                         final int mask,
+                         final Pointer data) {
+            final FileDescriptorEventHandler handler = (FileDescriptorEventHandler) HANDLER_REFS.get(data);
+            return handler.handle(fd,
+                                  mask);
+        }
+    };
 
     public static final int EVENT_READABLE = 0x01;
     public static final int EVENT_WRITABLE = 0x02;
     public static final int EVENT_HANGUP   = 0x04;
     public static final int EVENT_ERROR    = 0x08;
 
-    private final Map<Object, Object> weakNativeCallbackReferences = new WeakHashMap<Object, Object>();
 
     private final Pointer pointer;
 
@@ -57,84 +69,169 @@ public class EventLoop implements HasNative<Pointer> {
     public EventSource addFileDescriptor(final int fd,
                                          final int mask,
                                          final FileDescriptorEventHandler handler) {
-        final wl_event_loop_fd_func_t nativeCallback = new wl_event_loop_fd_func_t() {
-            @Override
-            public int apply(final int fd,
-                             final int mask,
-                             final Pointer data) {
-                return handler.handle(fd,
-                                      mask);
-            }
-        };
+//        static struct wl_event_source *
+//        add_source(struct wl_event_loop *loop,
+//                   struct wl_event_source *source, uint32_t mask, void *data)
+//        {
+//            struct epoll_event ep;
+//
+//            if (source->fd < 0) {
+//                free(source);
+//                return NULL;
+//            }
+//
+//            source->loop = loop;
+//            source->data = data;
+//            wl_list_init(&source->link);
+//
+//            memset(&ep, 0, sizeof ep);
+//            if (mask & WL_EVENT_READABLE)
+//                ep.events |= EPOLLIN;
+//            if (mask & WL_EVENT_WRITABLE)
+//                ep.events |= EPOLLOUT;
+//            ep.data.ptr = source;
+//
+//            if (epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, source->fd, &ep) < 0) {
+//            close(source->fd);
+//            free(source);
+//            return NULL;
+//        }
+//
+//            return source;
+//        }
+//
+//        WL_EXPORT struct wl_event_source *
+//                         wl_event_loop_add_fd(struct wl_event_loop *loop,
+//        int fd, uint32_t mask,
+//                wl_event_loop_fd_func_t func,
+//        void *data)
+//        {
+//            struct wl_event_source_fd *source;
+//
+//            source = malloc(sizeof *source);
+//            if (source == NULL)
+//                return NULL;
+//
+//            source->base.interface = &fd_source_interface;
+//            source->base.fd = fcntl(fd, F_DUPFD_CLOEXEC, 0);
+//            source->func = func;
+//            source->fd = fd;
+//
+//            return add_source(loop, &source->base, mask, data);
+//        }
+        final Pointer handlerRef = Pointer.createConstant(handler.hashCode());
+        //FIXME memleak: handler will never be garbage collected
+        HANDLER_REFS.put(handlerRef,
+                         handler);
         final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
                                                           .wl_event_loop_add_fd(getNative(),
                                                                                 fd,
                                                                                 mask,
-                                                                                nativeCallback,
-                                                                                Pointer.NULL);
-        final EventSource eventSource = EventSource.create(wlEventSource);
-        this.weakNativeCallbackReferences.put(eventSource,
-                                              nativeCallback);
-        return eventSource;
+                                                                                WL_EVENT_LOOP_FD_FUNC,
+                                                                                handlerRef);
+
+        return EventSource.create(wlEventSource);
     }
 
     public EventSource addTimer(final TimerEventHandler handler) {
+//        struct wl_event_source_timer *source;
+//
+//        source = malloc(sizeof *source);
+//        if (source == NULL)
+//            return NULL;
+//
+//        source->base.interface = &timer_source_interface;
+//        source->base.fd = timerfd_create(CLOCK_MONOTONIC,
+//                                         TFD_CLOEXEC | TFD_NONBLOCK);
+//        source->func = func;
+//
+//        return add_source(loop, &source->base, WL_EVENT_READABLE, data);
+        //FIXME use better callback mechanism to avoid memory leaks
+
         final wl_event_loop_timer_func_t nativeCallback = new wl_event_loop_timer_func_t() {
             @Override
             public int apply(final Pointer data) {
                 return handler.handle();
             }
         };
-        this.weakNativeCallbackReferences.put(handler,
-                                              nativeCallback);
+        //this call is equivalent to
         final EventSource eventSource = EventSource.create(WaylandServerLibrary.INSTANCE()
                                                                                .wl_event_loop_add_timer(getNative(),
                                                                                                         nativeCallback,
                                                                                                         Pointer.NULL));
-        this.weakNativeCallbackReferences.put(eventSource,
-                                              nativeCallback);
+        this.HANDLER_REFS.put(eventSource,
+                                     nativeCallback);
         return eventSource;
     }
 
     public EventSource addSignal(final int signalNumber,
                                  final SignalEventHandler handler) {
+        //        struct wl_event_source_signal *source;
+//        sigset_t mask;
+//
+//        source = malloc(sizeof *source);
+//        if (source == NULL)
+//            return NULL;
+//
+//        source->base.interface = &signal_source_interface;
+//        source->signal_number = signal_number;
+//
+//        sigemptyset(&mask);
+//        sigaddset(&mask, signal_number);
+//        source->base.fd = signalfd(-1, &mask, SFD_CLOEXEC);
+//        sigprocmask(SIG_BLOCK, &mask, NULL);
+//
+//        source->func = func;
+//
+//        return add_source(loop, &source->base, WL_EVENT_READABLE, data);
         final wl_event_loop_signal_func_t nativeCallback = new wl_event_loop_signal_func_t() {
-
             @Override
             public int apply(final int signal_number,
                              final Pointer data) {
                 return handler.handle(signalNumber);
             }
         };
-        this.weakNativeCallbackReferences.put(handler,
-                                              nativeCallback);
         final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
                                                           .wl_event_loop_add_signal(getNative(),
                                                                                     signalNumber,
                                                                                     nativeCallback,
                                                                                     Pointer.NULL);
         final EventSource eventSource = EventSource.create(wlEventSource);
-        this.weakNativeCallbackReferences.put(eventSource,
-                                              nativeCallback);
+        this.HANDLER_REFS.put(eventSource,
+                                     nativeCallback);
         return eventSource;
     }
 
     public EventSource addIdle(final IdleHandler handler) {
+//        struct wl_event_source_idle *source;
+//
+//        source = malloc(sizeof *source);
+//        if (source == NULL)
+//            return NULL;
+//
+//        source->base.interface = &idle_source_interface;
+//        source->base.loop = loop;
+//        source->base.fd = -1;
+//
+//        source->func = func;
+//        source->base.data = data;
+//
+//        wl_list_insert(loop->idle_list.prev, &source->base.link);
+//
+//        return &source->base;
         final wl_event_loop_idle_func_t nativeCallback = new wl_event_loop_idle_func_t() {
             @Override
             public void apply(final Pointer data) {
                 handler.handle();
             }
         };
-        this.weakNativeCallbackReferences.put(handler,
-                                              nativeCallback);
         final Pointer wlEventSource = WaylandServerLibrary.INSTANCE()
                                                           .wl_event_loop_add_idle(getNative(),
                                                                                   nativeCallback,
                                                                                   Pointer.NULL);
         final EventSource eventSource = EventSource.create(wlEventSource);
-        this.weakNativeCallbackReferences.put(eventSource,
-                                              nativeCallback);
+        this.HANDLER_REFS.put(eventSource,
+                                     nativeCallback);
         return eventSource;
     }
 
