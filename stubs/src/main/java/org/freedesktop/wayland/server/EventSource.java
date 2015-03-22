@@ -16,7 +16,6 @@ package org.freedesktop.wayland.server;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.util.ObjectCache;
 
 public class EventSource implements HasNative<Pointer> {
     private final Pointer pointer;
@@ -42,7 +41,6 @@ public class EventSource implements HasNative<Pointer> {
     }
 
     public int remove() {
-        ObjectCache.remove(getNative());
         return WaylandServerLibrary.INSTANCE()
                                    .wl_event_source_remove(getNative());
     }
