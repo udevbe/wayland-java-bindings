@@ -16,15 +16,22 @@ package org.freedesktop.wayland.server;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.util.ObjectCache;
 
 public class EventSource implements HasNative<Pointer> {
+
     private final Pointer pointer;
+
+    private boolean valid;
 
     protected EventSource(final Pointer pointer) {
         this.pointer = pointer;
+        this.valid = true;
+        ObjectCache.store(getNative(),
+                          this);
     }
 
-    protected static EventSource create(final Pointer pointer) {
+    public static EventSource create(final Pointer pointer) {
         return new EventSource(pointer);
     }
 
@@ -41,8 +48,13 @@ public class EventSource implements HasNative<Pointer> {
     }
 
     public int remove() {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_event_source_remove(getNative());
+        if(this.valid) {
+            this.valid = false;
+            ObjectCache.remove(getNative());
+            return WaylandServerLibrary.INSTANCE()
+                                       .wl_event_source_remove(getNative());
+        }
+        return 0;
     }
 
     public void check() {
@@ -77,6 +89,12 @@ public class EventSource implements HasNative<Pointer> {
     @Override
     public boolean isValid() {
         //no way to track event source lifecycle, so it's always valid to us.
-        return true;
+        return this.valid;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        remove();
+        super.finalize();
     }
 }
