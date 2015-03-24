@@ -18,15 +18,19 @@ import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.*;
 import org.freedesktop.wayland.util.ObjectCache;
 
-import java.awt.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 public class EventLoop implements HasNative<Pointer> {
 
+    //the following three maps are used to implement proper garbage collection in regards to event source and
+    //event callback:
+
+    //This map maps different pointers with same address but separate instance to a single instance.
+    private static final Map<Pointer,Pointer> HANDLER_REF_CACHE = new WeakHashMap<Pointer,Pointer>();
+    //This map maps a single pointer instance to the java object that will be used as handler object.
     private static final Map<Pointer, Object> HANDLER_REFS = new WeakHashMap<Pointer, Object>();
-    //this map is used to link handler object lifecycle to an event source
+    //this map is used to link handler object lifecycle to an event source lifecycle.
     private static final Map<EventSource, Pointer> EVENT_SOURCE_HANDLER_REFS = new WeakHashMap<EventSource, Pointer>();
 
     private static final wl_event_loop_fd_func_t WL_EVENT_LOOP_FD_FUNC = new wl_event_loop_fd_func_t() {
@@ -95,13 +99,27 @@ public class EventLoop implements HasNative<Pointer> {
         return eventLoop;
     }
 
+    private Pointer getHandlerRef(Object handler){
+        final Pointer handlerRefKey = Pointer.createConstant(handler.hashCode());
+
+        Pointer handlerRef = HANDLER_REF_CACHE.get(handlerRefKey);
+        if(handlerRef == null){
+            handlerRef = handlerRefKey;
+            HANDLER_REF_CACHE.put(handlerRefKey,handlerRef);
+        }
+        return  handlerRef;
+    }
+
     public EventSource addFileDescriptor(final int fd,
                                          final int mask,
                                          final FileDescriptorEventHandler handler) {
-        final Pointer handlerRef = Pointer.createConstant(handler.hashCode());
-        //handler will be garbage collected once event source is collected.
-        HANDLER_REFS.put(handlerRef,
-                         handler);
+        Pointer handlerRef = getHandlerRef(handler);
+        if(!HANDLER_REFS.containsKey(handlerRef)){
+            //handler will be garbage collected once event source is collected.
+            HANDLER_REFS.put(handlerRef,
+                             handler);
+        }
+
         final EventSource eventSource = EventSource.create(WaylandServerLibrary.INSTANCE()
                                                                    .wl_event_loop_add_fd(getNative(),
                                                                                          fd,
@@ -114,10 +132,12 @@ public class EventLoop implements HasNative<Pointer> {
     }
 
     public EventSource addTimer(final TimerEventHandler handler) {
-        final Pointer handlerRef = Pointer.createConstant(handler.hashCode());
-        //handler will be garbage collected once event source is collected.
-        HANDLER_REFS.put(handlerRef,
-                         handler);
+        Pointer handlerRef = getHandlerRef(handler);
+        if(!HANDLER_REFS.containsKey(handlerRef)){
+            //handler will be garbage collected once event source is collected.
+            HANDLER_REFS.put(handlerRef,
+                             handler);
+        }
         final EventSource eventSource = EventSource.create(WaylandServerLibrary.INSTANCE()
                                                                    .wl_event_loop_add_timer(getNative(),
                                                                                             WL_EVENT_LOOP_TIMER_FUNC,
@@ -129,10 +149,12 @@ public class EventLoop implements HasNative<Pointer> {
 
     public EventSource addSignal(final int signalNumber,
                                  final SignalEventHandler handler) {
-        final Pointer handlerRef = Pointer.createConstant(handler.hashCode());
-        //handler will be garbage collected once event source is collected.
-        HANDLER_REFS.put(handlerRef,
-                         handler);
+        Pointer handlerRef = getHandlerRef(handler);
+        if(!HANDLER_REFS.containsKey(handlerRef)){
+            //handler will be garbage collected once event source is collected.
+            HANDLER_REFS.put(handlerRef,
+                             handler);
+        }
         final EventSource eventSource = EventSource.create(WaylandServerLibrary.INSTANCE()
                                                                    .wl_event_loop_add_signal(getNative(),
                                                                                              signalNumber,
@@ -144,10 +166,12 @@ public class EventLoop implements HasNative<Pointer> {
     }
 
     public EventSource addIdle(final IdleHandler handler) {
-        final Pointer handlerRef = Pointer.createConstant(handler.hashCode());
-        //handler will be garbage collected once event source is collected.
-        HANDLER_REFS.put(handlerRef,
-                         handler);
+        Pointer handlerRef = getHandlerRef(handler);
+        if(!HANDLER_REFS.containsKey(handlerRef)){
+            //handler will be garbage collected once event source is collected.
+            HANDLER_REFS.put(handlerRef,
+                             handler);
+        }
         final EventSource eventSource = EventSource.create(WaylandServerLibrary.INSTANCE()
                                                                    .wl_event_loop_add_idle(getNative(),
                                                                                            WL_EVENT_LOOP_IDLE_FUNC,
