@@ -48,7 +48,7 @@ public class EventSource implements HasNative<Pointer> {
     }
 
     public int remove() {
-        if(this.valid) {
+        if (this.valid) {
             this.valid = false;
             ObjectCache.remove(getNative());
             return WaylandServerLibrary.INSTANCE()

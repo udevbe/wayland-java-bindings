@@ -133,7 +133,7 @@ public abstract class Resource<I> implements WaylandObject {
      * </ul>
      *
      * @param opcode the protocol opcode
-     * @param args the protocol arguments
+     * @param args   the protocol arguments
      */
     public void postEvent(final int opcode,
                           final Arguments args) {
