@@ -65,7 +65,6 @@ public class ObjectCache {
      * Remove a mapped POJO. This method should be used when the native context of the POJO is no longer valid.
      *
      * @param pointer The pointer of the associated object.
-     *
      */
     public static <T> T remove(final Pointer pointer) {
         return (T) MAPPED_OBJECTS.remove(pointer);
