@@ -47,7 +47,7 @@ public abstract class Proxy<I> implements WaylandObject {
     private final int     version;
     private final I       implementation;
 
-    private       boolean    valid;
+    private boolean valid;
 
     /**
      * @param pointer

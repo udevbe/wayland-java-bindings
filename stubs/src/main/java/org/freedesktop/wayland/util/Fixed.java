@@ -61,7 +61,7 @@ public final class Fixed {
         return "Fixed{" +
                " raw=" + raw +
                " asInt=" + asInt() +
-               " asFloat="+asFloat()+
+               " asFloat=" + asFloat() +
                '}';
     }
 }
