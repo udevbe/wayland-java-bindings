@@ -3,6 +3,8 @@ org.freedesktop.wayland.client
 org.freedesktop.wayland.client.egl
 org.freedesktop.wayland.client.egl.jna
 org.freedesktop.wayland.client.jna
+org.freedesktop.wayland.generator.api
+org.freedesktop.wayland.generator.impl
 org.freedesktop.wayland.server
 org.freedesktop.wayland.server.jna
 org.freedesktop.wayland.shared
