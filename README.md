@@ -65,7 +65,7 @@ State
 
 Known Issues
 ============
- - Memory leaks.
+ - None.
 
 TODO
 ====
