@@ -41,6 +41,9 @@ public class Window implements WlShellSurfaceEvents,
                                WlPointerEventsV3,
                                WlRegionEvents {
 
+    private static final int BTN_LEFT   = 0x110;
+    private static final int BTN_RIGHT  = 0x111;
+
     private final WlShellSurfaceProxy shellSurfaceProxy;
     private final WlRegionProxy regionProxy;
 
@@ -136,10 +139,10 @@ public class Window implements WlShellSurfaceEvents,
                                          state));
 
         final boolean buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
-        if (buttonPressed && button == 1) {
+        if (buttonPressed && button == BTN_LEFT) {
             this.shellSurfaceProxy.move(display.getSeatProxy(),
                                    serial);
-        } else if (buttonPressed && button == 3) {
+        } else if (buttonPressed && button == BTN_RIGHT) {
             this.shellSurfaceProxy.resize(display.getSeatProxy(),
                                      serial,
                                      WlShellSurfaceResize.NONE.getValue());
