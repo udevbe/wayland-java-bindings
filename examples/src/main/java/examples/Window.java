@@ -41,8 +41,8 @@ public class Window implements WlShellSurfaceEvents,
                                WlPointerEventsV3,
                                WlRegionEvents {
 
-    private static final int BTN_LEFT   = 0x110;
-    private static final int BTN_RIGHT  = 0x111;
+    private static final int BTN_LEFT = 0x110;
+    private static final int BTN_RIGHT = 0x111;
 
     private final WlShellSurfaceProxy shellSurfaceProxy;
     private final WlRegionProxy regionProxy;
@@ -54,42 +54,47 @@ public class Window implements WlShellSurfaceEvents,
     private WlCallbackProxy callbackProxy;
     private BufferPool bufferPool;
 
+    private int width;
+    private int height;
+
+    private int pointerX;
+    private int pointerY;
+
     public Window(final Display display,
                   final int width,
                   final int height) throws IOException {
+        this.width = width;
+        this.height = height;
+
         this.display = display;
         this.bufferPool = createBufferPool(this.display,
-                                           width,
-                                           height,
                                            2);
         this.surfaceProxy = this.display.getCompositorProxy()
-                                        .createSurface(this);
+                .createSurface(this);
         this.regionProxy = this.display.getCompositorProxy()
-                                       .createRegion(this);
+                .createRegion(this);
         this.surfaceProxy.setInputRegion(regionProxy);
         this.shellSurfaceProxy = this.display.getShellProxy()
-                                        .getShellSurface(this,
-                                                         this.surfaceProxy);
+                .getShellSurface(this,
+                                 this.surfaceProxy);
         this.pointerProxy = this.display.getSeatProxy()
-                                        .getPointer(this);
+                .getPointer(this);
 
         this.surfaceProxy.damage(0,
                                  0,
-                                 width,
-                                 height);
+                                 this.width,
+                                 this.height);
         this.regionProxy.add(0,
                              0,
-                             width,
-                             height);
+                             this.width,
+                             this.height);
     }
 
     private BufferPool createBufferPool(final Display display,
-                                        final int width,
-                                        final int height,
                                         final int size) throws IOException {
-        return new BufferPoolFactory(display).create(width,
-                                                     height,
-                                                     2,
+        return new BufferPoolFactory(display).create(this.width,
+                                                     this.height,
+                                                     size,
                                                      XRGB8888);
     }
 
@@ -124,6 +129,8 @@ public class Window implements WlShellSurfaceEvents,
                                          time,
                                          surfaceX,
                                          surfaceY));
+        this.pointerX = surfaceX.asInt();
+        this.pointerY = surfaceY.asInt();
     }
 
     @Override
@@ -141,11 +148,26 @@ public class Window implements WlShellSurfaceEvents,
         final boolean buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
         if (buttonPressed && button == BTN_LEFT) {
             this.shellSurfaceProxy.move(display.getSeatProxy(),
-                                   serial);
+                                        serial);
         } else if (buttonPressed && button == BTN_RIGHT) {
             this.shellSurfaceProxy.resize(display.getSeatProxy(),
-                                     serial,
-                                     WlShellSurfaceResize.NONE.getValue());
+                                          serial,
+                                          edge().getValue());
+        }
+    }
+
+    private WlShellSurfaceResize edge() {
+        boolean bottom = this.pointerY > (this.height / 2);
+        boolean right = this.pointerX > (this.width / 2);
+
+        if (bottom && right) {
+            return WlShellSurfaceResize.BOTTOM_RIGHT;
+        } else if (bottom) {
+            return WlShellSurfaceResize.BOTTOM_LEFT;
+        } else if (right) {
+            return WlShellSurfaceResize.TOP_RIGHT;
+        } else {
+            return WlShellSurfaceResize.TOP_LEFT;
         }
     }
 
@@ -175,10 +197,11 @@ public class Window implements WlShellSurfaceEvents,
                           int width,
                           int height) {
         try {
+            this.width = width;
+            this.height = height;
+
             this.bufferPool.destroy();
             this.bufferPool = createBufferPool(display,
-                                               width,
-                                               height,
                                                2);
             this.regionProxy.add(0,
                                  0,
@@ -212,7 +235,7 @@ public class Window implements WlShellSurfaceEvents,
         this.surfaceProxy.destroy();
         this.regionProxy.destroy();
         this.pointerProxy.destroy();
-        if(callbackProxy!=null) {
+        if (callbackProxy != null) {
             this.callbackProxy.destroy();
         }
         this.bufferPool.destroy();
