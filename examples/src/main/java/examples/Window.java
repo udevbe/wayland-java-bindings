@@ -54,6 +54,9 @@ public class Window implements WlShellSurfaceEvents,
     private WlCallbackProxy callbackProxy;
     private BufferPool bufferPool;
 
+
+    private int dx;
+    private int dy;
     private int width;
     private int height;
 
@@ -197,6 +200,9 @@ public class Window implements WlShellSurfaceEvents,
                           int width,
                           int height) {
         try {
+            this.dx = this.width - width;
+            this.dy = this.height - height;
+
             this.width = width;
             this.height = height;
 
@@ -294,8 +300,8 @@ public class Window implements WlShellSurfaceEvents,
                     time);
 
         this.surfaceProxy.attach(wlBufferProxy,
-                                 0,
-                                 0);
+                                 this.dx,
+                                 this.dy);
         this.surfaceProxy.damage(0,
                                  0,
                                  buffer.getWidth(),
@@ -314,5 +320,7 @@ public class Window implements WlShellSurfaceEvents,
         });
 
         this.surfaceProxy.commit();
+        this.dx = 0;
+        this.dy = 0;
     }
 }
