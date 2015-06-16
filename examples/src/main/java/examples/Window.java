@@ -13,26 +13,14 @@
 //limitations under the License.
 package examples;
 
-import org.freedesktop.wayland.client.WlBufferProxy;
-import org.freedesktop.wayland.client.WlCallbackEvents;
-import org.freedesktop.wayland.client.WlCallbackProxy;
-import org.freedesktop.wayland.client.WlOutputProxy;
-import org.freedesktop.wayland.client.WlPointerEventsV3;
-import org.freedesktop.wayland.client.WlPointerProxy;
-import org.freedesktop.wayland.client.WlRegionEvents;
-import org.freedesktop.wayland.client.WlRegionProxy;
-import org.freedesktop.wayland.client.WlShellSurfaceEvents;
-import org.freedesktop.wayland.client.WlShellSurfaceProxy;
-import org.freedesktop.wayland.client.WlSurfaceEventsV3;
-import org.freedesktop.wayland.client.WlSurfaceProxy;
+import org.freedesktop.wayland.client.*;
 import org.freedesktop.wayland.shared.WlPointerButtonState;
 import org.freedesktop.wayland.shared.WlShellSurfaceResize;
 import org.freedesktop.wayland.util.Fixed;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.IntBuffer;
-
-import javax.annotation.Nonnull;
 
 import static org.freedesktop.wayland.shared.WlShmFormat.XRGB8888;
 
@@ -41,18 +29,18 @@ public class Window implements WlShellSurfaceEvents,
                                WlPointerEventsV3,
                                WlRegionEvents {
 
-    private static final int BTN_LEFT = 0x110;
+    private static final int BTN_LEFT  = 0x110;
     private static final int BTN_RIGHT = 0x111;
 
     private final WlShellSurfaceProxy shellSurfaceProxy;
-    private final WlRegionProxy regionProxy;
+    private final WlRegionProxy       regionProxy;
 
     private final WlSurfaceProxy surfaceProxy;
-    private final Display display;
+    private final Display        display;
     private final WlPointerProxy pointerProxy;
 
     private WlCallbackProxy callbackProxy;
-    private BufferPool bufferPool;
+    private BufferPool      bufferPool;
 
 
     private int dx;
@@ -73,15 +61,15 @@ public class Window implements WlShellSurfaceEvents,
         this.bufferPool = createBufferPool(this.display,
                                            2);
         this.surfaceProxy = this.display.getCompositorProxy()
-                .createSurface(this);
+                                        .createSurface(this);
         this.regionProxy = this.display.getCompositorProxy()
-                .createRegion(this);
+                                       .createRegion(this);
         this.surfaceProxy.setInputRegion(regionProxy);
         this.shellSurfaceProxy = this.display.getShellProxy()
-                .getShellSurface(this,
-                                 this.surfaceProxy);
+                                             .getShellSurface(this,
+                                                              this.surfaceProxy);
         this.pointerProxy = this.display.getSeatProxy()
-                .getPointer(this);
+                                        .getPointer(this);
 
         this.surfaceProxy.damage(0,
                                  0,
@@ -152,7 +140,8 @@ public class Window implements WlShellSurfaceEvents,
         if (buttonPressed && button == BTN_LEFT) {
             this.shellSurfaceProxy.move(display.getSeatProxy(),
                                         serial);
-        } else if (buttonPressed && button == BTN_RIGHT) {
+        }
+        else if (buttonPressed && button == BTN_RIGHT) {
             this.shellSurfaceProxy.resize(display.getSeatProxy(),
                                           serial,
                                           edge().getValue());
@@ -161,15 +150,18 @@ public class Window implements WlShellSurfaceEvents,
 
     private WlShellSurfaceResize edge() {
         boolean bottom = this.pointerY > (this.height / 2);
-        boolean right = this.pointerX > (this.width / 2);
+        boolean right  = this.pointerX > (this.width / 2);
 
         if (bottom && right) {
             return WlShellSurfaceResize.BOTTOM_RIGHT;
-        } else if (bottom) {
+        }
+        else if (bottom) {
             return WlShellSurfaceResize.BOTTOM_LEFT;
-        } else if (right) {
+        }
+        else if (right) {
             return WlShellSurfaceResize.TOP_RIGHT;
-        } else {
+        }
+        else {
             return WlShellSurfaceResize.TOP_LEFT;
         }
     }
@@ -200,8 +192,27 @@ public class Window implements WlShellSurfaceEvents,
                           int width,
                           int height) {
         try {
-            this.dx = this.width - width;
-            this.dy = this.height - height;
+            if (edges == WlShellSurfaceResize.NONE.getValue() ||
+                edges == WlShellSurfaceResize.BOTTOM_RIGHT.getValue() ||
+                edges == WlShellSurfaceResize.BOTTOM.getValue() ||
+                edges == WlShellSurfaceResize.RIGHT.getValue()) {
+                this.dx = 0;
+                this.dy = 0;
+            }
+            else if (edges == WlShellSurfaceResize.TOP.getValue() ||
+                     edges == WlShellSurfaceResize.TOP_RIGHT.getValue()) {
+                this.dx = 0;
+                this.dy = this.height - height;
+            }
+            else if (edges == WlShellSurfaceResize.LEFT.getValue() ||
+                     edges == WlShellSurfaceResize.BOTTOM_LEFT.getValue()) {
+                this.dx = this.width - width;
+                this.dy = 0;
+            }
+            else if (edges == WlShellSurfaceResize.TOP_LEFT.getValue()) {
+                this.dx = this.width - width;
+                this.dy = this.height - height;
+            }
 
             this.width = width;
             this.height = height;
@@ -213,7 +224,8 @@ public class Window implements WlShellSurfaceEvents,
                                  0,
                                  width,
                                  height);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -255,9 +267,10 @@ public class Window implements WlShellSurfaceEvents,
                              final int time) {
         final int halfh = buffer.getHeight() / 2;
         final int halfw = buffer.getWidth() / 2;
-        int ir;
-        int or;
-        final IntBuffer image = buffer.getByteBuffer().asIntBuffer();
+        int       ir;
+        int       or;
+        final IntBuffer image = buffer.getByteBuffer()
+                                      .asIntBuffer();
 
         /* squared radii thresholds */
         or = (halfw < halfh ? halfw : halfh) - 8;
@@ -277,9 +290,11 @@ public class Window implements WlShellSurfaceEvents,
 
                 if (r2 < ir) {
                     v = (r2 / 32 + time / 64) * 0x0080401;
-                } else if (r2 < or) {
+                }
+                else if (r2 < or) {
                     v = (y + time / 32) * 0x0080401;
-                } else {
+                }
+                else {
                     v = (x + time / 16) * 0x0080401;
                 }
                 v &= 0x00ffffff;
@@ -295,7 +310,7 @@ public class Window implements WlShellSurfaceEvents,
 
     public void redraw(final int time) {
         final WlBufferProxy wlBufferProxy = bufferPool.popBuffer();
-        final Buffer buffer = (Buffer) wlBufferProxy.getImplementation();
+        final Buffer        buffer        = (Buffer) wlBufferProxy.getImplementation();
         paintPixels(buffer,
                     time);
 
