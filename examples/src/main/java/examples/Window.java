@@ -13,14 +13,26 @@
 //limitations under the License.
 package examples;
 
-import org.freedesktop.wayland.client.*;
+import org.freedesktop.wayland.client.WlBufferProxy;
+import org.freedesktop.wayland.client.WlCallbackEvents;
+import org.freedesktop.wayland.client.WlCallbackProxy;
+import org.freedesktop.wayland.client.WlOutputProxy;
+import org.freedesktop.wayland.client.WlPointerEventsV3;
+import org.freedesktop.wayland.client.WlPointerProxy;
+import org.freedesktop.wayland.client.WlRegionEvents;
+import org.freedesktop.wayland.client.WlRegionProxy;
+import org.freedesktop.wayland.client.WlShellSurfaceEvents;
+import org.freedesktop.wayland.client.WlShellSurfaceProxy;
+import org.freedesktop.wayland.client.WlSurfaceEventsV3;
+import org.freedesktop.wayland.client.WlSurfaceProxy;
 import org.freedesktop.wayland.shared.WlPointerButtonState;
 import org.freedesktop.wayland.shared.WlShellSurfaceResize;
 import org.freedesktop.wayland.util.Fixed;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.IntBuffer;
+
+import javax.annotation.Nonnull;
 
 import static org.freedesktop.wayland.shared.WlShmFormat.XRGB8888;
 
@@ -29,24 +41,28 @@ public class Window implements WlShellSurfaceEvents,
                                WlPointerEventsV3,
                                WlRegionEvents {
 
-    private static final int BTN_LEFT  = 0x110;
+    private static final int BTN_LEFT = 0x110;
     private static final int BTN_RIGHT = 0x111;
 
     private final WlShellSurfaceProxy shellSurfaceProxy;
-    private final WlRegionProxy       regionProxy;
+    private final WlRegionProxy regionProxy;
 
     private final WlSurfaceProxy surfaceProxy;
-    private final Display        display;
+    private final Display display;
     private final WlPointerProxy pointerProxy;
 
     private WlCallbackProxy callbackProxy;
-    private BufferPool      bufferPool;
+    private BufferPool bufferPool;
 
+    private boolean needsBufferPoolUpdate;
 
-    private int dx;
-    private int dy;
     private int width;
     private int height;
+
+    private int pendingWidth;
+    private int pendingHeight;
+
+    private int edges;
 
     private int pointerX;
     private int pointerY;
@@ -61,15 +77,15 @@ public class Window implements WlShellSurfaceEvents,
         this.bufferPool = createBufferPool(this.display,
                                            2);
         this.surfaceProxy = this.display.getCompositorProxy()
-                                        .createSurface(this);
+                .createSurface(this);
         this.regionProxy = this.display.getCompositorProxy()
-                                       .createRegion(this);
+                .createRegion(this);
         this.surfaceProxy.setInputRegion(regionProxy);
         this.shellSurfaceProxy = this.display.getShellProxy()
-                                             .getShellSurface(this,
-                                                              this.surfaceProxy);
+                .getShellSurface(this,
+                                 this.surfaceProxy);
         this.pointerProxy = this.display.getSeatProxy()
-                                        .getPointer(this);
+                .getPointer(this);
 
         this.surfaceProxy.damage(0,
                                  0,
@@ -95,20 +111,20 @@ public class Window implements WlShellSurfaceEvents,
                       @Nonnull final WlSurfaceProxy surface,
                       @Nonnull final Fixed surfaceX,
                       @Nonnull final Fixed surfaceY) {
-        System.out.println(String.format("Pointer - enter : serial=%d, surface=%s, x=%s, y=%s",
-                                         serial,
-                                         surface,
-                                         surfaceX,
-                                         surfaceY));
+//        System.out.println(String.format("Pointer - enter : serial=%d, surface=%s, x=%s, y=%s",
+//                                         serial,
+//                                         surface,
+//                                         surfaceX,
+//                                         surfaceY));
     }
 
     @Override
     public void leave(final WlPointerProxy emitter,
                       final int serial,
                       @Nonnull final WlSurfaceProxy surface) {
-        System.out.println(String.format("Pointer - leave : serial=%d, surface=%s",
-                                         serial,
-                                         surface));
+//        System.out.println(String.format("Pointer - leave : serial=%d, surface=%s",
+//                                         serial,
+//                                         surface));
     }
 
     @Override
@@ -116,10 +132,10 @@ public class Window implements WlShellSurfaceEvents,
                        final int time,
                        @Nonnull final Fixed surfaceX,
                        @Nonnull final Fixed surfaceY) {
-        System.out.println(String.format("Pointer - motion : time=%d, x=%s, y=%s",
-                                         time,
-                                         surfaceX,
-                                         surfaceY));
+//        System.out.println(String.format("Pointer - motion : time=%d, x=%s, y=%s",
+//                                         time,
+//                                         surfaceX,
+//                                         surfaceY));
         this.pointerX = surfaceX.asInt();
         this.pointerY = surfaceY.asInt();
     }
@@ -130,18 +146,17 @@ public class Window implements WlShellSurfaceEvents,
                        final int time,
                        final int button,
                        final int state) {
-        System.out.println(String.format("Pointer - button : serial=%d, time=%d, button=%d, state=%d",
-                                         serial,
-                                         time,
-                                         button,
-                                         state));
+//        System.out.println(String.format("Pointer - button : serial=%d, time=%d, button=%d, state=%d",
+//                                         serial,
+//                                         time,
+//                                         button,
+//                                         state));
 
         final boolean buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
         if (buttonPressed && button == BTN_LEFT) {
             this.shellSurfaceProxy.move(display.getSeatProxy(),
                                         serial);
-        }
-        else if (buttonPressed && button == BTN_RIGHT) {
+        } else if (buttonPressed && button == BTN_RIGHT) {
             this.shellSurfaceProxy.resize(display.getSeatProxy(),
                                           serial,
                                           edge().getValue());
@@ -150,18 +165,15 @@ public class Window implements WlShellSurfaceEvents,
 
     private WlShellSurfaceResize edge() {
         boolean bottom = this.pointerY > (this.height / 2);
-        boolean right  = this.pointerX > (this.width / 2);
+        boolean right = this.pointerX > (this.width / 2);
 
         if (bottom && right) {
             return WlShellSurfaceResize.BOTTOM_RIGHT;
-        }
-        else if (bottom) {
+        } else if (bottom) {
             return WlShellSurfaceResize.BOTTOM_LEFT;
-        }
-        else if (right) {
+        } else if (right) {
             return WlShellSurfaceResize.TOP_RIGHT;
-        }
-        else {
+        } else {
             return WlShellSurfaceResize.TOP_LEFT;
         }
     }
@@ -171,10 +183,10 @@ public class Window implements WlShellSurfaceEvents,
                      final int time,
                      final int axis,
                      @Nonnull final Fixed value) {
-        System.out.println(String.format("Pointer - axis : time=%d, axis=%d, value=%s",
-                                         time,
-                                         axis,
-                                         value));
+//        System.out.println(String.format("Pointer - axis : time=%d, axis=%d, value=%s",
+//                                         time,
+//                                         axis,
+//                                         value));
     }
 
     @Override
@@ -191,44 +203,10 @@ public class Window implements WlShellSurfaceEvents,
                           final int edges,
                           int width,
                           int height) {
-        try {
-            if (edges == WlShellSurfaceResize.NONE.getValue() ||
-                edges == WlShellSurfaceResize.BOTTOM_RIGHT.getValue() ||
-                edges == WlShellSurfaceResize.BOTTOM.getValue() ||
-                edges == WlShellSurfaceResize.RIGHT.getValue()) {
-                this.dx = 0;
-                this.dy = 0;
-            }
-            else if (edges == WlShellSurfaceResize.TOP.getValue() ||
-                     edges == WlShellSurfaceResize.TOP_RIGHT.getValue()) {
-                this.dx = 0;
-                this.dy = this.height - height;
-            }
-            else if (edges == WlShellSurfaceResize.LEFT.getValue() ||
-                     edges == WlShellSurfaceResize.BOTTOM_LEFT.getValue()) {
-                this.dx = this.width - width;
-                this.dy = 0;
-            }
-            else if (edges == WlShellSurfaceResize.TOP_LEFT.getValue()) {
-                this.dx = this.width - width;
-                this.dy = this.height - height;
-            }
-
-            this.width = width;
-            this.height = height;
-
-            this.bufferPool.destroy();
-            this.bufferPool = createBufferPool(display,
-                                               2);
-            this.regionProxy.add(0,
-                                 0,
-                                 width,
-                                 height);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        this.edges = edges;
+        this.pendingWidth = width;
+        this.pendingHeight = height;
+        this.needsBufferPoolUpdate = true;
     }
 
     @Override
@@ -267,10 +245,10 @@ public class Window implements WlShellSurfaceEvents,
                              final int time) {
         final int halfh = buffer.getHeight() / 2;
         final int halfw = buffer.getWidth() / 2;
-        int       ir;
-        int       or;
+        int ir;
+        int or;
         final IntBuffer image = buffer.getByteBuffer()
-                                      .asIntBuffer();
+                .asIntBuffer();
 
         /* squared radii thresholds */
         or = (halfw < halfh ? halfw : halfh) - 8;
@@ -290,11 +268,9 @@ public class Window implements WlShellSurfaceEvents,
 
                 if (r2 < ir) {
                     v = (r2 / 32 + time / 64) * 0x0080401;
-                }
-                else if (r2 < or) {
+                } else if (r2 < or) {
                     v = (y + time / 32) * 0x0080401;
-                }
-                else {
+                } else {
                     v = (x + time / 16) * 0x0080401;
                 }
                 v &= 0x00ffffff;
@@ -309,14 +285,58 @@ public class Window implements WlShellSurfaceEvents,
     }
 
     public void redraw(final int time) {
-        final WlBufferProxy wlBufferProxy = bufferPool.popBuffer();
-        final Buffer        buffer        = (Buffer) wlBufferProxy.getImplementation();
+
+        WlBufferProxy wlBufferProxy = bufferPool.popBuffer();
+        Buffer buffer = (Buffer) wlBufferProxy.getImplementation();
+        int dx = 0;
+        int dy = 0;
+
+        if (needsBufferPoolUpdate) {
+            if (edges == WlShellSurfaceResize.NONE.getValue() ||
+                edges == WlShellSurfaceResize.BOTTOM_RIGHT.getValue() ||
+                edges == WlShellSurfaceResize.BOTTOM.getValue() ||
+                edges == WlShellSurfaceResize.RIGHT.getValue()) {
+                dx = 0;
+                dy = 0;
+            } else if (edges == WlShellSurfaceResize.TOP.getValue() ||
+                       edges == WlShellSurfaceResize.TOP_RIGHT.getValue()) {
+                dx = 0;
+                dy = this.height - this.pendingHeight;
+            } else if (edges == WlShellSurfaceResize.LEFT.getValue() ||
+                       edges == WlShellSurfaceResize.BOTTOM_LEFT.getValue()) {
+                dx = this.width - this.pendingWidth;
+                dy = 0;
+            } else if (edges == WlShellSurfaceResize.TOP_LEFT.getValue()) {
+                dx = this.width - this.pendingWidth;
+                dy = this.height - this.pendingHeight;
+            }
+
+            try {
+                this.width = this.pendingWidth;
+                this.height = this.pendingHeight;
+                this.needsBufferPoolUpdate = false;
+
+                this.regionProxy.add(0,
+                                     0,
+                                     width,
+                                     height);
+                //FIXME properly implement bufferpool destruction.
+                //bufferPool.destroy();
+                bufferPool = createBufferPool(display,
+                                              2);
+                wlBufferProxy = bufferPool.popBuffer();
+                buffer = (Buffer) wlBufferProxy.getImplementation();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         paintPixels(buffer,
                     time);
 
         this.surfaceProxy.attach(wlBufferProxy,
-                                 this.dx,
-                                 this.dy);
+                                 dx,
+                                 dy);
         this.surfaceProxy.damage(0,
                                  0,
                                  buffer.getWidth(),
@@ -335,7 +355,5 @@ public class Window implements WlShellSurfaceEvents,
         });
 
         this.surfaceProxy.commit();
-        this.dx = 0;
-        this.dy = 0;
     }
 }
