@@ -38,8 +38,9 @@ public class SimpleShm {
             do {
                 state = display.getDisplayProxy()
                                .dispatch();
-            }while(state!=-1);
-        }finally {
+            } while (state != -1);
+        }
+        finally {
             window.destroy();
             display.destroy();
         }
