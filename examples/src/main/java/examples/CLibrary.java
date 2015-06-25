@@ -19,18 +19,26 @@ public class CLibrary implements CLibraryMapping {
     public native int mkstemp(final Pointer template) throws LastErrorException;
 
     @Override
-    public native int fcntl(final int fd, final int cmd, final int arg) throws LastErrorException;
+    public native int fcntl(final int fd,
+                            final int cmd,
+                            final int arg) throws LastErrorException;
 
     @Override
-    public native Pointer mmap(final Pointer addr, final int len, final int prot, final int flags, final int fildes,
-                        final int off) throws LastErrorException;
+    public native Pointer mmap(final Pointer addr,
+                               final int len,
+                               final int prot,
+                               final int flags,
+                               final int fildes,
+                               final int off) throws LastErrorException;
 
     @Override
-    public native int munmap(final Pointer addr, final int len) throws LastErrorException;
+    public native int munmap(final Pointer addr,
+                             final int len) throws LastErrorException;
 
     @Override
     public native int close(final int fildes) throws LastErrorException;
 
     @Override
-    public native int ftruncate(final int fildes, final int length) throws LastErrorException;
+    public native int ftruncate(final int fildes,
+                                final int length) throws LastErrorException;
 }

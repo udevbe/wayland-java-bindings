@@ -10,9 +10,9 @@ import java.nio.ByteBuffer;
 public class Buffer implements WlBufferEvents {
 
     private final BufferPool bufferPool;
-    private final ShmPool shmPool;
-    private final int width;
-    private final int height;
+    private final ShmPool    shmPool;
+    private final int        width;
+    private final int        height;
 
     public Buffer(final BufferPool bufferPool,
                   final ShmPool shmPool,
@@ -26,15 +26,17 @@ public class Buffer implements WlBufferEvents {
 
     @Override
     public void release(final WlBufferProxy emitter) {
-        if(bufferPool.isDestroyed()){
+        if (this.bufferPool.isDestroyed()) {
             emitter.destroy();
             try {
-                shmPool.close();
-            } catch (IOException e) {
+                this.shmPool.close();
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
-        }else {
-            bufferPool.queueBuffer(emitter);
+        }
+        else {
+            this.bufferPool.queueBuffer(emitter);
         }
     }
 
@@ -43,10 +45,10 @@ public class Buffer implements WlBufferEvents {
     }
 
     public int getWidth() {
-        return width;
+        return this.width;
     }
 
     public int getHeight() {
-        return height;
+        return this.height;
     }
 }
