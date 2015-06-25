@@ -223,8 +223,8 @@ public interface WaylandServerLibraryMapping extends WaylandUtilLibraryMapping {
 
     int wl_display_init_shm(Pointer display);
 
-    IntByReference wl_display_add_shm_format(Pointer display,
-                                             int format);
+    Pointer wl_display_add_shm_format(Pointer display,
+                                      int format);
 
     Pointer wl_shm_buffer_create(Pointer client,
                                  int id,
