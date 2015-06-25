@@ -236,8 +236,8 @@ public class WaylandServerLibrary implements WaylandServerLibraryMapping {
 
     public native int wl_display_init_shm(final Pointer display);
 
-    public native IntByReference wl_display_add_shm_format(final Pointer display,
-                                                           final int format);
+    public native Pointer wl_display_add_shm_format(final Pointer display,
+                                                    final int format);
 
     public native Pointer wl_shm_buffer_create(final Pointer client,
                                                final int id,
