@@ -13,8 +13,10 @@
 //limitations under the License.
 package examples;
 
-import com.sun.jna.*;
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -23,7 +25,7 @@ import java.nio.ByteOrder;
 
 public final class ShmPool implements Closeable {
     private int        fd;
-    private int       size;
+    private int        size;
     private ByteBuffer buffer;
 
     private static ByteBuffer map(final int fd,
@@ -90,55 +92,77 @@ public final class ShmPool implements Closeable {
         super.finalize();
     }
 
-    private static int createTmpFileNative(){
+    private static int createTmpFileNative() {
         String template = "/wayland-java-shm-XXXXXX";
-        String path = System.getenv("XDG_RUNTIME_DIR");
-        if(path == null){
+        String path     = System.getenv("XDG_RUNTIME_DIR");
+        if (path == null) {
             throw new IllegalStateException("Cannot create temporary file: XDG_RUNTIME_DIR not set");
         }
 
-        String name = path+template;
-        Pointer m = new Memory(name.length() + 1); // WARNING: assumes ascii-only string
-        m.setString(0, name);
-        int fd = CLibrary.INSTANCE().mkstemp(m);
+        String  name = path + template;
+        Pointer m    = new Memory(name.length() + 1); // WARNING: assumes ascii-only string
+        m.setString(0,
+                    name);
+        int fd = CLibrary.INSTANCE()
+                         .mkstemp(m);
 
         try {
             int F_GETFD = 1;
-            int flags = CLibrary.INSTANCE().fcntl(fd, F_GETFD, 0);
+            int flags = CLibrary.INSTANCE()
+                                .fcntl(fd,
+                                       F_GETFD,
+                                       0);
             int FD_CLOEXEC = 1;
             flags |= FD_CLOEXEC;
             int F_SETFD = 2;
-            CLibrary.INSTANCE().fcntl(fd, F_SETFD, flags);
+            CLibrary.INSTANCE()
+                    .fcntl(fd,
+                           F_SETFD,
+                           flags);
             return fd;
-        }catch (LastErrorException e){
-            CLibrary.INSTANCE().close(fd);
+        }
+        catch (LastErrorException e) {
+            CLibrary.INSTANCE()
+                    .close(fd);
             throw e;
         }
     }
 
     private static ByteBuffer mapNative(int fd,
-                                        int size){
-        int PROT_READ = 0x01;
+                                        int size) {
+        int PROT_READ  = 0x01;
         int PROT_WRITE = 0x02;
 
-        int prot = PROT_READ | PROT_WRITE;
-        int MAP_SHARED = 0x001;
-        Pointer buffer = CLibrary.INSTANCE().mmap(null, size, prot, MAP_SHARED, fd, 0);
-        return buffer.getByteBuffer(0,size);
+        int     prot       = PROT_READ | PROT_WRITE;
+        int     MAP_SHARED = 0x001;
+        Pointer buffer     = CLibrary.INSTANCE()
+                                     .mmap(null,
+                                           size,
+                                           prot,
+                                           MAP_SHARED,
+                                           fd,
+                                           0);
+        return buffer.getByteBuffer(0,
+                                    size);
     }
 
-    private static void unmapNative(ByteBuffer buffer){
+    private static void unmapNative(ByteBuffer buffer) {
         buffer.capacity();
-        CLibrary.INSTANCE().munmap(Native.getDirectBufferPointer(buffer), buffer.capacity());
+        CLibrary.INSTANCE()
+                .munmap(Native.getDirectBufferPointer(buffer),
+                        buffer.capacity());
     }
 
     private static void truncateNative(int fd,
-                                       int size){
-        CLibrary.INSTANCE().ftruncate(fd, size);
+                                       int size) {
+        CLibrary.INSTANCE()
+                .ftruncate(fd,
+                           size);
     }
 
-    private static void closeNative(int fd){
-        CLibrary.INSTANCE().close(fd);
+    private static void closeNative(int fd) {
+        CLibrary.INSTANCE()
+                .close(fd);
     }
 }
 
