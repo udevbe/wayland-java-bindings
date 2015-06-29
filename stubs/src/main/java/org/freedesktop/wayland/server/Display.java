@@ -21,6 +21,8 @@ import org.freedesktop.wayland.util.ObjectCache;
 
 public class Display implements HasNative<Pointer> {
 
+    public static final int OBJECT_ID = 1;
+
     private final Pointer pointer;
     private       boolean valid;
 
