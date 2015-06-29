@@ -6,29 +6,29 @@ import org.freedesktop.wayland.client.WlShmPoolEvents;
 
 import java.util.LinkedList;
 
-public class BufferPool implements WlShmPoolEvents{
+public class BufferPool implements WlShmPoolEvents {
 
     private LinkedList<WlBufferProxy> bufferQueue = new LinkedList<WlBufferProxy>();
     private boolean destroyed;
 
-    public void queueBuffer(WlBufferProxy buffer){
-        if(destroyed){
+    public void queueBuffer(WlBufferProxy buffer) {
+        if (destroyed) {
             throw new IllegalStateException("Pool destroyed");
         }
 
         this.bufferQueue.add(buffer);
     }
 
-    public WlBufferProxy popBuffer(){
-        if(destroyed){
+    public WlBufferProxy popBuffer() {
+        if (destroyed) {
             throw new IllegalStateException("Pool destroyed");
         }
 
         return bufferQueue.pop();
     }
 
-    public void destroy(){
-        if(destroyed){
+    public void destroy() {
+        if (destroyed) {
             throw new IllegalStateException("Pool destroyed");
         }
 

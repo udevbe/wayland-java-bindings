@@ -43,7 +43,7 @@ public class Display implements HasNative<Pointer> {
 
     /**
      * Create Wayland display object.
-     * <p/>
+     * <p>
      * This creates the wl_display object.
      *
      * @return The Wayland display object. Null if failed to create
@@ -87,7 +87,7 @@ public class Display implements HasNative<Pointer> {
 
     /**
      * Get the current serial number
-     * <p/>
+     * <p>
      * This function returns the most recent serial number, but does not
      * increment it.
      */
@@ -98,7 +98,7 @@ public class Display implements HasNative<Pointer> {
 
     /**
      * Get the next serial number
-     * <p/>
+     * <p>
      * This function increments the display serial number and returns the
      * new value.
      */
@@ -137,27 +137,27 @@ public class Display implements HasNative<Pointer> {
 
     /**
      * Add support for a wl_shm pixel format
-     * <p/>
+     * <p>
      * Add the specified wl_shm format to the list of formats the wl_shm
      * object advertises when a client binds to it.  Adding a format to
      * the list means that clients will know that the compositor supports
      * this format and may use it for creating wl_shm buffers.  The
      * compositor must be able to handle the pixel format when a client
      * requests it.
-     * <p/>
+     * <p>
      * The compositor by default supports WL_SHM_FORMAT_ARGB8888 and
      * WL_SHM_FORMAT_XRGB8888.
-     * <p/>
+     * <p>
      *
      * @param format The wl_shm pixel format to advertise
      *
      * @return A pointer to the wl_shm format that was added to the list or NULL if adding it to the list failed.
      */
     public int addShmFormat(final int format) {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_display_add_shm_format(getNative(),
-                                                              format)
-                                   .getValue();
+        final Pointer formatPointer = WaylandServerLibrary.INSTANCE()
+                                                          .wl_display_add_shm_format(getNative(),
+                                                                                     format);
+        return formatPointer == null ? 0 : formatPointer.getInt(0);
     }
 
     public Pointer getNative() {
