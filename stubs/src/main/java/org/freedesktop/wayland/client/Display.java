@@ -76,6 +76,8 @@ import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
  */
 public abstract class Display extends Proxy<Void> {
 
+    public static final int OBJECT_ID = 1;
+
     protected Display(final Pointer wlDisplay) {
         super(wlDisplay,
               null,
