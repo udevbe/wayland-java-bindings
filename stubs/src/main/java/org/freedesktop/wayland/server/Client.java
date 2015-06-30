@@ -106,6 +106,10 @@ public class Client implements HasNative<Pointer> {
                                                .wl_client_get_display(getNative()));
     }
 
+    //TODO wl_client_get_object
+    //TODO wl_client_post_no_memory
+    //TODO wl_client_get_credentials
+
     @Override
     public boolean isValid() {
         return this.valid;
