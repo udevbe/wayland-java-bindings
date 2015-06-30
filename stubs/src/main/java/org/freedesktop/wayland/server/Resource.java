@@ -76,6 +76,9 @@ public abstract class Resource<I> implements WaylandObject {
     }
 
     //TODO add static get(Pointer) method for each generated resource
+    //TODO wl_resource_post_no_memory
+    //TODO wl_resource_queue_event_array
+    //TODO wl_resource_queue_event
 
     public int getVersion() {
         return WaylandServerLibrary.INSTANCE()
