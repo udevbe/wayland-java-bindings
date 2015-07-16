@@ -94,8 +94,8 @@ public class Display {
         else if (WlSeatProxy.INTERFACE_NAME.equals(interfaceName)) {
             this.seatProxy = this.registryProxy.<WlSeatEvents, WlSeatProxy>bind(name,
                                                                                 WlSeatProxy.class,
-                                                                                WlSeatEventsV4.VERSION,
-                                                                                new WlSeatEventsV4() {
+                                                                                WlSeatEventsV3.VERSION,
+                                                                                new WlSeatEventsV3() {
                                                                                     @Override
                                                                                     public void capabilities(final WlSeatProxy emitter,
                                                                                                              final int capabilities) {
