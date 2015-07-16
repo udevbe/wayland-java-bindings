@@ -33,7 +33,6 @@ public class Window implements WlShellSurfaceEvents,
     private static final int BTN_RIGHT = 0x111;
 
     private final WlShellSurfaceProxy shellSurfaceProxy;
-    private final WlRegionProxy       regionProxy;
 
     private final WlSurfaceProxy surfaceProxy;
     private final Display        display;
@@ -66,9 +65,6 @@ public class Window implements WlShellSurfaceEvents,
                                            2);
         this.surfaceProxy = this.display.getCompositorProxy()
                                         .createSurface(this);
-        this.regionProxy = this.display.getCompositorProxy()
-                                       .createRegion(this);
-        this.surfaceProxy.setInputRegion(regionProxy);
         this.shellSurfaceProxy = this.display.getShellProxy()
                                              .getShellSurface(this,
                                                               this.surfaceProxy);
@@ -79,10 +75,6 @@ public class Window implements WlShellSurfaceEvents,
                                  0,
                                  this.width,
                                  this.height);
-        this.regionProxy.add(0,
-                             0,
-                             this.width,
-                             this.height);
     }
 
     private BufferPool createBufferPool(final Display display,
@@ -221,7 +213,6 @@ public class Window implements WlShellSurfaceEvents,
     public void destroy() {
         this.shellSurfaceProxy.destroy();
         this.surfaceProxy.destroy();
-        this.regionProxy.destroy();
         this.pointerProxy.destroy();
         if (callbackProxy != null) {
             this.callbackProxy.destroy();
@@ -313,10 +304,6 @@ public class Window implements WlShellSurfaceEvents,
                 this.height = this.pendingHeight;
                 this.needsBufferPoolUpdate = false;
 
-                this.regionProxy.add(0,
-                                     0,
-                                     width,
-                                     height);
                 //FIXME properly implement bufferpool destruction.
                 //bufferPool.destroy();
                 this.bufferPool = createBufferPool(display,
