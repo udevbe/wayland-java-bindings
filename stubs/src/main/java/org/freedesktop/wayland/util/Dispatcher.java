@@ -13,7 +13,9 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import org.freedesktop.wayland.util.jna.wl_array;
 import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
 
 import java.lang.reflect.Constructor;
@@ -99,6 +101,11 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             }
             case 's': {
                 return arguments.getS(index);
+            }
+            case 'a': {
+                final wl_array wlArray = arguments.getA(index);
+                return Native.getDirectByteBuffer(Pointer.nativeValue(wlArray.data),
+                                                  wlArray.alloc);
             }
             default: {
                 throw new IllegalArgumentException("Can not convert wl_argument type: " + type);
