@@ -48,17 +48,25 @@ public class ObjectCache {
      */
     public static void store(final Pointer pointer,
                              final Object object) {
-        final Object oldValue = MAPPED_OBJECTS.put(pointer,
-                                                   object);
-        if (oldValue != null) {
-            //put it back!
-            MAPPED_OBJECTS.put(pointer,
-                               oldValue);
-            throw new IllegalStateException(String.format("Can not re-map existing pointer. Pointer=%s, old value=%s, new value=%s",
-                                                          pointer,
-                                                          oldValue,
-                                                          object));
-        }
+        //important notice:
+        //A bug/missing feature in libwayland is that it does not allow us to fully track all library allocated objects (yet?).
+        //As such there is no reliable way to be entirely sure when an object is really destroyed. As a side effect,
+        //we can not guarantee that a newly stored object is not an erroneously mapped pointer or a 'wil-be-destroyed'
+        //object and we have to simply map it 'as-is'. As a result, there is a memory leak that is: if we get a 'pre-destroy'
+        //notify of object foo (=removes it from the object cache), and a subsequent call returns foo (=add it to the cache).
+
+        //final Object oldValue =
+        MAPPED_OBJECTS.put(pointer,
+                           object);
+        //if (oldValue != null) {
+        //put it back!
+//            MAPPED_OBJECTS.put(pointer,
+//                               oldValue);
+//            throw new IllegalStateException(String.format("Can not re-map existing pointer. Pointer=%s, old value=%s, new value=%s",
+//                                                          pointer,
+//                                                          oldValue,
+//                                                          object));
+        //}
     }
 
     /**
