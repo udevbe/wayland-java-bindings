@@ -24,24 +24,29 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class Dispatcher implements wl_dispatcher_func_t {
 
     public static Dispatcher INSTANCE = new Dispatcher();
 
-    private static final Map<Class<?>, Map<Message, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Message, Method>>();
+    private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Integer, Method>>();
     private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
 
     private static Method get(final Class<? extends WaylandObject> waylandObjectType,
                               final Class<?> implementationType,
                               final Message message) throws NoSuchMethodException {
-        Map<Message, Method> methodMap = METHOD_CACHE.get(implementationType);
+
+        Map<Integer, Method> methodMap = METHOD_CACHE.get(implementationType);
         if (methodMap == null) {
-            methodMap = new HashMap<Message, Method>();
+            methodMap = new HashMap<Integer, Method>();
             METHOD_CACHE.put(implementationType,
                              methodMap);
         }
-        Method method = methodMap.get(message);
+
+        final int methodHash = Objects.hash(waylandObjectType,
+                                            message);
+        Method method = methodMap.get(methodHash);
         if (method == null) {
             final Class<?>[] types = message.types();
             final Class<?>[] argTypes = new Class<?>[types.length + 1];
@@ -55,7 +60,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             method = implementationType.getMethod(message.functionName(),
                                                   argTypes);
             method.setAccessible(true);
-            methodMap.put(message,
+            methodMap.put(methodHash,
                           method);
         }
         return method;
@@ -194,9 +199,9 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         }
         catch (final Exception e) {
             System.err.println(String.format("Got an exception, This is most likely a bug.\n"
-                                             + "Method=%s, " +
-                                             "implementation=%s, " +
-                                             "arguments=%s, " +
+                                             + "Method=%s\n" +
+                                             "implementation=%s\n" +
+                                             "arguments=%s\n" +
                                              "message=%s",
                                              method,
                                              waylandObject.getImplementation(),
