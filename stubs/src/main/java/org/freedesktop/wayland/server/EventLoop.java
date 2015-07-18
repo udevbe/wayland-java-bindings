@@ -15,7 +15,11 @@ package org.freedesktop.wayland.server;
 
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.server.jna.*;
+import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jna.wl_event_loop_fd_func_t;
+import org.freedesktop.wayland.server.jna.wl_event_loop_idle_func_t;
+import org.freedesktop.wayland.server.jna.wl_event_loop_signal_func_t;
+import org.freedesktop.wayland.server.jna.wl_event_loop_timer_func_t;
 import org.freedesktop.wayland.util.ObjectCache;
 
 import java.util.Map;
@@ -74,7 +78,6 @@ public class EventLoop implements HasNative<Pointer> {
     public static final int EVENT_HANGUP   = 0x04;
     public static final int EVENT_ERROR    = 0x08;
 
-
     private final Pointer pointer;
 
     private boolean valid;
@@ -82,6 +85,15 @@ public class EventLoop implements HasNative<Pointer> {
     protected EventLoop(final Pointer pointer) {
         this.pointer = pointer;
         this.valid = true;
+        addDestroyListener(new Listener() {
+            @Override
+            public void handle() {
+                remove();
+                EventLoop.this.valid = false;
+                //We leak memory here as libwayland does not provide us with a real destructor hook.
+                //ObjectCache.remove(Client.this.getNative());
+            }
+        });
         ObjectCache.store(getNative(),
                           this);
     }
@@ -92,6 +104,9 @@ public class EventLoop implements HasNative<Pointer> {
     }
 
     public static EventLoop get(final Pointer pointer) {
+        if (pointer == null) {
+            return null;
+        }
         EventLoop eventLoop = ObjectCache.from(pointer);
         if (eventLoop == null) {
             eventLoop = new EventLoop(pointer);
