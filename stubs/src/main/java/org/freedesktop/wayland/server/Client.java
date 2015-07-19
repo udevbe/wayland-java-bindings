@@ -26,15 +26,6 @@ public class Client implements HasNative<Pointer> {
 
     protected Client(final Pointer pointer) {
         this.pointer = pointer;
-        addDestroyListener(new Listener() {
-            @Override
-            public void handle() {
-                remove();
-                Client.this.valid = false;
-                //We leak memory here as libwayland does not provide us with a real destructor hook.
-                //ObjectCache.remove(Client.this.getNative());
-            }
-        });
         this.valid = true;
         ObjectCache.store(getNative(),
                           this);
