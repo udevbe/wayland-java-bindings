@@ -88,7 +88,6 @@ public class EventSource implements HasNative<Pointer> {
 
     @Override
     public boolean isValid() {
-        //no way to track event source lifecycle, so it's always valid to us.
         return this.valid;
     }
 

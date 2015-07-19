@@ -29,15 +29,6 @@ public class Display implements HasNative<Pointer> {
     protected Display(final Pointer pointer) {
         this.pointer = pointer;
         this.valid = true;
-        addDestroyListener(new Listener() {
-            @Override
-            public void handle() {
-                remove();
-                Display.this.valid = false;
-                //We leak memory here as libwayland does not provide us with a real destructor hook.
-                //ObjectCache.remove(Client.this.getNative());
-            }
-        });
         ObjectCache.store(getNative(),
                           this);
     }

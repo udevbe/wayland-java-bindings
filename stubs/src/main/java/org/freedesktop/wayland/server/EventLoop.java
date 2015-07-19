@@ -84,16 +84,6 @@ public class EventLoop implements HasNative<Pointer> {
 
     protected EventLoop(final Pointer pointer) {
         this.pointer = pointer;
-        this.valid = true;
-        addDestroyListener(new Listener() {
-            @Override
-            public void handle() {
-                remove();
-                EventLoop.this.valid = false;
-                //We leak memory here as libwayland does not provide us with a real destructor hook.
-                //ObjectCache.remove(Client.this.getNative());
-            }
-        });
         ObjectCache.store(getNative(),
                           this);
     }
