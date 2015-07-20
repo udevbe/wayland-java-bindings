@@ -142,7 +142,7 @@ public class Client implements HasNative<Pointer> {
 
     @Override
     protected void finalize() throws Throwable {
-        destroy();
+        //destroy();
         super.finalize();
     }
 }
