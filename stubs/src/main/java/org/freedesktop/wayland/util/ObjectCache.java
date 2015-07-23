@@ -58,21 +58,20 @@ public class ObjectCache {
         //To work around this issue, this check is disabled, and library objects that don't have a real destructor are simply
         //not removed from the cache.
 
-        //final Object oldValue =
-        MAPPED_OBJECTS.put(pointer,
-                           object);
-//        if (oldValue != null) {
-//            //put it back!
-//            MAPPED_OBJECTS.put(pointer,
-//                               oldValue);
-//            throw new IllegalStateException(String.format("Can not re-map existing pointer.\n" +
-//                                                          "Pointer=%s\n" +
-//                                                          "old value=%s" +
-//                                                          "\nnew value=%s",
-//                                                          pointer,
-//                                                          oldValue,
-//                                                          object));
-//        }
+        final Object oldValue = MAPPED_OBJECTS.put(pointer,
+                                                   object);
+        if (oldValue != null) {
+            //put it back!
+            MAPPED_OBJECTS.put(pointer,
+                               oldValue);
+            throw new IllegalStateException(String.format("Can not re-map existing pointer.\n" +
+                                                          "Pointer=%s\n" +
+                                                          "old value=%s" +
+                                                          "\nnew value=%s",
+                                                          pointer,
+                                                          oldValue,
+                                                          object));
+        }
     }
 
     /**
