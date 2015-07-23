@@ -29,6 +29,13 @@ public class Client implements HasNative<Pointer> {
         this.valid = true;
         ObjectCache.store(getNative(),
                           this);
+        addDestroyListener(new Listener() {
+            @Override
+            public void handle() {
+                free();
+                ObjectCache.remove(Client.this.getNative());
+            }
+        });
     }
 
     /**

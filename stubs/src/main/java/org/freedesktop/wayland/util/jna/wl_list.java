@@ -23,11 +23,11 @@ public class wl_list extends Structure {
     /**
      * C type : wl_list*
      */
-    public volatile Pointer prev;
+    public Pointer prev;
     /**
      * C type : wl_list*
      */
-    public volatile Pointer next;
+    public Pointer next;
 
     public wl_list() {
         super();
