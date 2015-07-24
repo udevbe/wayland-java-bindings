@@ -37,14 +37,14 @@ public class wl_message extends Structure {
         super();
     }
 
+    public wl_message(final Pointer peer) {
+        super(peer);
+    }
+
     protected List<?> getFieldOrder() {
         return Arrays.asList("name",
                              "signature",
                              "types");
-    }
-
-    public wl_message(final Pointer peer) {
-        super(peer);
     }
 
     protected ByReference newByReference() { return new ByReference(); }

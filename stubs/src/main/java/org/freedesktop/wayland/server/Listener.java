@@ -22,11 +22,11 @@ import org.freedesktop.wayland.util.ObjectCache;
 
 /**
  * A single listener for Wayland signals
- * <p/>
+ * <p>
  * {@code Listener} provides the means to listen for {@code wl_signal} notifications. Many
  * Wayland objects use {@code Listener} for notification of significant events like
  * object destruction.
- * <p/>
+ * <p>
  * Clients should create {@code Listener} objects manually and can register them as
  * listeners to signals using #wl_signal_add, assuming the signal is
  * directly accessible. For opaque structs like wl_event_loop, adding a
@@ -55,6 +55,10 @@ abstract class Listener implements HasNative<wl_listener> {
                           this);
     }
 
+    public wl_listener getNative() {
+        return this.pointer;
+    }
+
     public void remove() {
         if (isValid()) {
             WaylandServerLibrary.INSTANCE()
@@ -62,7 +66,12 @@ abstract class Listener implements HasNative<wl_listener> {
         }
     }
 
-    public void free(){
+    @Override
+    public boolean isValid() {
+        return this.valid;
+    }
+
+    public void free() {
         if (isValid()) {
             this.valid = false;
             ObjectCache.remove(getNative().getPointer());
@@ -72,8 +81,9 @@ abstract class Listener implements HasNative<wl_listener> {
     //called from jni
     public abstract void handle();
 
-    public wl_listener getNative() {
-        return this.pointer;
+    @Override
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -88,16 +98,6 @@ abstract class Listener implements HasNative<wl_listener> {
         final Listener listener = (Listener) o;
 
         return getNative().equals(listener.getNative());
-    }
-
-    @Override
-    public int hashCode() {
-        return getNative().hashCode();
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
     }
 }
 

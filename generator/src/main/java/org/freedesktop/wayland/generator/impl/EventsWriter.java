@@ -25,7 +25,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.EnumSet;
 
-import static org.freedesktop.wayland.generator.impl.StringUtil.*;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getArgumentForProxy;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getDoc;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getJavaTypeNameEvents;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getJavaTypeNameProxy;
+import static org.freedesktop.wayland.generator.impl.StringUtil.lowerCamelName;
 
 public class EventsWriter {
 

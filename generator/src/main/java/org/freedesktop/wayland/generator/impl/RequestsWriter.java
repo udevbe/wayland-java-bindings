@@ -25,7 +25,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.EnumSet;
 
-import static org.freedesktop.wayland.generator.impl.StringUtil.*;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getArgumentForResource;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getDoc;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getJavaTypeNameRequests;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getJavaTypeNameResource;
+import static org.freedesktop.wayland.generator.impl.StringUtil.lowerCamelName;
 
 public class RequestsWriter {
 

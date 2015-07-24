@@ -211,6 +211,11 @@ public class Arguments implements HasNative<Pointer> {
     }
 
     @Override
+    public int hashCode() {
+        return this.pointer.hashCode();
+    }
+
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -222,11 +227,6 @@ public class Arguments implements HasNative<Pointer> {
         final Arguments arguments = (Arguments) o;
 
         return this.pointer.equals(arguments.pointer);
-    }
-
-    @Override
-    public int hashCode() {
-        return this.pointer.hashCode();
     }
 
     @Override

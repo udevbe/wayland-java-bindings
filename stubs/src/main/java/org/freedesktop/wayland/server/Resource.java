@@ -16,7 +16,11 @@ package org.freedesktop.wayland.server;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.server.jna.wl_resource_destroy_func_t;
-import org.freedesktop.wayland.util.*;
+import org.freedesktop.wayland.util.Arguments;
+import org.freedesktop.wayland.util.Dispatcher;
+import org.freedesktop.wayland.util.InterfaceMeta;
+import org.freedesktop.wayland.util.ObjectCache;
+import org.freedesktop.wayland.util.WaylandObject;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,6 +32,10 @@ import java.util.Set;
  */
 public abstract class Resource<I> implements WaylandObject {
 
+    private final Pointer pointer;
+    private final I       implementation;
+    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
+    private boolean valid;
     private static final wl_resource_destroy_func_t RESOURCE_DESTROY_FUNC = new wl_resource_destroy_func_t() {
         @Override
         public void apply(final Pointer resourcePointer) {
@@ -38,13 +46,6 @@ public abstract class Resource<I> implements WaylandObject {
             ObjectCache.remove(resourcePointer);
         }
     };
-
-    private final Pointer pointer;
-    private final I       implementation;
-
-    private boolean valid;
-
-    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
 
     protected Resource(final Client client,
                        final int version,
@@ -68,6 +69,15 @@ public abstract class Resource<I> implements WaylandObject {
                                                         RESOURCE_DESTROY_FUNC);
     }
 
+    public Pointer getNative() {
+        return this.pointer;
+    }
+
+    //TODO add static get(Pointer) method for each generated resource
+    //TODO wl_resource_post_no_memory
+    //TODO wl_resource_queue_event_array
+    //TODO wl_resource_queue_event
+
     protected Resource(final Pointer pointer) {
         this.pointer = pointer;
         this.implementation = null;
@@ -86,14 +96,16 @@ public abstract class Resource<I> implements WaylandObject {
                           this);
     }
 
-    //TODO add static get(Pointer) method for each generated resource
-    //TODO wl_resource_post_no_memory
-    //TODO wl_resource_queue_event_array
-    //TODO wl_resource_queue_event
+    protected void addDestroyListener(final Listener listener) {
+        WaylandServerLibrary.INSTANCE()
+                            .wl_resource_add_destroy_listener(getNative(),
+                                                              listener.getNative());
+    }
 
-    public int getVersion() {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_resource_get_version(getNative());
+    private void notifyDestroyListeners() {
+        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
+            listener.handle();
+        }
     }
 
     public I getImplementation() {
@@ -102,7 +114,7 @@ public abstract class Resource<I> implements WaylandObject {
 
     public Client getClient() {
         return Client.get(WaylandServerLibrary.INSTANCE()
-                                  .wl_resource_get_client(getNative()));
+                                              .wl_resource_get_client(getNative()));
     }
 
     public int getId() {
@@ -110,36 +122,17 @@ public abstract class Resource<I> implements WaylandObject {
                                    .wl_resource_get_id(getNative());
     }
 
-    protected void addDestroyListener(final Listener listener) {
-        WaylandServerLibrary.INSTANCE()
-                            .wl_resource_add_destroy_listener(getNative(),
-                                                              listener.getNative());
+    public int getVersion() {
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_resource_get_version(getNative());
     }
 
-    public void register(final DestroyListener destroyListener){
+    public void register(final DestroyListener destroyListener) {
         this.destroyListeners.add(destroyListener);
     }
 
-    public void unregister(final DestroyListener destroyListener){
+    public void unregister(final DestroyListener destroyListener) {
         this.destroyListeners.remove(destroyListener);
-    }
-
-    private void notifyDestroyListeners(){
-        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
-            listener.handle();
-        }
-    }
-
-    public void destroy() {
-        if (isValid()) {
-            WaylandServerLibrary.INSTANCE()
-                                .wl_resource_destroy(getNative());
-        }
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
     }
 
     /**
@@ -147,7 +140,7 @@ public abstract class Resource<I> implements WaylandObject {
      * 'opcode' is the event number generated from the protocol XML
      * description (the event name). The variable arguments are the event
      * parameters, in the order they appear in the protocol XML specification.
-     * <p/>
+     * <p>
      * The variable arguments' types are:
      * <ul>
      * <li>type=uint: uint32_t</li>
@@ -191,8 +184,9 @@ public abstract class Resource<I> implements WaylandObject {
                                                     msg);
     }
 
-    public Pointer getNative() {
-        return this.pointer;
+    @Override
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -210,13 +204,20 @@ public abstract class Resource<I> implements WaylandObject {
     }
 
     @Override
-    public int hashCode() {
-        return getNative().hashCode();
-    }
-
-    @Override
     protected void finalize() throws Throwable {
         destroy();
         super.finalize();
+    }
+
+    public void destroy() {
+        if (isValid()) {
+            WaylandServerLibrary.INSTANCE()
+                                .wl_resource_destroy(getNative());
+        }
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
     }
 }

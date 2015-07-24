@@ -15,7 +15,11 @@ package org.freedesktop.wayland.server.jna;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import org.freedesktop.wayland.util.jna.*;
+import org.freedesktop.wayland.util.jna.WaylandUtilLibraryMapping;
+import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
+import org.freedesktop.wayland.util.jna.wl_interface;
+import org.freedesktop.wayland.util.jna.wl_list;
+import org.freedesktop.wayland.util.jna.wl_log_func_t;
 
 public interface WaylandServerLibraryMapping extends WaylandUtilLibraryMapping {
     public static final String JNA_LIBRARY_NAME = "wayland-server";

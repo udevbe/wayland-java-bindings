@@ -31,6 +31,15 @@ public class EventSource implements HasNative<Pointer> {
                           this);
     }
 
+    public Pointer getNative() {
+        return this.pointer;
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
+    }
+
     public static EventSource create(final Pointer pointer) {
         return new EventSource(pointer);
     }
@@ -47,23 +56,14 @@ public class EventSource implements HasNative<Pointer> {
                                                                  msDelay);
     }
 
-    public int remove() {
-        if (this.valid) {
-            this.valid = false;
-            ObjectCache.remove(getNative());
-            return WaylandServerLibrary.INSTANCE()
-                                       .wl_event_source_remove(getNative());
-        }
-        return 0;
-    }
-
     public void check() {
         WaylandServerLibrary.INSTANCE()
                             .wl_event_source_check(getNative());
     }
 
-    public Pointer getNative() {
-        return this.pointer;
+    @Override
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -82,18 +82,18 @@ public class EventSource implements HasNative<Pointer> {
     }
 
     @Override
-    public int hashCode() {
-        return getNative().hashCode();
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    @Override
     protected void finalize() throws Throwable {
         remove();
         super.finalize();
+    }
+
+    public int remove() {
+        if (this.valid) {
+            this.valid = false;
+            ObjectCache.remove(getNative());
+            return WaylandServerLibrary.INSTANCE()
+                                       .wl_event_source_remove(getNative());
+        }
+        return 0;
     }
 }

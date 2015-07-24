@@ -34,7 +34,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.freedesktop.wayland.generator.impl.StringUtil.*;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getArgumentForProxy;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getDoc;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getJavaTypeNameEvents;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getJavaTypeNameProxy;
+import static org.freedesktop.wayland.generator.impl.StringUtil.getSimpleJavaTypeNameProxy;
+import static org.freedesktop.wayland.generator.impl.StringUtil.lowerCamelName;
+import static org.freedesktop.wayland.generator.impl.StringUtil.toSignatureChar;
+import static org.freedesktop.wayland.generator.impl.StringUtil.upperCamelName;
 
 public class ProxyWriter {
 
@@ -51,12 +58,12 @@ public class ProxyWriter {
                       final String clientPackage,
                       final String copyright,
                       final Element interfaceNode) throws IOException {
-        final JavaWriter javaWriter = new JavaWriter(writer);
-        final String interfaceName = interfaceNode.getAttribute(ATTRIBUTE_NAME);
+        final JavaWriter javaWriter    = new JavaWriter(writer);
+        final String     interfaceName = interfaceNode.getAttribute(ATTRIBUTE_NAME);
         //prepare annotations
-        final String versionAttr = interfaceNode.getAttribute(ATTRIBUTE_VERSION);
+        final String   versionAttr  = interfaceNode.getAttribute(ATTRIBUTE_VERSION);
         final NodeList requestNodes = interfaceNode.getElementsByTagName(ELEMENT_REQUEST);
-        final Object[] methods = new Object[requestNodes.getLength()];
+        final Object[] methods      = new Object[requestNodes.getLength()];
 
         for (int i = 0; i < requestNodes.getLength(); i++) {
             final Element requestElement = (Element) requestNodes.item(i);
@@ -65,7 +72,7 @@ public class ProxyWriter {
         }
 
         final NodeList eventNodes = interfaceNode.getElementsByTagName(ELEMENT_EVENT);
-        final Object[] events = new Object[eventNodes.getLength()];
+        final Object[] events     = new Object[eventNodes.getLength()];
 
         for (int i = 0; i < eventNodes.getLength(); i++) {
             final Element eventElement = (Element) eventNodes.item(i);
@@ -346,12 +353,12 @@ public class ProxyWriter {
 
     private String constructMessage(final String clientPackage,
                                     final Element requestElement) throws IOException {
-        final String requestName = requestElement.getAttribute(ATTRIBUTE_NAME);
-        final String since = requestElement.getAttribute(ATTRIBUTE_SINCE);
+        final String   requestName = requestElement.getAttribute(ATTRIBUTE_NAME);
+        final String   since       = requestElement.getAttribute(ATTRIBUTE_SINCE);
         final NodeList argElements = requestElement.getElementsByTagName(ELEMENT_ARG);
 
         final StringBuffer signatureBuilder = new StringBuffer(since);
-        final String[] types = new String[argElements.getLength()];
+        final String[]     types            = new String[argElements.getLength()];
 
         for (int i = 0; i < argElements.getLength(); i++) {
             final Element arg = (Element) argElements.item(i);
@@ -370,8 +377,8 @@ public class ProxyWriter {
                                            arg)[0] + ".class";
         }
 
-        final StringWriter stringWriter = new StringWriter();
-        final JavaWriter messageWriter = new JavaWriter(stringWriter);
+        final StringWriter stringWriter  = new StringWriter();
+        final JavaWriter   messageWriter = new JavaWriter(stringWriter);
         messageWriter.emitPackage("");
         messageWriter.emitAnnotation(Message.class.getSimpleName(),
                                      new HashMap<String, Object>() {{

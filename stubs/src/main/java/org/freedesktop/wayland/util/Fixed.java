@@ -29,16 +29,13 @@ public final class Fixed {
         return new Fixed((int) (value * 256 + 0.5));
     }
 
-    public int asInt() {
-        return this.raw >> 8;
-    }
-
-    public float asFloat() {
-        return (float) this.raw / 256.0f;
-    }
-
     public int getRaw() {
         return this.raw;
+    }
+
+    @Override
+    public int hashCode() {
+        return raw;
     }
 
     @Override
@@ -52,16 +49,19 @@ public final class Fixed {
     }
 
     @Override
-    public int hashCode() {
-        return raw;
-    }
-
-    @Override
     public String toString() {
         return "Fixed{" +
                " raw=" + raw +
                " asInt=" + asInt() +
                " asFloat=" + asFloat() +
                '}';
+    }
+
+    public int asInt() {
+        return this.raw >> 8;
+    }
+
+    public float asFloat() {
+        return (float) this.raw / 256.0f;
     }
 }

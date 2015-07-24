@@ -18,13 +18,13 @@ import com.sun.jna.Pointer;
 
 /**
  * \brief A function pointer type for a dispatcher.
- * <p/>
+ * <p>
  * A dispatcher is a function that handles the emitting of callbacks in client
  * code.  For programs directly using the C library, this is done by using
  * libffi to call function pointers.  When binding to languages other than C,
  * dispatchers provide a way to abstract the function calling process to be
  * friendlier to other function calling systems.
- * <p/>
+ * <p>
  * A dispatcher takes five arguments:  The first is the dispatcher-specific
  * implementation data associated with the target object.  The second is the
  * object on which the callback is being invoked (either wl_proxy or

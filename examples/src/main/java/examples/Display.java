@@ -14,7 +14,19 @@
 package examples;
 
 
-import org.freedesktop.wayland.client.*;
+import org.freedesktop.wayland.client.WlCompositorEvents;
+import org.freedesktop.wayland.client.WlCompositorEventsV3;
+import org.freedesktop.wayland.client.WlCompositorProxy;
+import org.freedesktop.wayland.client.WlDisplayProxy;
+import org.freedesktop.wayland.client.WlRegistryEvents;
+import org.freedesktop.wayland.client.WlRegistryProxy;
+import org.freedesktop.wayland.client.WlSeatEvents;
+import org.freedesktop.wayland.client.WlSeatEventsV3;
+import org.freedesktop.wayland.client.WlSeatProxy;
+import org.freedesktop.wayland.client.WlShellEvents;
+import org.freedesktop.wayland.client.WlShellProxy;
+import org.freedesktop.wayland.client.WlShmEvents;
+import org.freedesktop.wayland.client.WlShmProxy;
 
 import javax.annotation.Nonnull;
 
