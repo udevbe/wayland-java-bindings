@@ -23,7 +23,7 @@ import java.util.Set;
 
 import static org.freedesktop.wayland.HasNative.Precondition.checkValid;
 
-public final class Client implements HasNative<Pointer> {
+public class Client implements HasNative<Pointer> {
 
     private final Pointer pointer;
     private boolean valid;
