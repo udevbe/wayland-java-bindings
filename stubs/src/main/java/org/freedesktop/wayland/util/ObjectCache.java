@@ -48,16 +48,6 @@ public class ObjectCache {
      */
     public static void store(final Pointer pointer,
                              final Object object) {
-        //important notice:
-        //A bug/missing feature in libwayland is that it does not allow us to fully track all library allocated objects (yet?).
-        //As such there is no reliable way to be entirely sure when an object is really destroyed.
-        //As a result, there is an exception in the following scenario: if we
-        //get a 'pre-destroy' notify of object foo (=removes it from the object cache), and a subsequent call returns
-        //foo (=add it to the cache), then  an illegal state exception is thrown, even though it's not really an illegal state!
-        //
-        //To work around this issue, this check is disabled, and library objects that don't have a real destructor are simply
-        //not removed from the cache.
-
         final Object oldValue = MAPPED_OBJECTS.put(pointer,
                                                    object);
         if (oldValue != null) {
