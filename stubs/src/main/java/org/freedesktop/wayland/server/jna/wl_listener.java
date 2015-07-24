@@ -28,13 +28,13 @@ public class wl_listener extends Structure {
         super();
     }
 
+    public wl_listener(final Pointer peer) {
+        super(peer);
+    }
+
     protected List<?> getFieldOrder() {
         return Arrays.asList("link",
                              "notify$");
-    }
-
-    public wl_listener(final Pointer peer) {
-        super(peer);
     }
 
     public static class ByReference extends wl_listener implements Structure.ByReference {

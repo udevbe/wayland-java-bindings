@@ -34,7 +34,7 @@ public class ProtocolWriter {
         //TODO do something with name?
         final String name = protocolElement.getAttribute(ELEMENT_PROTOCOL_ATTRIBUTE_NAME);
 
-        String copyright = "";
+        String         copyright         = "";
         final NodeList copyrightElements = protocolElement.getElementsByTagName(ELEMENT_COPYRIGHT);
         for (int i = 0; i < copyrightElements.getLength(); i++) {
             final Element copyrightElement = (Element) copyrightElements.item(i);

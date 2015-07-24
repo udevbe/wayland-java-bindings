@@ -39,11 +39,20 @@ public class MessageMeta implements HasNative<wl_message> {
                           this);
     }
 
+    public wl_message getNative() {
+        return this.pointer;
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
+    }
+
     public static void init(final wl_message messagePointer,
                             final Message message) {
         //init args interfaces
-        final Class<?>[] types = message.types();
-        Pointer typesPointerPointer = null;
+        final Class<?>[] types               = message.types();
+        Pointer          typesPointerPointer = null;
         if (types.length > 0) {
             final Pointer typesPointer = new Memory(Pointer.SIZE * types.length);
             for (int i = 0; i < types.length; i++) {
@@ -76,17 +85,13 @@ public class MessageMeta implements HasNative<wl_message> {
                         message);
     }
 
-    public wl_message getNative() {
-        return this.pointer;
-    }
-
     public Message getMessage() {
         return this.message;
     }
 
     @Override
-    public boolean isValid() {
-        return this.valid;
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -101,11 +106,6 @@ public class MessageMeta implements HasNative<wl_message> {
         final MessageMeta messageMeta = (MessageMeta) o;
 
         return getNative().equals(messageMeta.getNative());
-    }
-
-    @Override
-    public int hashCode() {
-        return getNative().hashCode();
     }
 
     @Override

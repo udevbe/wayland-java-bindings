@@ -23,13 +23,9 @@ public class ShmBuffer implements HasNative<Pointer> {
 
     private final Pointer pointer;
 
-    protected ShmBuffer(final Pointer pointer) {
-        this.pointer = pointer;
-    }
-
     /**
      * Create a new underlying WlBufferResource with the constructed ShmBuffer as it's implementation.
-     * <p/>
+     * <p>
      * {@code ShmBuffer} should never be stored in a compositor instead it should always be queried from a
      * {@code WlBufferResource}. Listening for the resource's destruction can be done when the buffer
      * resource is attached to a surface.
@@ -56,6 +52,10 @@ public class ShmBuffer implements HasNative<Pointer> {
                                                        format));
     }
 
+    protected ShmBuffer(final Pointer pointer) {
+        this.pointer = pointer;
+    }
+
     public static ShmBuffer get(final Resource<?> resource) {
         final Pointer wlShmBuffer = WaylandServerLibrary.INSTANCE()
                                                         .wl_shm_buffer_get(resource.getNative());
@@ -70,20 +70,9 @@ public class ShmBuffer implements HasNative<Pointer> {
         return buffer;
     }
 
-    @Override
-    public boolean isValid() {
-        //we can not track the native lifecycle
-        return true;
-    }
-
-    @Override
-    public Pointer getNative() {
-        return this.pointer;
-    }
-
     /**
      * Mark that the given SHM buffer is about to be accessed
-     * <p/>
+     * <p>
      * An SHM buffer is a memory-mapped file given by the client.
      * According to POSIX, reading from a memory-mapped region that
      * extends off the end of the file will cause a SIGBUS signal to be
@@ -94,19 +83,19 @@ public class ShmBuffer implements HasNative<Pointer> {
      * reading from the memory and call {@link #endAccess()}
      * afterwards. This will install a signal handler for SIGBUS which
      * will prevent the compositor from crashing.
-     * <p/>
+     * <p>
      * After calling this function the signal handler will remain
      * installed for the lifetime of the compositor process. Note that
      * this function will not work properly if the compositor is also
      * installing its own handler for SIGBUS.
-     * <p/>
+     * <p>
      * If a SIGBUS signal is received for an address within the range of
      * the SHM pool of the given buffer then the client will be sent an
      * error event when {@link #endAccess()} is called. If the signal
      * is for an address outside that range then the signal handler will
      * reraise the signal which would will likely cause the compositor to
      * terminate.
-     * <p/>
+     * <p>
      * It is safe to nest calls to these functions as long as the nested
      * calls are all accessing the same buffer. The number of calls to
      * wl_shm_buffer_end_access must match the number of calls to
@@ -119,9 +108,20 @@ public class ShmBuffer implements HasNative<Pointer> {
                             .wl_shm_buffer_begin_access(getNative());
     }
 
+    @Override
+    public Pointer getNative() {
+        return this.pointer;
+    }
+
+    @Override
+    public boolean isValid() {
+        //we can not track the native lifecycle
+        return true;
+    }
+
     /**
      * Ends the access to a buffer started by {@link #beginAccess()}.
-     * <p/>
+     * <p>
      * This should be called after {@link #beginAccess()} once the
      * buffer is no longer being accessed. If a SIGBUS signal was
      * generated in-between these two calls then the resource for the
@@ -134,7 +134,7 @@ public class ShmBuffer implements HasNative<Pointer> {
 
     /**
      * /** Get a pointer to the memory for the SHM buffer
-     * <p/>
+     * <p>
      * Returns a pointer which can be used to read the data contained in
      * the given SHM buffer.
      * <p
@@ -154,9 +154,9 @@ public class ShmBuffer implements HasNative<Pointer> {
                                                   getHeight() * getStride());
     }
 
-    public int getFormat() {
+    public int getHeight() {
         return WaylandServerLibrary.INSTANCE()
-                                   .wl_shm_buffer_get_format(getNative());
+                                   .wl_shm_buffer_get_height(getNative());
     }
 
     public int getStride() {
@@ -164,14 +164,19 @@ public class ShmBuffer implements HasNative<Pointer> {
                                    .wl_shm_buffer_get_stride(getNative());
     }
 
+    public int getFormat() {
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_shm_buffer_get_format(getNative());
+    }
+
     public int getWidth() {
         return WaylandServerLibrary.INSTANCE()
                                    .wl_shm_buffer_get_width(getNative());
     }
 
-    public int getHeight() {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_shm_buffer_get_height(getNative());
+    @Override
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -187,10 +192,5 @@ public class ShmBuffer implements HasNative<Pointer> {
 
         return getNative().equals(shmBuffer.getNative());
 
-    }
-
-    @Override
-    public int hashCode() {
-        return getNative().hashCode();
     }
 }

@@ -28,10 +28,91 @@ import java.util.Objects;
 
 public final class Dispatcher implements wl_dispatcher_func_t {
 
-    public static Dispatcher INSTANCE = new Dispatcher();
-
     private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Integer, Method>>();
     private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
+    public static Dispatcher INSTANCE = new Dispatcher();
+
+    Dispatcher() {
+    }
+
+    @Override
+    public int apply(final Pointer implPointer,
+                     final Pointer implWlObject,
+                     final int opcode,
+                     final Pointer wlMessage,
+                     final Pointer wlArguments) {
+
+        Method        method        = null;
+        Object[]      jargs         = null;
+        Message       message       = null;
+        WaylandObject waylandObject = null;
+        try {
+            message = ObjectCache.<MessageMeta>from(wlMessage)
+                                 .getMessage();
+            waylandObject = ObjectCache.from(implWlObject);
+            method = get(waylandObject.getClass(),
+                         waylandObject.getImplementation()
+                                      .getClass(),
+                         message);
+
+            final String signature = message.signature();
+            //TODO do something with the version signature? Somehow see which version the implementation exposes and
+            // check if it matches?
+            final String messageSignature;
+            if (signature.length() > 0 && Character.isDigit(signature.charAt(0))) {
+                messageSignature = signature.substring(1);
+            }
+            else {
+                messageSignature = signature;
+            }
+
+            final int nroArgs = message.types().length;
+            jargs = new Object[nroArgs + 1];
+            jargs[0] = waylandObject;
+
+            if (nroArgs > 0) {
+                final Arguments arguments = new Arguments(wlArguments);
+                boolean optional = false;
+                int argIndex = 0;
+                for (final char signatureChar : messageSignature.toCharArray()) {
+                    if (signatureChar == '?') {
+                        optional = true;
+                        continue;
+                    }
+                    final Object jarg = fromArgument(arguments,
+                                                     argIndex,
+                                                     signatureChar,
+                                                     message.types()[argIndex]);
+                    if (!optional && jarg == null) {
+                        throw new IllegalArgumentException(String.format("Got non optional argument that is null!. "
+                                                                         + "Message: %s(%s), violated arg index: %d",
+                                                                         message.name(),
+                                                                         message.signature(),
+                                                                         argIndex));
+                    }
+                    argIndex++;
+                    jargs[argIndex] = jarg;
+                    optional = false;
+                }
+            }
+            method.invoke(waylandObject.getImplementation(),
+                          jargs);
+        }
+        catch (final Exception e) {
+            System.err.println(String.format("Got an exception, This is most likely a bug.\n"
+                                             + "Method=%s\n" +
+                                             "implementation=%s\n" +
+                                             "arguments=%s\n" +
+                                             "message=%s",
+                                             method,
+                                             waylandObject.getImplementation(),
+                                             Arrays.toString(jargs),
+                                             message));
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
 
     private static Method get(final Class<? extends WaylandObject> waylandObjectType,
                               final Class<?> implementationType,
@@ -129,87 +210,5 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                                   constructor);
         }
         return constructor.newInstance(objectPointer);
-    }
-
-    Dispatcher() {
-    }
-
-    @Override
-    public int apply(final Pointer implPointer,
-                     final Pointer implWlObject,
-                     final int opcode,
-                     final Pointer wlMessage,
-                     final Pointer wlArguments) {
-
-        Method method = null;
-        Object[] jargs = null;
-        Message message = null;
-        WaylandObject waylandObject = null;
-        try {
-            message = ObjectCache.<MessageMeta>from(wlMessage)
-                                 .getMessage();
-            waylandObject = ObjectCache.from(implWlObject);
-            method = get(waylandObject.getClass(),
-                         waylandObject.getImplementation()
-                                      .getClass(),
-                         message);
-
-            final String signature = message.signature();
-            //TODO do something with the version signature? Somehow see which version the implementation exposes and
-            // check if it matches?
-            final String messageSignature;
-            if (signature.length() > 0 && Character.isDigit(signature.charAt(0))) {
-                messageSignature = signature.substring(1);
-            }
-            else {
-                messageSignature = signature;
-            }
-
-            final int nroArgs = message.types().length;
-            jargs = new Object[nroArgs + 1];
-            jargs[0] = waylandObject;
-
-            if (nroArgs > 0) {
-                final Arguments arguments = new Arguments(wlArguments);
-                boolean optional = false;
-                int argIndex = 0;
-                for (final char signatureChar : messageSignature.toCharArray()) {
-                    if (signatureChar == '?') {
-                        optional = true;
-                        continue;
-                    }
-                    final Object jarg = fromArgument(arguments,
-                                                     argIndex,
-                                                     signatureChar,
-                                                     message.types()[argIndex]);
-                    if (!optional && jarg == null) {
-                        throw new IllegalArgumentException(String.format("Got non optional argument that is null!. "
-                                                                         + "Message: %s(%s), violated arg index: %d",
-                                                                         message.name(),
-                                                                         message.signature(),
-                                                                         argIndex));
-                    }
-                    argIndex++;
-                    jargs[argIndex] = jarg;
-                    optional = false;
-                }
-            }
-            method.invoke(waylandObject.getImplementation(),
-                          jargs);
-        }
-        catch (final Exception e) {
-            System.err.println(String.format("Got an exception, This is most likely a bug.\n"
-                                             + "Method=%s\n" +
-                                             "implementation=%s\n" +
-                                             "arguments=%s\n" +
-                                             "message=%s",
-                                             method,
-                                             waylandObject.getImplementation(),
-                                             Arrays.toString(jargs),
-                                             message));
-            e.printStackTrace();
-        }
-
-        return 0;
     }
 }

@@ -42,12 +42,13 @@ public class InterfaceMeta implements HasNative<wl_interface> {
                           this);
     }
 
-    public static InterfaceMeta get(final wl_interface pointer) {
-        InterfaceMeta interfaceMeta = ObjectCache.from(pointer.getPointer());
-        if (interfaceMeta == null) {
-            interfaceMeta = new InterfaceMeta(pointer);
-        }
-        return interfaceMeta;
+    public wl_interface getNative() {
+        return this.pointer;
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
     }
 
     /**
@@ -129,17 +130,21 @@ public class InterfaceMeta implements HasNative<wl_interface> {
         return InterfaceMeta.get(interfacePointer);
     }
 
-    @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    public wl_interface getNative() {
-        return this.pointer;
+    public static InterfaceMeta get(final wl_interface pointer) {
+        InterfaceMeta interfaceMeta = ObjectCache.from(pointer.getPointer());
+        if (interfaceMeta == null) {
+            interfaceMeta = new InterfaceMeta(pointer);
+        }
+        return interfaceMeta;
     }
 
     public String getName() {
         return this.pointer.name.getString(0);
+    }
+
+    @Override
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -154,11 +159,6 @@ public class InterfaceMeta implements HasNative<wl_interface> {
         final InterfaceMeta that = (InterfaceMeta) o;
 
         return getNative().equals(that.getNative());
-    }
-
-    @Override
-    public int hashCode() {
-        return getNative().hashCode();
     }
 
     @Override

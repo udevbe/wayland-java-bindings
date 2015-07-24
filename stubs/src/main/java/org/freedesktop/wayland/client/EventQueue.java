@@ -20,7 +20,7 @@ import org.freedesktop.wayland.util.ObjectCache;
 
 /**
  * A queue for {@link Proxy} object events.
- * <p/>
+ * <p>
  * Event queues allows the events on a display to be handled in a thread-safe
  * manner.
  *
@@ -37,6 +37,10 @@ public class EventQueue implements HasNative<Pointer> {
                           this);
     }
 
+    public Pointer getNative() {
+        return this.pointer;
+    }
+
     public static EventQueue get(final Pointer pointer) {
         EventQueue eventQueue = ObjectCache.from(pointer);
         if (eventQueue == null) {
@@ -45,32 +49,9 @@ public class EventQueue implements HasNative<Pointer> {
         return eventQueue;
     }
 
-    public Pointer getNative() {
-        return this.pointer;
-    }
-
     @Override
-    public boolean isValid() {
-        return valid;
-    }
-
-    /**
-     * Destroy an event queue
-     * <p/>
-     * Destroy the given event queue. Any pending event on that queue is
-     * discarded.
-     * <p/>
-     * The {@link Display} object used to create the queue should not be
-     * destroyed until all event queues created with it are destroyed with
-     * this function.
-     */
-    public void destroy() {
-        if (isValid()) {
-            this.valid = false;
-            WaylandClientLibrary.INSTANCE()
-                                .wl_event_queue_destroy(getNative());
-            ObjectCache.remove(getNative());
-        }
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -88,13 +69,32 @@ public class EventQueue implements HasNative<Pointer> {
     }
 
     @Override
-    public int hashCode() {
-        return getNative().hashCode();
-    }
-
-    @Override
     protected void finalize() throws Throwable {
         destroy();
         super.finalize();
+    }
+
+    /**
+     * Destroy an event queue
+     * <p>
+     * Destroy the given event queue. Any pending event on that queue is
+     * discarded.
+     * <p>
+     * The {@link Display} object used to create the queue should not be
+     * destroyed until all event queues created with it are destroyed with
+     * this function.
+     */
+    public void destroy() {
+        if (isValid()) {
+            this.valid = false;
+            WaylandClientLibrary.INSTANCE()
+                                .wl_event_queue_destroy(getNative());
+            ObjectCache.remove(getNative());
+        }
+    }
+
+    @Override
+    public boolean isValid() {
+        return valid;
     }
 }

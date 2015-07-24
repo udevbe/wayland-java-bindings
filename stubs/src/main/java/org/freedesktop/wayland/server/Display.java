@@ -29,9 +29,8 @@ public class Display implements HasNative<Pointer> {
     public static final int OBJECT_ID = 1;
 
     private final Pointer pointer;
-    private       boolean valid;
-
     private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
+    private       boolean valid;
 
 
     protected Display(final Pointer pointer) {
@@ -49,6 +48,23 @@ public class Display implements HasNative<Pointer> {
         });
         ObjectCache.store(getNative(),
                           this);
+    }
+
+    protected void addDestroyListener(final Listener listener) {
+        checkValid(this);
+        WaylandServerLibrary.INSTANCE()
+                            .wl_display_add_destroy_listener(getNative(),
+                                                             listener.getNative());
+    }
+
+    private void notifyDestroyListeners() {
+        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
+            listener.handle();
+        }
+    }
+
+    public Pointer getNative() {
+        return this.pointer;
     }
 
     /**
@@ -137,49 +153,15 @@ public class Display implements HasNative<Pointer> {
     public EventLoop getEventLoop() {
         checkValid(this);
         return EventLoop.get(WaylandServerLibrary.INSTANCE()
-                                     .wl_display_get_event_loop(getNative()));
+                                                 .wl_display_get_event_loop(getNative()));
     }
 
-    @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    /**
-     * Destroy Wayland display object.
-     * <p>
-     * This function emits the wl_display destroy signal, releases all the sockets added to this display, free's all the
-     * globals associated with this display, free's memory of additional shared memory formats and destroy the display
-     * object.
-     *
-     * @see #addDestroyListener(Listener)
-     */
-    public void destroy() {
-        if (isValid()) {
-            WaylandServerLibrary.INSTANCE()
-                                .wl_display_destroy(getNative());
-        }
-    }
-
-    protected void addDestroyListener(final Listener listener) {
-        checkValid(this);
-        WaylandServerLibrary.INSTANCE()
-                            .wl_display_add_destroy_listener(getNative(),
-                                                             listener.getNative());
-    }
-
-    public void register(final DestroyListener destroyListener){
+    public void register(final DestroyListener destroyListener) {
         this.destroyListeners.add(destroyListener);
     }
 
-    public void unregister(final DestroyListener destroyListener){
+    public void unregister(final DestroyListener destroyListener) {
         this.destroyListeners.remove(destroyListener);
-    }
-
-    private void notifyDestroyListeners(){
-        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
-            listener.handle();
-        }
     }
 
     public int initShm() {
@@ -207,11 +189,12 @@ public class Display implements HasNative<Pointer> {
         return formatPointer == null ? 0 : formatPointer.getInt(0);
     }
 
-    //TODO wl_display_get_additional_shm_formats
-
-    public Pointer getNative() {
-        return this.pointer;
+    @Override
+    public int hashCode() {
+        return getNative().hashCode();
     }
+
+    //TODO wl_display_get_additional_shm_formats
 
     @Override
     public boolean equals(final Object o) {
@@ -228,14 +211,30 @@ public class Display implements HasNative<Pointer> {
     }
 
     @Override
-    public int hashCode() {
-        return getNative().hashCode();
-    }
-
-    @Override
     protected void finalize() throws Throwable {
         destroy();
         super.finalize();
+    }
+
+    /**
+     * Destroy Wayland display object.
+     * <p>
+     * This function emits the wl_display destroy signal, releases all the sockets added to this display, free's all the
+     * globals associated with this display, free's memory of additional shared memory formats and destroy the display
+     * object.
+     *
+     * @see #addDestroyListener(Listener)
+     */
+    public void destroy() {
+        if (isValid()) {
+            WaylandServerLibrary.INSTANCE()
+                                .wl_display_destroy(getNative());
+        }
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
     }
 }
 

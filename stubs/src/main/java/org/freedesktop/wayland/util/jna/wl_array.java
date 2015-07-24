@@ -31,12 +31,6 @@ public class wl_array extends Structure {
         super();
     }
 
-    protected List<?> getFieldOrder() {
-        return Arrays.asList("size",
-                             "alloc",
-                             "data");
-    }
-
     /**
      * @param data C type : void*
      */
@@ -51,6 +45,12 @@ public class wl_array extends Structure {
 
     public wl_array(final Pointer peer) {
         super(peer);
+    }
+
+    protected List<?> getFieldOrder() {
+        return Arrays.asList("size",
+                             "alloc",
+                             "data");
     }
 
     protected ByReference newByReference() { return new ByReference(); }
