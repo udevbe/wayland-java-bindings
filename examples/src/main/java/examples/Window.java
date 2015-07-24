@@ -13,7 +13,17 @@
 //limitations under the License.
 package examples;
 
-import org.freedesktop.wayland.client.*;
+import org.freedesktop.wayland.client.WlBufferProxy;
+import org.freedesktop.wayland.client.WlCallbackEvents;
+import org.freedesktop.wayland.client.WlCallbackProxy;
+import org.freedesktop.wayland.client.WlOutputProxy;
+import org.freedesktop.wayland.client.WlPointerEventsV3;
+import org.freedesktop.wayland.client.WlPointerProxy;
+import org.freedesktop.wayland.client.WlRegionEvents;
+import org.freedesktop.wayland.client.WlShellSurfaceEvents;
+import org.freedesktop.wayland.client.WlShellSurfaceProxy;
+import org.freedesktop.wayland.client.WlSurfaceEventsV3;
+import org.freedesktop.wayland.client.WlSurfaceProxy;
 import org.freedesktop.wayland.shared.WlPointerButtonState;
 import org.freedesktop.wayland.shared.WlShellSurfaceResize;
 import org.freedesktop.wayland.util.Fixed;

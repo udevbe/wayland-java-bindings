@@ -14,16 +14,16 @@
 package org.freedesktop.wayland;
 
 public interface HasNative<T> {
+    T getNative();
+
+    boolean isValid();
+
     class Precondition {
-        public static void checkValid(HasNative<?> hasNative){
-            if(!hasNative.isValid()){
+        public static void checkValid(HasNative<?> hasNative) {
+            if (!hasNative.isValid()) {
                 throw new IllegalStateException(String.format("%s was destroyed.",
                                                               hasNative));
             }
         }
     }
-
-    T getNative();
-
-    boolean isValid();
 }

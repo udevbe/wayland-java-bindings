@@ -33,13 +33,13 @@ public class wl_list extends Structure {
         super();
     }
 
+    public wl_list(final Pointer peer) {
+        super(peer);
+    }
+
     protected List<?> getFieldOrder() {
         return Arrays.asList("prev",
                              "next");
-    }
-
-    public wl_list(final Pointer peer) {
-        super(peer);
     }
 
     public static class ByReference extends wl_list implements Structure.ByReference {

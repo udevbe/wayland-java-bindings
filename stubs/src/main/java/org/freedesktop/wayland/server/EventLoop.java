@@ -34,13 +34,16 @@ public class EventLoop implements HasNative<Pointer> {
     //the following three maps are used to implement proper garbage collection in regards to event source and
     //event callback:
 
+    public static final int EVENT_READABLE = 0x01;
+    public static final int EVENT_WRITABLE = 0x02;
+    public static final int EVENT_HANGUP   = 0x04;
+    public static final int EVENT_ERROR    = 0x08;
     //This map maps different pointers with same address but separate instance to a single instance.
     private static final Map<Pointer, Pointer>     HANDLER_REF_CACHE         = new WeakHashMap<Pointer, Pointer>();
     //This map maps a single pointer instance to the java object that will be used as handler object.
     private static final Map<Pointer, Object>      HANDLER_REFS              = new WeakHashMap<Pointer, Object>();
     //this map is used to link handler object lifecycle to an event source lifecycle.
     private static final Map<EventSource, Pointer> EVENT_SOURCE_HANDLER_REFS = new WeakHashMap<EventSource, Pointer>();
-
     private static final wl_event_loop_fd_func_t WL_EVENT_LOOP_FD_FUNC = new wl_event_loop_fd_func_t() {
         @Override
         public int apply(final int fd,
@@ -51,7 +54,6 @@ public class EventLoop implements HasNative<Pointer> {
                                   mask);
         }
     };
-
     private static final wl_event_loop_timer_func_t WL_EVENT_LOOP_TIMER_FUNC = new wl_event_loop_timer_func_t() {
         @Override
         public int apply(final Pointer data) {
@@ -59,7 +61,6 @@ public class EventLoop implements HasNative<Pointer> {
             return handler.handle();
         }
     };
-
     private static final wl_event_loop_signal_func_t WL_EVENT_LOOP_SIGNAL_FUNC = new wl_event_loop_signal_func_t() {
         @Override
         public int apply(final int signalNumber,
@@ -68,7 +69,6 @@ public class EventLoop implements HasNative<Pointer> {
             return handler.handle(signalNumber);
         }
     };
-
     private static final wl_event_loop_idle_func_t WL_EVENT_LOOP_IDLE_FUNC = new wl_event_loop_idle_func_t() {
         @Override
         public void apply(final Pointer data) {
@@ -76,17 +76,9 @@ public class EventLoop implements HasNative<Pointer> {
             handler.handle();
         }
     };
-
-    public static final int EVENT_READABLE = 0x01;
-    public static final int EVENT_WRITABLE = 0x02;
-    public static final int EVENT_HANGUP   = 0x04;
-    public static final int EVENT_ERROR    = 0x08;
-
     private final Pointer pointer;
-
-    private boolean valid;
-
     private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
+    private boolean valid;
 
     protected EventLoop(final Pointer pointer) {
         this.pointer = pointer;
@@ -105,6 +97,23 @@ public class EventLoop implements HasNative<Pointer> {
                           this);
     }
 
+    protected void addDestroyListener(final Listener listener) {
+        checkValid(this);
+        WaylandServerLibrary.INSTANCE()
+                            .wl_event_loop_add_destroy_listener(getNative(),
+                                                                listener.getNative());
+    }
+
+    private void notifyDestroyListeners() {
+        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
+            listener.handle();
+        }
+    }
+
+    public Pointer getNative() {
+        return this.pointer;
+    }
+
     public static EventLoop create() {
         return EventLoop.get(WaylandServerLibrary.INSTANCE()
                                                  .wl_event_loop_create());
@@ -121,18 +130,6 @@ public class EventLoop implements HasNative<Pointer> {
         return eventLoop;
     }
 
-    private Pointer getHandlerRef(Object handler) {
-        final Pointer handlerRefKey = Pointer.createConstant(handler.hashCode());
-
-        Pointer handlerRef = HANDLER_REF_CACHE.get(handlerRefKey);
-        if (handlerRef == null) {
-            handlerRef = handlerRefKey;
-            HANDLER_REF_CACHE.put(handlerRefKey,
-                                  handlerRef);
-        }
-        return handlerRef;
-    }
-
     public EventSource addFileDescriptor(final int fd,
                                          final int mask,
                                          final FileDescriptorEventHandler handler) {
@@ -146,14 +143,26 @@ public class EventLoop implements HasNative<Pointer> {
         }
 
         final EventSource eventSource = EventSource.create(WaylandServerLibrary.INSTANCE()
-                                                                   .wl_event_loop_add_fd(getNative(),
-                                                                                         fd,
-                                                                                         mask,
-                                                                                         WL_EVENT_LOOP_FD_FUNC,
-                                                                                         handlerRef));
+                                                                               .wl_event_loop_add_fd(getNative(),
+                                                                                                     fd,
+                                                                                                     mask,
+                                                                                                     WL_EVENT_LOOP_FD_FUNC,
+                                                                                                     handlerRef));
         EVENT_SOURCE_HANDLER_REFS.put(eventSource,
                                       handlerRef);
         return eventSource;
+    }
+
+    private Pointer getHandlerRef(Object handler) {
+        final Pointer handlerRefKey = Pointer.createConstant(handler.hashCode());
+
+        Pointer handlerRef = HANDLER_REF_CACHE.get(handlerRefKey);
+        if (handlerRef == null) {
+            handlerRef = handlerRefKey;
+            HANDLER_REF_CACHE.put(handlerRefKey,
+                                  handlerRef);
+        }
+        return handlerRef;
     }
 
     public EventSource addTimer(final TimerEventHandler handler) {
@@ -166,9 +175,9 @@ public class EventLoop implements HasNative<Pointer> {
                              handler);
         }
         final EventSource eventSource = EventSource.create(WaylandServerLibrary.INSTANCE()
-                                                                   .wl_event_loop_add_timer(getNative(),
-                                                                                            WL_EVENT_LOOP_TIMER_FUNC,
-                                                                                            handlerRef));
+                                                                               .wl_event_loop_add_timer(getNative(),
+                                                                                                        WL_EVENT_LOOP_TIMER_FUNC,
+                                                                                                        handlerRef));
         EVENT_SOURCE_HANDLER_REFS.put(eventSource,
                                       handlerRef);
         return eventSource;
@@ -231,43 +240,17 @@ public class EventLoop implements HasNative<Pointer> {
                                    .wl_event_loop_get_fd(getNative());
     }
 
-    protected void addDestroyListener(final Listener listener) {
-        checkValid(this);
-        WaylandServerLibrary.INSTANCE()
-                            .wl_event_loop_add_destroy_listener(getNative(),
-                                                                listener.getNative());
-    }
-
-    public void register(final DestroyListener destroyListener){
+    public void register(final DestroyListener destroyListener) {
         this.destroyListeners.add(destroyListener);
     }
 
-    public void unregister(final DestroyListener destroyListener){
+    public void unregister(final DestroyListener destroyListener) {
         this.destroyListeners.remove(destroyListener);
     }
 
-    private void notifyDestroyListeners(){
-        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
-            listener.handle();
-        }
-    }
-
     @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    public void destroy() {
-        if (isValid()) {
-            this.valid = false;
-            ObjectCache.remove(getNative());
-            WaylandServerLibrary.INSTANCE()
-                                .free(getNative());
-        }
-    }
-
-    public Pointer getNative() {
-        return this.pointer;
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -285,8 +268,23 @@ public class EventLoop implements HasNative<Pointer> {
     }
 
     @Override
-    public int hashCode() {
-        return getNative().hashCode();
+    protected void finalize() throws Throwable {
+        destroy();
+        super.finalize();
+    }
+
+    public void destroy() {
+        if (isValid()) {
+            this.valid = false;
+            ObjectCache.remove(getNative());
+            WaylandServerLibrary.INSTANCE()
+                                .free(getNative());
+        }
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
     }
 
     public interface FileDescriptorEventHandler {
@@ -304,12 +302,6 @@ public class EventLoop implements HasNative<Pointer> {
 
     public interface IdleHandler {
         void handle();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        destroy();
-        super.finalize();
     }
 }
 

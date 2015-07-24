@@ -28,14 +28,6 @@ public final class ShmPool implements Closeable {
     private int        size;
     private ByteBuffer buffer;
 
-    private static ByteBuffer map(final int fd,
-                                  final int size) throws IOException {
-        final ByteBuffer tmpBuff = mapNative(fd,
-                                             size);
-        tmpBuff.order(ByteOrder.nativeOrder());
-        return tmpBuff;
-    }
-
     public ShmPool(final int size) throws IOException {
         this.fd = createTmpFileNative();
         this.size = size;
@@ -49,47 +41,6 @@ public final class ShmPool implements Closeable {
             closeNative(getFd());
             throw e;
         }
-    }
-
-    public ByteBuffer asByteBuffer() {
-        if (this.buffer == null) {
-            throw new IllegalStateException("ShmPool is closed");
-        }
-
-        return this.buffer;
-    }
-
-    public int getFileDescriptor() {
-        return this.fd;
-    }
-
-    public long size() {
-        return this.size;
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (this.buffer != null) {
-            unmapNative(asByteBuffer());
-            closeNative(getFd());
-            this.fd = -1;
-            this.size = 0;
-            this.buffer = null;
-        }
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public int getFd() {
-        return fd;
-    }
-
-    @Override
-    public void finalize() throws Throwable {
-        close();
-        super.finalize();
     }
 
     private static int createTmpFileNative() {
@@ -128,22 +79,75 @@ public final class ShmPool implements Closeable {
         }
     }
 
+    private static void truncateNative(int fd,
+                                       int size) {
+        CLibrary.INSTANCE()
+                .ftruncate(fd,
+                           size);
+    }
+
+    public int getFd() {
+        return fd;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    private static ByteBuffer map(final int fd,
+                                  final int size) throws IOException {
+        final ByteBuffer tmpBuff = mapNative(fd,
+                                             size);
+        tmpBuff.order(ByteOrder.nativeOrder());
+        return tmpBuff;
+    }
+
+    private static void closeNative(int fd) {
+        CLibrary.INSTANCE()
+                .close(fd);
+    }
+
     private static ByteBuffer mapNative(int fd,
                                         int size) {
         int PROT_READ  = 0x01;
         int PROT_WRITE = 0x02;
 
-        int     prot       = PROT_READ | PROT_WRITE;
-        int     MAP_SHARED = 0x001;
-        Pointer buffer     = CLibrary.INSTANCE()
-                                     .mmap(null,
-                                           size,
-                                           prot,
-                                           MAP_SHARED,
-                                           fd,
-                                           0);
+        int prot       = PROT_READ | PROT_WRITE;
+        int MAP_SHARED = 0x001;
+        Pointer buffer = CLibrary.INSTANCE()
+                                 .mmap(null,
+                                       size,
+                                       prot,
+                                       MAP_SHARED,
+                                       fd,
+                                       0);
         return buffer.getByteBuffer(0,
                                     size);
+    }
+
+    public int getFileDescriptor() {
+        return this.fd;
+    }
+
+    public long size() {
+        return this.size;
+    }
+
+    @Override
+    public void finalize() throws Throwable {
+        close();
+        super.finalize();
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (this.buffer != null) {
+            unmapNative(asByteBuffer());
+            closeNative(getFd());
+            this.fd = -1;
+            this.size = 0;
+            this.buffer = null;
+        }
     }
 
     private static void unmapNative(ByteBuffer buffer) {
@@ -153,16 +157,12 @@ public final class ShmPool implements Closeable {
                         buffer.capacity());
     }
 
-    private static void truncateNative(int fd,
-                                       int size) {
-        CLibrary.INSTANCE()
-                .ftruncate(fd,
-                           size);
-    }
+    public ByteBuffer asByteBuffer() {
+        if (this.buffer == null) {
+            throw new IllegalStateException("ShmPool is closed");
+        }
 
-    private static void closeNative(int fd) {
-        CLibrary.INSTANCE()
-                .close(fd);
+        return this.buffer;
     }
 }
 

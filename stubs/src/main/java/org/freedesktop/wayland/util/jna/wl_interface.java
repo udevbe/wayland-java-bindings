@@ -40,15 +40,6 @@ public class wl_interface extends Structure {
         super();
     }
 
-    protected List<?> getFieldOrder() {
-        return Arrays.asList("name",
-                             "version",
-                             "method_count",
-                             "methods",
-                             "event_count",
-                             "events");
-    }
-
     /**
      * @param name    C type : const char*<br>
      * @param methods C type : wl_message*<br>
@@ -71,6 +62,15 @@ public class wl_interface extends Structure {
 
     public wl_interface(final Pointer peer) {
         super(peer);
+    }
+
+    protected List<?> getFieldOrder() {
+        return Arrays.asList("name",
+                             "version",
+                             "method_count",
+                             "methods",
+                             "event_count",
+                             "events");
     }
 
     protected ByReference newByReference() { return new ByReference(); }

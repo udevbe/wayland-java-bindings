@@ -18,15 +18,10 @@ import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.util.ObjectCache;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.freedesktop.wayland.HasNative.Precondition.checkValid;
-
 public class Client implements HasNative<Pointer> {
 
     private final Pointer pointer;
-    private boolean valid;
+    private       boolean valid;
 
     //private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
 
@@ -36,11 +31,11 @@ public class Client implements HasNative<Pointer> {
 //        addDestroyListener(new Listener() {
 //            @Override
 //            public void handle() {
-                //notifyDestroyListeners();
-                //Client.this.destroyListeners.clear();
-                //Client.this.valid = false;
-                //ObjectCache.remove(Client.this.pointer);
-                //free();
+        //notifyDestroyListeners();
+        //Client.this.destroyListeners.clear();
+        //Client.this.valid = false;
+        //ObjectCache.remove(Client.this.pointer);
+        //free();
 //            }
 //        });
 //        ObjectCache.store(pointer,
@@ -122,6 +117,19 @@ public class Client implements HasNative<Pointer> {
 //        this.destroyListeners.remove(destroyListener);
 //    }
 
+    public Pointer getNative() {
+        return this.pointer;
+    }
+
+    //TODO wl_client_get_object
+    //TODO wl_client_post_no_memory
+    //TODO wl_client_get_credentials
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
+    }
+
     /**
      * Get the display object for the given client
      * <p>
@@ -134,24 +142,16 @@ public class Client implements HasNative<Pointer> {
                                                .wl_client_get_display(getNative()));
     }
 
-    //TODO wl_client_get_object
-    //TODO wl_client_post_no_memory
-    //TODO wl_client_get_credentials
+    public void destroy() {
+        // if (isValid()) {
+        WaylandServerLibrary.INSTANCE()
+                            .wl_client_destroy(getNative());
+        // }
+    }
 
     @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    public void destroy() {
-       // if (isValid()) {
-            WaylandServerLibrary.INSTANCE()
-                                .wl_client_destroy(getNative());
-       // }
-    }
-
-    public Pointer getNative() {
-        return this.pointer;
+    public int hashCode() {
+        return getNative().hashCode();
     }
 
     @Override
@@ -166,11 +166,6 @@ public class Client implements HasNative<Pointer> {
         final Client client = (Client) o;
 
         return getNative().equals(client.getNative());
-    }
-
-    @Override
-    public int hashCode() {
-        return getNative().hashCode();
     }
 
     @Override

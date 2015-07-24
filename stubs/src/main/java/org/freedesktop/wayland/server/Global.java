@@ -70,23 +70,14 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
         //TODO add some extra checks?
     }
 
-    @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    public void destroy() {
-        if (isValid()) {
-            this.valid = false;
-            ObjectCache.remove(getNative());
-            WaylandServerLibrary.INSTANCE()
-                                .wl_global_destroy(getNative());
-        }
-    }
-
     public abstract R onBindClient(Client client,
                                    int version,
                                    int id);
+
+    @Override
+    public int hashCode() {
+        return getNative().hashCode();
+    }
 
     @Override
     public boolean equals(final Object o) {
@@ -103,14 +94,23 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
     }
 
     @Override
-    public int hashCode() {
-        return getNative().hashCode();
-    }
-
-    @Override
     protected void finalize() throws Throwable {
         destroy();
         super.finalize();
+    }
+
+    public void destroy() {
+        if (isValid()) {
+            this.valid = false;
+            ObjectCache.remove(getNative());
+            WaylandServerLibrary.INSTANCE()
+                                .wl_global_destroy(getNative());
+        }
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.valid;
     }
 }
 

@@ -75,18 +75,18 @@ public class StringUtil {
                                                                 "native",
                                                                 "super",
                                                                 "while");
+    private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>() {{
+        add(byte.class.getName());
+        add(short.class.getName());
+        add(int.class.getName());
+        add(long.class.getName());
+        add(float.class.getName());
+        add(double.class.getName());
+        add(char.class.getName());
+        add(boolean.class.getName());
+    }};
 
     private StringUtil() {
-    }
-
-    public static String upperCamelName(final String lowerUnderScoreName) {
-        return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
-                                              lowerUnderScoreName);
-    }
-
-    public static String lowerCamelName(final String lowerUnderScoreName) {
-        return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL,
-                                              lowerUnderScoreName);
     }
 
     public static String getJavaTypeNameEnum(final String sharedPackage,
@@ -96,34 +96,6 @@ public class StringUtil {
                                                                enumNode);
     }
 
-    public static String getJavaTypeNameResource(final String serverPackage,
-                                                 final Element interfaceElement,
-                                                 final int version) {
-        return serverPackage + "." + getSimpleJavaTypeNameResource(interfaceElement,
-                                                                   version);
-    }
-
-    public static String getJavaTypeNameRequests(final String serverPackage,
-                                                 final Element interfaceElement,
-                                                 final int version) {
-        return serverPackage + "." + getSimpleJavaTypeNameRequests(interfaceElement,
-                                                                   version);
-    }
-
-    public static String getJavaTypeNameProxy(final String clientPackage,
-                                              final Element interfaceElement,
-                                              final int version) {
-        return clientPackage + "." + getSimpleJavaTypeNameProxy(interfaceElement,
-                                                                version);
-    }
-
-    public static String getJavaTypeNameEvents(final String clientPackage,
-                                               final Element interfaceElement,
-                                               final int version) {
-        return clientPackage + "." + getSimpleJavaTypeNameEvents(interfaceElement,
-                                                                 version);
-    }
-
     public static String getSimpleJavaTypeNameEnum(final Element interfaceNode,
                                                    final Element enumNode) {
         return upperCamelName(interfaceNode.getAttribute(InterfaceWriter.ATTRIBUTE_NAME) +
@@ -131,24 +103,21 @@ public class StringUtil {
                               enumNode.getAttribute(InterfaceWriter.ATTRIBUTE_NAME));
     }
 
+    public static String upperCamelName(final String lowerUnderScoreName) {
+        return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
+                                              lowerUnderScoreName);
+    }
+
+    public static String getJavaTypeNameResource(final String serverPackage,
+                                                 final Element interfaceElement,
+                                                 final int version) {
+        return serverPackage + "." + getSimpleJavaTypeNameResource(interfaceElement,
+                                                                   version);
+    }
+
     public static String getSimpleJavaTypeNameResource(final Element interfaceElement,
                                                        final int version) {
         return upperCamelName(interfaceElement.getAttribute(InterfaceWriter.ATTRIBUTE_NAME)) + "Resource" + getVersionAppendix(version);
-    }
-
-    public static String getSimpleJavaTypeNameRequests(final Element interfaceElement,
-                                                       final int version) {
-        return upperCamelName(interfaceElement.getAttribute(InterfaceWriter.ATTRIBUTE_NAME)) + "Requests" + getVersionAppendix(version);
-    }
-
-    public static String getSimpleJavaTypeNameProxy(final Element interfaceElement,
-                                                    final int version) {
-        return upperCamelName(interfaceElement.getAttribute(InterfaceWriter.ATTRIBUTE_NAME)) + "Proxy" + getVersionAppendix(version);
-    }
-
-    public static String getSimpleJavaTypeNameEvents(final Element interfaceElement,
-                                                     final int version) {
-        return upperCamelName(interfaceElement.getAttribute(InterfaceWriter.ATTRIBUTE_NAME)) + "Events" + getVersionAppendix(version);
     }
 
     public static String getVersionAppendix(final int version) {
@@ -160,6 +129,42 @@ public class StringUtil {
             versionAppend = "V" + Integer.toString(version);
         }
         return versionAppend;
+    }
+
+    public static String getJavaTypeNameRequests(final String serverPackage,
+                                                 final Element interfaceElement,
+                                                 final int version) {
+        return serverPackage + "." + getSimpleJavaTypeNameRequests(interfaceElement,
+                                                                   version);
+    }
+
+    public static String getSimpleJavaTypeNameRequests(final Element interfaceElement,
+                                                       final int version) {
+        return upperCamelName(interfaceElement.getAttribute(InterfaceWriter.ATTRIBUTE_NAME)) + "Requests" + getVersionAppendix(version);
+    }
+
+    public static String getJavaTypeNameProxy(final String clientPackage,
+                                              final Element interfaceElement,
+                                              final int version) {
+        return clientPackage + "." + getSimpleJavaTypeNameProxy(interfaceElement,
+                                                                version);
+    }
+
+    public static String getSimpleJavaTypeNameProxy(final Element interfaceElement,
+                                                    final int version) {
+        return upperCamelName(interfaceElement.getAttribute(InterfaceWriter.ATTRIBUTE_NAME)) + "Proxy" + getVersionAppendix(version);
+    }
+
+    public static String getJavaTypeNameEvents(final String clientPackage,
+                                               final Element interfaceElement,
+                                               final int version) {
+        return clientPackage + "." + getSimpleJavaTypeNameEvents(interfaceElement,
+                                                                 version);
+    }
+
+    public static String getSimpleJavaTypeNameEvents(final Element interfaceElement,
+                                                     final int version) {
+        return upperCamelName(interfaceElement.getAttribute(InterfaceWriter.ATTRIBUTE_NAME)) + "Events" + getVersionAppendix(version);
     }
 
     public static String[] getArgumentForResource(final String serverPackage,
@@ -206,6 +211,11 @@ public class StringUtil {
         return arg;
     }
 
+    public static String lowerCamelName(final String lowerUnderScoreName) {
+        return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL,
+                                              lowerUnderScoreName);
+    }
+
     public static char toSignatureChar(final Element argElement) {
         final String type = argElement.getAttribute("type");
 
@@ -246,17 +256,6 @@ public class StringUtil {
             return literal;
         }
     }
-
-    private static final Set<String> PRIMITIVE_TYPES = new HashSet<String>() {{
-        add(byte.class.getName());
-        add(short.class.getName());
-        add(int.class.getName());
-        add(long.class.getName());
-        add(float.class.getName());
-        add(double.class.getName());
-        add(char.class.getName());
-        add(boolean.class.getName());
-    }};
 
     public static boolean isPrimitive(final String type) {
         return PRIMITIVE_TYPES.contains(type);
