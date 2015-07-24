@@ -33,7 +33,7 @@ import org.freedesktop.wayland.util.ObjectCache;
  * listener should be done through provided accessor methods. A listener can
  * only listen to one signal at a time.
  */
-public abstract class Listener implements HasNative<wl_listener> {
+abstract class Listener implements HasNative<wl_listener> {
 
     private static final wl_notify_func_t WL_NOTIFY_FUNC = new wl_notify_func_t() {
         @Override

@@ -18,6 +18,9 @@ import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.server.jna.wl_resource_destroy_func_t;
 import org.freedesktop.wayland.util.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Server side implementation of a wayland object for a specific client.
  *
@@ -28,8 +31,11 @@ public abstract class Resource<I> implements WaylandObject {
     private static final wl_resource_destroy_func_t RESOURCE_DESTROY_FUNC = new wl_resource_destroy_func_t() {
         @Override
         public void apply(final Pointer resourcePointer) {
-            Resource<?> resource = ObjectCache.remove(resourcePointer);
+            Resource<?> resource = ObjectCache.from(resourcePointer);
+            resource.notifyDestroyListeners();
+            resource.destroyListeners.clear();
             resource.valid = false;
+            ObjectCache.remove(resourcePointer);
         }
     };
 
@@ -37,6 +43,8 @@ public abstract class Resource<I> implements WaylandObject {
     private final I       implementation;
 
     private boolean valid;
+
+    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
 
     protected Resource(final Client client,
                        final int version,
@@ -63,15 +71,18 @@ public abstract class Resource<I> implements WaylandObject {
     protected Resource(final Pointer pointer) {
         this.pointer = pointer;
         this.implementation = null;
-        this.valid = false;
+        this.valid = true;
         addDestroyListener(new Listener() {
             @Override
             public void handle() {
+                notifyDestroyListeners();
+                Resource.this.destroyListeners.clear();
+                Resource.this.valid = false;
+                ObjectCache.remove(pointer);
                 free();
-                ObjectCache.remove(Resource.this.getNative());
             }
         });
-        ObjectCache.store(getNative(),
+        ObjectCache.store(pointer,
                           this);
     }
 
@@ -91,7 +102,7 @@ public abstract class Resource<I> implements WaylandObject {
 
     public Client getClient() {
         return Client.get(WaylandServerLibrary.INSTANCE()
-                                              .wl_resource_get_client(getNative()));
+                                  .wl_resource_get_client(getNative()));
     }
 
     public int getId() {
@@ -99,10 +110,24 @@ public abstract class Resource<I> implements WaylandObject {
                                    .wl_resource_get_id(getNative());
     }
 
-    public void addDestroyListener(final Listener listener) {
+    protected void addDestroyListener(final Listener listener) {
         WaylandServerLibrary.INSTANCE()
                             .wl_resource_add_destroy_listener(getNative(),
                                                               listener.getNative());
+    }
+
+    public void register(final DestroyListener destroyListener){
+        this.destroyListeners.add(destroyListener);
+    }
+
+    public void unregister(final DestroyListener destroyListener){
+        this.destroyListeners.remove(destroyListener);
+    }
+
+    private void notifyDestroyListeners(){
+        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
+            listener.handle();
+        }
     }
 
     public void destroy() {

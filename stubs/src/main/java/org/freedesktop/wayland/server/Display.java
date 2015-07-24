@@ -19,6 +19,11 @@ import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.util.ObjectCache;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.freedesktop.wayland.HasNative.Precondition.checkValid;
+
 public class Display implements HasNative<Pointer> {
 
     public static final int OBJECT_ID = 1;
@@ -26,9 +31,22 @@ public class Display implements HasNative<Pointer> {
     private final Pointer pointer;
     private       boolean valid;
 
+    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
+
+
     protected Display(final Pointer pointer) {
         this.pointer = pointer;
         this.valid = true;
+        addDestroyListener(new Listener() {
+            @Override
+            public void handle() {
+                notifyDestroyListeners();
+                Display.this.destroyListeners.clear();
+                Display.this.valid = false;
+                ObjectCache.remove(Display.this.getNative());
+                free();
+            }
+        });
         ObjectCache.store(getNative(),
                           this);
     }
@@ -70,6 +88,7 @@ public class Display implements HasNative<Pointer> {
      */
 
     public int addSocket(final String name) {
+        checkValid(this);
         final Pointer m = new Memory(name.length() + 1);
         m.setString(0,
                     name);
@@ -79,16 +98,19 @@ public class Display implements HasNative<Pointer> {
     }
 
     public void terminate() {
+        checkValid(this);
         WaylandServerLibrary.INSTANCE()
                             .wl_display_terminate(getNative());
     }
 
     public void run() {
+        checkValid(this);
         WaylandServerLibrary.INSTANCE()
                             .wl_display_run(getNative());
     }
 
     public void flushClients() {
+        checkValid(this);
         WaylandServerLibrary.INSTANCE()
                             .wl_display_flush_clients(getNative());
     }
@@ -98,6 +120,7 @@ public class Display implements HasNative<Pointer> {
      * it.
      */
     public int getSerial() {
+        checkValid(this);
         return WaylandServerLibrary.INSTANCE()
                                    .wl_display_get_serial(getNative());
     }
@@ -106,13 +129,15 @@ public class Display implements HasNative<Pointer> {
      * Get the next serial number <p> This function increments the display serial number and returns the new value.
      */
     public int nextSerial() {
+        checkValid(this);
         return WaylandServerLibrary.INSTANCE()
                                    .wl_display_next_serial(getNative());
     }
 
     public EventLoop getEventLoop() {
+        checkValid(this);
         return EventLoop.get(WaylandServerLibrary.INSTANCE()
-                                                 .wl_display_get_event_loop(getNative()));
+                                     .wl_display_get_event_loop(getNative()));
     }
 
     @Override
@@ -136,13 +161,29 @@ public class Display implements HasNative<Pointer> {
         }
     }
 
-    public void addDestroyListener(final Listener listener) {
+    protected void addDestroyListener(final Listener listener) {
+        checkValid(this);
         WaylandServerLibrary.INSTANCE()
                             .wl_display_add_destroy_listener(getNative(),
                                                              listener.getNative());
     }
 
+    public void register(final DestroyListener destroyListener){
+        this.destroyListeners.add(destroyListener);
+    }
+
+    public void unregister(final DestroyListener destroyListener){
+        this.destroyListeners.remove(destroyListener);
+    }
+
+    private void notifyDestroyListeners(){
+        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
+            listener.handle();
+        }
+    }
+
     public int initShm() {
+        checkValid(this);
         return WaylandServerLibrary.INSTANCE()
                                    .wl_display_init_shm(getNative());
     }
@@ -159,6 +200,7 @@ public class Display implements HasNative<Pointer> {
      * @return A pointer to the wl_shm format that was added to the list or NULL if adding it to the list failed.
      */
     public int addShmFormat(final int format) {
+        checkValid(this);
         final Pointer formatPointer = WaylandServerLibrary.INSTANCE()
                                                           .wl_display_add_shm_format(getNative(),
                                                                                      format);

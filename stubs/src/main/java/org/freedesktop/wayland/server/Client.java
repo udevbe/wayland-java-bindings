@@ -18,24 +18,39 @@ import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
 import org.freedesktop.wayland.util.ObjectCache;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.freedesktop.wayland.HasNative.Precondition.checkValid;
+
 public class Client implements HasNative<Pointer> {
 
     private final Pointer pointer;
-
     private boolean valid;
+
+    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
 
     protected Client(final Pointer pointer) {
         this.pointer = pointer;
         this.valid = true;
-        ObjectCache.store(getNative(),
-                          this);
         addDestroyListener(new Listener() {
             @Override
             public void handle() {
+                notifyDestroyListeners();
+                Client.this.destroyListeners.clear();
+                Client.this.valid = false;
+                ObjectCache.remove(Client.this.pointer);
                 free();
-                ObjectCache.remove(Client.this.getNative());
             }
         });
+        ObjectCache.store(pointer,
+                          this);
+    }
+
+    private void notifyDestroyListeners(){
+        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
+            listener.handle();
+        }
     }
 
     /**
@@ -87,14 +102,24 @@ public class Client implements HasNative<Pointer> {
      * flushes all queued up events for a client immediately.
      */
     public void flush() {
+        checkValid(this);
         WaylandServerLibrary.INSTANCE()
                             .wl_client_flush(getNative());
     }
 
-    public void addDestroyListener(final Listener listener) {
+    protected void addDestroyListener(final Listener listener) {
+        checkValid(this);
         WaylandServerLibrary.INSTANCE()
                             .wl_client_add_destroy_listener(getNative(),
                                                             listener.getNative());
+    }
+
+    public void register(final DestroyListener destroyListener){
+        this.destroyListeners.add(destroyListener);
+    }
+
+    public void unregister(final DestroyListener destroyListener){
+        this.destroyListeners.remove(destroyListener);
     }
 
     /**
@@ -104,6 +129,7 @@ public class Client implements HasNative<Pointer> {
      * @return The display object the client is associated with.
      */
     public Display getDisplay() {
+        checkValid(this);
         return Display.get(WaylandServerLibrary.INSTANCE()
                                                .wl_client_get_display(getNative()));
     }
@@ -149,7 +175,7 @@ public class Client implements HasNative<Pointer> {
 
     @Override
     protected void finalize() throws Throwable {
-        //destroy();
+        destroy();
         super.finalize();
     }
 }
