@@ -30,7 +30,7 @@ public class Display implements HasNative<Pointer> {
 
     private final Pointer pointer;
     private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
-    private       boolean valid;
+    private boolean valid;
 
 
     protected Display(final Pointer pointer) {

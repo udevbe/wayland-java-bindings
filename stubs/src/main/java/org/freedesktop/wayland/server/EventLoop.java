@@ -34,17 +34,17 @@ public class EventLoop implements HasNative<Pointer> {
     //the following three maps are used to implement proper garbage collection in regards to event source and
     //event callback:
 
-    public static final int EVENT_READABLE = 0x01;
-    public static final int EVENT_WRITABLE = 0x02;
-    public static final int EVENT_HANGUP   = 0x04;
-    public static final int EVENT_ERROR    = 0x08;
+    public static final  int                         EVENT_READABLE            = 0x01;
+    public static final  int                         EVENT_WRITABLE            = 0x02;
+    public static final  int                         EVENT_HANGUP              = 0x04;
+    public static final  int                         EVENT_ERROR               = 0x08;
     //This map maps different pointers with same address but separate instance to a single instance.
-    private static final Map<Pointer, Pointer>     HANDLER_REF_CACHE         = new WeakHashMap<Pointer, Pointer>();
+    private static final Map<Pointer, Pointer>       HANDLER_REF_CACHE         = new WeakHashMap<Pointer, Pointer>();
     //This map maps a single pointer instance to the java object that will be used as handler object.
-    private static final Map<Pointer, Object>      HANDLER_REFS              = new WeakHashMap<Pointer, Object>();
+    private static final Map<Pointer, Object>        HANDLER_REFS              = new WeakHashMap<Pointer, Object>();
     //this map is used to link handler object lifecycle to an event source lifecycle.
-    private static final Map<EventSource, Pointer> EVENT_SOURCE_HANDLER_REFS = new WeakHashMap<EventSource, Pointer>();
-    private static final wl_event_loop_fd_func_t WL_EVENT_LOOP_FD_FUNC = new wl_event_loop_fd_func_t() {
+    private static final Map<EventSource, Pointer>   EVENT_SOURCE_HANDLER_REFS = new WeakHashMap<EventSource, Pointer>();
+    private static final wl_event_loop_fd_func_t     WL_EVENT_LOOP_FD_FUNC     = new wl_event_loop_fd_func_t() {
         @Override
         public int apply(final int fd,
                          final int mask,
@@ -54,7 +54,7 @@ public class EventLoop implements HasNative<Pointer> {
                                   mask);
         }
     };
-    private static final wl_event_loop_timer_func_t WL_EVENT_LOOP_TIMER_FUNC = new wl_event_loop_timer_func_t() {
+    private static final wl_event_loop_timer_func_t  WL_EVENT_LOOP_TIMER_FUNC  = new wl_event_loop_timer_func_t() {
         @Override
         public int apply(final Pointer data) {
             final TimerEventHandler handler = (TimerEventHandler) HANDLER_REFS.get(data);
@@ -69,7 +69,7 @@ public class EventLoop implements HasNative<Pointer> {
             return handler.handle(signalNumber);
         }
     };
-    private static final wl_event_loop_idle_func_t WL_EVENT_LOOP_IDLE_FUNC = new wl_event_loop_idle_func_t() {
+    private static final wl_event_loop_idle_func_t   WL_EVENT_LOOP_IDLE_FUNC   = new wl_event_loop_idle_func_t() {
         @Override
         public void apply(final Pointer data) {
             final IdleHandler handler = (IdleHandler) HANDLER_REFS.get(data);
