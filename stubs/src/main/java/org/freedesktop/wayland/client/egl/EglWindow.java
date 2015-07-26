@@ -24,6 +24,7 @@ public class EglWindow implements HasNative<Pointer> {
 
     private final Pointer pointer;
     private       boolean valid;
+
     protected EglWindow(final Pointer pointer) {
         this.pointer = pointer;
         this.valid = true;
@@ -61,9 +62,6 @@ public class EglWindow implements HasNative<Pointer> {
                                                         height,
                                                         dx,
                                                         dy);
-    }    @Override
-    public boolean isValid() {
-        return this.valid;
     }
 
     public Size getAttachedSize() {
@@ -74,12 +72,9 @@ public class EglWindow implements HasNative<Pointer> {
                                                                    y);
         return new Size(x.getValue(),
                         y.getValue());
-    }    public void destroy() {
-        if (isValid()) {
-            this.valid = false;
-            WaylandEglLibrary.INSTANCE.wl_egl_window_destroy(getNative());
-            ObjectCache.remove(getNative());
-        }
+    }    @Override
+    public boolean isValid() {
+        return this.valid;
     }
 
     public static final class Size {
@@ -106,7 +101,9 @@ public class EglWindow implements HasNative<Pointer> {
             int result = this.width;
             result = 31 * result + this.height;
             return result;
-        }        @Override
+        }
+
+        @Override
         public boolean equals(final Object o) {
             if (this == o) {
                 return true;
@@ -123,6 +120,13 @@ public class EglWindow implements HasNative<Pointer> {
 
     }
 
+    public void destroy() {
+        if (isValid()) {
+            this.valid = false;
+            WaylandEglLibrary.INSTANCE.wl_egl_window_destroy(getNative());
+            ObjectCache.remove(getNative());
+        }
+    }
 
 
 
