@@ -30,7 +30,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
 
     private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Integer, Method>>();
     private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
-    public static Dispatcher INSTANCE = new Dispatcher();
+    public static        Dispatcher                          INSTANCE          = new Dispatcher();
 
     Dispatcher() {
     }
