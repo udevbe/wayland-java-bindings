@@ -88,7 +88,7 @@ public class WaylandServerLibrary implements WaylandServerLibraryMapping {
     public native int wl_display_add_socket(final Pointer display,
                                             final Pointer name);
 
-    public native String wl_display_add_socket_auto(final Pointer display);
+    public native Pointer wl_display_add_socket_auto(final Pointer display);
 
     public native void wl_display_terminate(final Pointer display);
 
@@ -120,6 +120,11 @@ public class WaylandServerLibrary implements WaylandServerLibraryMapping {
     public native void wl_client_destroy(final Pointer client);
 
     public native void wl_client_flush(final Pointer client);
+
+    public native void wl_client_get_credentials(final Pointer client,
+                                                 final Pointer pid,
+                                                 final Pointer uid,
+                                                 final Pointer gid);
 
     public native void wl_client_get_credentials(final Pointer client,
                                                  final IntByReference pid,
