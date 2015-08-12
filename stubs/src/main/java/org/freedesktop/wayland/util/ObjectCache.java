@@ -36,7 +36,9 @@ public class ObjectCache {
      * @return The cached object.
      */
     public static <T> T from(final Pointer pointer) {
-
+        if (pointer == null) {
+            return null;
+        }
         return (T) MAPPED_OBJECTS.get(pointer);
     }
 
