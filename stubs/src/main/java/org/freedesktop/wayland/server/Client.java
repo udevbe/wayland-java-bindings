@@ -13,6 +13,7 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
@@ -140,6 +141,48 @@ public class Client implements HasNative<Pointer> {
         //checkValid(this);
         return Display.get(WaylandServerLibrary.INSTANCE()
                                                .wl_client_get_display(getNative()));
+    }
+
+    /**
+     * Look up an object in the client name space. This looks up an object in the client object name space by its
+     * object ID.
+     *
+     * @param id The object id
+     *
+     * @return The object or null if there is not object for the given ID
+     */
+    public Resource<?> getObject(int id) {
+        return ObjectCache.from(WaylandServerLibrary.INSTANCE()
+                                                    .wl_client_get_object(getNative(),
+                                                                          id));
+    }
+
+    /**
+     * Return Unix credentials for the client
+     * <p>
+     * This function returns the process ID, the user ID and the group ID
+     * for the given client.  The credentials come from getsockopt() with
+     * SO_PEERCRED, on the client socket fd.
+     * <p>
+     * Be aware that for clients that a compositor forks and execs and
+     * then connects using socketpair(), this function will return the
+     * credentials for the compositor.  The credentials for the socketpair
+     * are set at creation time in the compositor.
+     */
+    public ClientCredentials getCredentials() {
+        final Pointer pid = new Memory(Integer.SIZE);
+        final Pointer uid = new Memory(Integer.SIZE);
+        final Pointer gid = new Memory(Integer.SIZE);
+
+        WaylandServerLibrary.INSTANCE()
+                            .wl_client_get_credentials(getNative(),
+                                                       pid,
+                                                       uid,
+                                                       gid);
+
+        return new ClientCredentials(pid.getInt(0),
+                                     uid.getInt(0),
+                                     gid.getInt(0));
     }
 
     public void destroy() {

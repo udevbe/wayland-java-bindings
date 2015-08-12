@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.server.jna;
 
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
 import org.freedesktop.wayland.util.jna.WaylandUtilLibraryMapping;
 import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jna.wl_interface;
@@ -22,7 +21,7 @@ import org.freedesktop.wayland.util.jna.wl_list;
 import org.freedesktop.wayland.util.jna.wl_log_func_t;
 
 public interface WaylandServerLibraryMapping extends WaylandUtilLibraryMapping {
-    public static final String JNA_LIBRARY_NAME = "wayland-server";
+    String JNA_LIBRARY_NAME = "wayland-server";
 
     Pointer wl_event_loop_create();
 
@@ -79,7 +78,7 @@ public interface WaylandServerLibraryMapping extends WaylandUtilLibraryMapping {
     int wl_display_add_socket(Pointer display,
                               Pointer name);
 
-    String wl_display_add_socket_auto(Pointer display);
+    Pointer wl_display_add_socket_auto(Pointer display);
 
     void wl_display_terminate(Pointer display);
 
@@ -113,9 +112,9 @@ public interface WaylandServerLibraryMapping extends WaylandUtilLibraryMapping {
     void wl_client_flush(Pointer client);
 
     void wl_client_get_credentials(Pointer client,
-                                   IntByReference pid,
-                                   IntByReference uid,
-                                   IntByReference gid);
+                                   Pointer pid,
+                                   Pointer uid,
+                                   Pointer gid);
 
     void wl_client_add_destroy_listener(Pointer client,
                                         wl_listener listener);

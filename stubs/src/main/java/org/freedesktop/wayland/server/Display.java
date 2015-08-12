@@ -113,6 +113,12 @@ public class Display implements HasNative<Pointer> {
                                                           m);
     }
 
+    public String addSocketAuto() {
+        return WaylandServerLibrary.INSTANCE()
+                                   .wl_display_add_socket_auto(getNative())
+                                   .getString(0);
+    }
+
     public void terminate() {
         checkValid(this);
         WaylandServerLibrary.INSTANCE()
