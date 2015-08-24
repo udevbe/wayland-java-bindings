@@ -14,7 +14,7 @@ Bindings are available in the maven central repository:
  <dependency>
   <groupId>org.freedesktop</groupId>
   <artifactId>wayland</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.0</version>
  </dependency>
 ```
 
@@ -26,7 +26,7 @@ maven dependency to start using the bindings:
  <dependency>
   <groupId>org.freedesktop</groupId>
   <artifactId>wayland</artifactId>
-  <version>1.3.0-SNAPSHOT</version>
+  <version>1.3.1-SNAPSHOT</version>
  </dependency>
 ```
 
@@ -38,7 +38,7 @@ Add
  <dependency>
   <groupId>org.freedesktop</groupId>
   <artifactId>generator</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.0</version>
   <scope>provided</scope>
  </dependency>
 ```
@@ -49,7 +49,7 @@ Add
  <dependency>
   <groupId>org.freedesktop</groupId>
   <artifactId>stubs</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.0</version>
  </dependency>
 ```
 to your classpath.
