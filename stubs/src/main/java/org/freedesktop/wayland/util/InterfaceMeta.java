@@ -17,8 +17,8 @@ package org.freedesktop.wayland.util;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.util.jna.wl_interface;
-import org.freedesktop.wayland.util.jna.wl_message;
+import org.freedesktop.wayland.util.jaccall.wl_interface;
+import org.freedesktop.wayland.util.jaccall.wl_message;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -11,11 +11,21 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
-package org.freedesktop.wayland.util.jna;
+package org.freedesktop.wayland.util.jaccall;
 
-import com.sun.jna.Callback;
-import com.sun.jna.Pointer;
 
-public interface wl_log_func_t extends Callback {
-    void apply(Pointer charPtr1);
+import com.github.zubnix.jaccall.CType;
+import com.github.zubnix.jaccall.Field;
+import com.github.zubnix.jaccall.Struct;
+
+@Struct({
+                @Field(name = "size",
+                       type = CType.LONG_LONG),
+                @Field(name = "alloc",
+                       type = CType.LONG_LONG),
+                @Field(name = "data",
+                       type = CType.POINTER)
+        })
+public final class wl_array extends wl_array_Jaccall_StructType {
+
 }

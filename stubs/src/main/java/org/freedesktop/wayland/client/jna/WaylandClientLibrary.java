@@ -16,8 +16,8 @@ package org.freedesktop.wayland.client.jna;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
-import org.freedesktop.wayland.util.jna.wl_log_func_t;
+import org.freedesktop.wayland.util.jaccall.wl_dispatcher_func_t;
+import org.freedesktop.wayland.util.jaccall.wl_log_func_t;
 
 public class WaylandClientLibrary implements WaylandClientLibraryMapping {
 

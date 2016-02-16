@@ -13,10 +13,12 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
+import com.github.zubnix.jaccall.Ptr;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import org.freedesktop.wayland.util.jna.wl_array;
-import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
+import org.freedesktop.wayland.util.jaccall.wl_argument;
+import org.freedesktop.wayland.util.jaccall.wl_array;
+import org.freedesktop.wayland.util.jaccall.wl_message;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -26,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public final class Dispatcher implements wl_dispatcher_func_t {
+public final class Dispatcher {
 
     private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Integer, Method>>();
     private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
@@ -35,12 +37,11 @@ public final class Dispatcher implements wl_dispatcher_func_t {
     Dispatcher() {
     }
 
-    @Override
-    public int apply(final Pointer implPointer,
-                     final Pointer implWlObject,
-                     final int opcode,
-                     final Pointer wlMessage,
-                     final Pointer wlArguments) {
+    public static int dispatch(@Ptr final long implementation,
+                               @Ptr final long wlObject,
+                               final int opcode,
+                               @Ptr(wl_message.class) final long wlMessage,
+                               @Ptr(wl_argument.class) final long wl_arguments) {
 
         Method        method        = null;
         Object[]      jargs         = null;

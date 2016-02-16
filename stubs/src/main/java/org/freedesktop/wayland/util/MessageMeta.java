@@ -16,11 +16,11 @@ package org.freedesktop.wayland.util;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.util.jna.wl_message;
+import org.freedesktop.wayland.util.jaccall.wl_message;
 
 /**
  * Wrapper class for a {@link Message} to create a native wayland message for use with the native library. To create
- * a new native context for a given {@link Message}, use {@link #init(org.freedesktop.wayland.util.jna.wl_message, Message)}.
+ * a new native context for a given {@link Message}, use {@link #init(wl_message, Message)}.
  *
  * @see InterfaceMeta
  */

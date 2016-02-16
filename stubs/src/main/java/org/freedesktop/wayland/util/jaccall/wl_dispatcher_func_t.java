@@ -11,20 +11,20 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
-package org.freedesktop.wayland.util.jna;
+package org.freedesktop.wayland.util.jaccall;
 
-import com.sun.jna.Callback;
-import com.sun.jna.Pointer;
+import com.github.zubnix.jaccall.Functor;
+import com.github.zubnix.jaccall.Ptr;
 
 /**
  * \brief A function pointer type for a dispatcher.
- * <p>
+ * <p/>
  * A dispatcher is a function that handles the emitting of callbacks in client
  * code.  For programs directly using the C library, this is done by using
  * libffi to call function pointers.  When binding to languages other than C,
  * dispatchers provide a way to abstract the function calling process to be
  * friendlier to other function calling systems.
- * <p>
+ * <p/>
  * A dispatcher takes five arguments:  The first is the dispatcher-specific
  * implementation data associated with the target object.  The second is the
  * object on which the callback is being invoked (either wl_proxy or
@@ -33,10 +33,11 @@ import com.sun.jna.Pointer;
  * is an array of arguments recieved from the other process via the wire
  * protocol.
  */
-public interface wl_dispatcher_func_t extends Callback {
-    int apply(Pointer implementation,
-              Pointer wlObject,
+@Functor
+public interface wl_dispatcher_func_t {
+    int $(@Ptr long implementation,
+              @Ptr long wlObject,
               int opcode,
-              Pointer wlMessage,
-              Pointer wl_arguments);
+              @Ptr(wl_message.class) long wlMessage,
+              @Ptr(wl_argument.class) long wl_arguments);
 }
