@@ -16,7 +16,6 @@ package org.freedesktop.wayland.util.jaccall;
 import com.github.zubnix.jaccall.CType;
 import com.github.zubnix.jaccall.Field;
 import com.github.zubnix.jaccall.Struct;
-import org.freedesktop.wayland.util.jna.wl_interface_Jaccall_StructType;
 
 @Struct({
                 @Field(name = "name",
@@ -30,6 +29,8 @@ import org.freedesktop.wayland.util.jna.wl_interface_Jaccall_StructType;
                        type = CType.POINTER,
                        dataType = wl_message.class),
                 @Field(name = "event_count",
+                       type = CType.INT),
+                @Field(name = "events",
                        type = CType.POINTER,
                        dataType = wl_message.class)
         })

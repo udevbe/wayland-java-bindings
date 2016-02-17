@@ -13,7 +13,8 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
-import com.sun.jna.Pointer;
+
+import com.github.zubnix.jaccall.Pointer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,7 @@ import java.util.Map;
  * value.
  */
 public class ObjectCache {
-    private static final Map<Pointer, Object> MAPPED_OBJECTS = new HashMap<Pointer, Object>();
+    private static final Map<Pointer<?>, Object> MAPPED_OBJECTS = new HashMap<Pointer<?>, Object>();
 
     /**
      * Retrieve a POJO that is mapped to a native pointer. This method should be used to easily retrieve a POJO with a
@@ -35,7 +36,7 @@ public class ObjectCache {
      *
      * @return The cached object.
      */
-    public static <T> T from(final Pointer pointer) {
+    public static <T> T from(final Pointer<?> pointer) {
         if (pointer == null) {
             return null;
         }
@@ -48,7 +49,7 @@ public class ObjectCache {
      * @param pointer The pointer of the associated object.
      * @param object  The object to cache.
      */
-    public static void store(final Pointer pointer,
+    public static void store(final Pointer<?> pointer,
                              final Object object) {
         final Object oldValue = MAPPED_OBJECTS.put(pointer,
                                                    object);
