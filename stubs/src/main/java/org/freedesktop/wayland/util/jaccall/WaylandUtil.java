@@ -16,7 +16,7 @@ package org.freedesktop.wayland.util.jaccall;
 
 import com.github.zubnix.jaccall.Ptr;
 
-public interface WaylandUtilLibraryMapping {
+public interface WaylandUtil {
 
     void wl_list_init(@Ptr(wl_list.class) long list);
 

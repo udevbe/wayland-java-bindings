@@ -13,20 +13,19 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Pointer;
+import com.github.zubnix.jaccall.Pointer;
 import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class EventSource implements HasNative<Pointer> {
+public class EventSource implements HasNative<Pointer<?>> {
 
-    private final Pointer pointer;
+    private final Pointer<?> pointer;
 
     private boolean valid;
 
-    protected EventSource(final Pointer pointer) {
+    protected EventSource(final Pointer<?> pointer) {
         this.pointer = pointer;
-        this.valid = true;
         ObjectCache.store(getNative(),
                           this);
     }
@@ -35,30 +34,25 @@ public class EventSource implements HasNative<Pointer> {
         return this.pointer;
     }
 
-    @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    public static EventSource create(final Pointer pointer) {
+    public static EventSource create(final Pointer<?> pointer) {
         return new EventSource(pointer);
     }
 
     public int updateFileDescriptor(final int mask) {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_event_source_fd_update(getNative(),
-                                                              mask);
+        return WaylandServerCore.INSTANCE()
+                                .wl_event_source_fd_update(getNative().address,
+                                                           mask);
     }
 
     public int updateTimer(final int msDelay) {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_event_source_timer_update(getNative(),
-                                                                 msDelay);
+        return WaylandServerCore.INSTANCE()
+                                .wl_event_source_timer_update(getNative().address,
+                                                              msDelay);
     }
 
     public void check() {
-        WaylandServerLibrary.INSTANCE()
-                            .wl_event_source_check(getNative());
+        WaylandServerCore.INSTANCE()
+                         .wl_event_source_check(getNative().address);
     }
 
     @Override
@@ -91,8 +85,8 @@ public class EventSource implements HasNative<Pointer> {
         if (this.valid) {
             this.valid = false;
             ObjectCache.remove(getNative());
-            return WaylandServerLibrary.INSTANCE()
-                                       .wl_event_source_remove(getNative());
+            return WaylandServerCore.INSTANCE()
+                                    .wl_event_source_remove(getNative().address);
         }
         return 0;
     }

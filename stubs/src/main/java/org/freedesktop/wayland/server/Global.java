@@ -13,23 +13,23 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Pointer;
+import com.github.zubnix.jaccall.Pointer;
+import com.github.zubnix.jaccall.Ptr;
+import com.github.zubnix.jaccall.Unsigned;
 import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.server.jna.wl_global_bind_func_t;
-import org.freedesktop.wayland.util.InterfaceMeta;
-import org.freedesktop.wayland.util.ObjectCache;
+import org.freedesktop.wayland.server.jaccall.wl_global_bind_func_t;
 
-public abstract class Global<R extends Resource<?>> implements HasNative<Pointer> {
+import static com.github.zubnix.jaccall.Pointer.wrap;
+
+public abstract class Global<R extends Resource<?>> implements HasNative<Pointer<?>> {
     //keep reference to avoid being garbage collected
     private final wl_global_bind_func_t nativeCallback = new wl_global_bind_func_t() {
-
         @Override
-        public void apply(final Pointer wlClient,
-                          final Pointer data,
-                          final int version,
-                          final int id) {
-            onBindClient(Client.get(wlClient),
+        public void $(@Ptr final long client,
+                      @Ptr(void.class) final long data,
+                      @Unsigned final int version,
+                      @Unsigned final int id) {
+            onBindClient(Client.get(wrap(client)),
                          version,
                          id);
         }

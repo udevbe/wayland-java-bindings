@@ -15,12 +15,12 @@ package org.freedesktop.wayland.client.jna;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import org.freedesktop.wayland.util.jaccall.WaylandUtilLibraryMapping;
+import org.freedesktop.wayland.util.jaccall.WaylandUtil;
 import org.freedesktop.wayland.util.jaccall.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jaccall.wl_log_func_t;
 
 
-public interface WaylandClientLibraryMapping extends WaylandUtilLibraryMapping {
+public interface WaylandClientLibraryMapping extends WaylandUtil {
 
     public static final String JNA_LIBRARY_NAME = "wayland-client";
 
