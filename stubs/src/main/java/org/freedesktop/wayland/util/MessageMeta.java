@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.util;
 
 import com.github.zubnix.jaccall.Pointer;
-import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.util.jaccall.wl_interface;
 import org.freedesktop.wayland.util.jaccall.wl_message;
 
@@ -27,28 +26,21 @@ import static com.github.zubnix.jaccall.Size.sizeof;
  *
  * @see InterfaceMeta
  */
-public class MessageMeta implements HasNative<Pointer<wl_message>> {
+public class MessageMeta {
 
-    private final Pointer<wl_message> pointer;
+    public final  Pointer<wl_message> pointer;
     private final Message             message;
-
-    private boolean valid;
 
     protected MessageMeta(final Pointer<wl_message> pointer,
                           final Message message) {
         this.pointer = pointer;
         this.message = message;
-        ObjectCache.store(getNative(),
+        ObjectCache.store(getNative().address,
                           this);
     }
 
     public Pointer<wl_message> getNative() {
         return this.pointer;
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
     }
 
     public static void init(final Pointer<wl_message> wlMessagePointer,
@@ -105,11 +97,5 @@ public class MessageMeta implements HasNative<Pointer<wl_message>> {
         final MessageMeta messageMeta = (MessageMeta) o;
 
         return getNative().equals(messageMeta.getNative());
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        this.valid = false;
-        super.finalize();
     }
 }

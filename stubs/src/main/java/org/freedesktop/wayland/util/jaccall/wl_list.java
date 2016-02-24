@@ -16,7 +16,6 @@ package org.freedesktop.wayland.util.jaccall;
 import com.github.zubnix.jaccall.CType;
 import com.github.zubnix.jaccall.Field;
 import com.github.zubnix.jaccall.Struct;
-import org.freedesktop.wayland.util.jna.wl_list_Jaccall_StructType;
 
 @Struct({
                 @Field(name = "prev",

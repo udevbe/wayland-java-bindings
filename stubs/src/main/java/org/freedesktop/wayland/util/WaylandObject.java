@@ -13,11 +13,10 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.HasNative;
-
-public interface WaylandObject extends HasImplementation, HasNative<Pointer> {
+public interface WaylandObject {
     int getId();
 
     int getVersion();
+
+    Object getImplementation();
 }

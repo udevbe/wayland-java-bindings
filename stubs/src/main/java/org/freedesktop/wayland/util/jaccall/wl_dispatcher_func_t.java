@@ -14,6 +14,7 @@
 package org.freedesktop.wayland.util.jaccall;
 
 import com.github.zubnix.jaccall.Functor;
+import com.github.zubnix.jaccall.JObject;
 import com.github.zubnix.jaccall.Ptr;
 
 /**
@@ -35,9 +36,9 @@ import com.github.zubnix.jaccall.Ptr;
  */
 @Functor
 public interface wl_dispatcher_func_t {
-    int $(@Ptr long implementation,
-              @Ptr long wlObject,
-              int opcode,
-              @Ptr(wl_message.class) long wlMessage,
-              @Ptr(wl_argument.class) long wl_arguments);
+    int $(@Ptr(JObject.class) long implementation,
+          @Ptr long wlObject,
+          int opcode,
+          @Ptr(wl_message.class) long wlMessage,
+          @Ptr(wl_argument.class) long wl_arguments);
 }

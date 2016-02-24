@@ -14,15 +14,15 @@ public class ClientCredentials {
     }
 
     public int getPid() {
-        return pid;
+        return this.pid;
     }
 
     public int getUid() {
-        return uid;
+        return this.uid;
     }
 
     public int getGid() {
-        return gid;
+        return this.gid;
     }
 
     @Override
@@ -32,14 +32,14 @@ public class ClientCredentials {
 
         final ClientCredentials that = (ClientCredentials) o;
 
-        return pid == that.pid && uid == that.uid && gid == that.gid;
+        return this.pid == that.pid && this.uid == that.uid && this.gid == that.gid;
     }
 
     @Override
     public int hashCode() {
-        int result = pid;
-        result = 31 * result + uid;
-        result = 31 * result + gid;
+        int result = this.pid;
+        result = 31 * result + this.uid;
+        result = 31 * result + this.gid;
         return result;
     }
 }

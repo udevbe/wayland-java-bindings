@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.generator.impl;
 
 import com.squareup.javawriter.JavaWriter;
-import org.freedesktop.wayland.HasValue;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 

@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.util;
 
 import com.github.zubnix.jaccall.Pointer;
-import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.util.jaccall.wl_interface;
 import org.freedesktop.wayland.util.jaccall.wl_message;
 
@@ -28,29 +27,22 @@ import static com.github.zubnix.jaccall.Size.sizeof;
  * Wrapper class for any Java type to get or create a native wayland interface for use with the native wayland
  * library. To get a native wayland interface for a given Java type, use {@link #get(Class)}.
  */
-public class InterfaceMeta implements HasNative<Pointer<wl_interface>> {
+public class InterfaceMeta {
 
     public static final  InterfaceMeta                NO_INTERFACE  = new InterfaceMeta(Pointer.wrap(wl_interface.class,
                                                                                                      0L));
     private static final Map<Class<?>, InterfaceMeta> INTERFACE_MAP = new HashMap<Class<?>, InterfaceMeta>();
 
-    private final Pointer<wl_interface> pointer;
-
-    private boolean valid;
+    public final Pointer<wl_interface> pointer;
 
     protected InterfaceMeta(final Pointer<wl_interface> pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getNative(),
+        ObjectCache.store(getNative().address,
                           this);
     }
 
     public Pointer<wl_interface> getNative() {
         return this.pointer;
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
     }
 
     /**
@@ -116,7 +108,7 @@ public class InterfaceMeta implements HasNative<Pointer<wl_interface>> {
     }
 
     public static InterfaceMeta get(final Pointer<wl_interface> pointer) {
-        InterfaceMeta interfaceMeta = ObjectCache.from(pointer);
+        InterfaceMeta interfaceMeta = ObjectCache.from(pointer.address);
         if (interfaceMeta == null) {
             interfaceMeta = new InterfaceMeta(pointer);
         }
@@ -146,11 +138,5 @@ public class InterfaceMeta implements HasNative<Pointer<wl_interface>> {
         final InterfaceMeta that = (InterfaceMeta) o;
 
         return getNative().equals(that.getNative());
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        this.valid = false;
-        super.finalize();
     }
 }

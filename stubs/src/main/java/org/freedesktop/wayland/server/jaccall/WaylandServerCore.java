@@ -1,5 +1,6 @@
 package org.freedesktop.wayland.server.jaccall;
 
+import com.github.zubnix.jaccall.JObject;
 import com.github.zubnix.jaccall.Lib;
 import com.github.zubnix.jaccall.Linker;
 import com.github.zubnix.jaccall.Pointer;
@@ -99,7 +100,7 @@ public class WaylandServerCore implements WaylandUtil {
     public native long wl_global_create(@Ptr long display,
                                         @Ptr(wl_interface.class) long interface_,
                                         int version,
-                                        @Ptr(void.class) long data,
+                                        @Ptr(JObject.class) long data,
                                         @Ptr(wl_global_bind_func_t.class) long bind);
 
     public native void wl_global_destroy(@Ptr long global);
@@ -217,13 +218,13 @@ public class WaylandServerCore implements WaylandUtil {
     public native void wl_resource_set_implementation(@Ptr long resource,
                                                       @Ptr(void.class) long implementation,
                                                       @Ptr(void.class) long data,
-                                                      wl_resource_destroy_func_t destroy);
+                                                      @Ptr(wl_resource_destroy_func_t.class) long destroy);
 
     public native void wl_resource_set_dispatcher(@Ptr long resource,
                                                   @Ptr(wl_dispatcher_func_t.class) long dispatcher,
-                                                  @Ptr(void.class) long implementation,
-                                                  @Ptr(void.class) long data,
-                                                  wl_resource_destroy_func_t destroy);
+                                                  @Ptr(JObject.class) long implementation,
+                                                  @Ptr(JObject.class) long data,
+                                                  @Ptr(wl_resource_destroy_func_t.class) long destroy);
 
     public native void wl_resource_destroy(@Ptr long resource);
 
@@ -252,7 +253,7 @@ public class WaylandServerCore implements WaylandUtil {
     public native int wl_resource_get_version(@Ptr long resource);
 
     public native void wl_resource_set_destructor(@Ptr long resource,
-                                                  wl_resource_destroy_func_t destroy);
+                                                  @Ptr(wl_resource_destroy_func_t.class) long destroy);
 
     public native int wl_resource_instance_of(@Ptr long resource,
                                               @Ptr(wl_interface.class) long interface_,
@@ -263,7 +264,7 @@ public class WaylandServerCore implements WaylandUtil {
 
     @Ptr(wl_listener.class)
     public native long wl_resource_get_destroy_listener(@Ptr long resource,
-                                                        wl_notify_func_t notify);
+                                                        @Ptr(wl_notify_func_t.class) long notify);
 
     public native void wl_shm_buffer_begin_access(@Ptr long buffer);
 
@@ -305,12 +306,12 @@ public class WaylandServerCore implements WaylandUtil {
     public native long wl_event_loop_add_signal(@Ptr long loop,
                                                 int signal_number,
                                                 @Ptr(wl_event_loop_signal_func_t.class) long func,
-                                                @Ptr(void.class) long data);
+                                                @Ptr(JObject.class) long data);
 
     @Ptr
     public native long wl_event_loop_add_timer(@Ptr long loop,
                                                @Ptr(wl_event_loop_timer_func_t.class) long func,
-                                               @Ptr(void.class) long data);
+                                               @Ptr(JObject.class) long data);
 
     public native int wl_event_source_fd_update(@Ptr long source,
                                                 @Unsigned int mask);
@@ -320,7 +321,7 @@ public class WaylandServerCore implements WaylandUtil {
                                             int fd,
                                             @Unsigned int mask,
                                             @Ptr(wl_event_loop_fd_func_t.class) long func,
-                                            @Ptr(void.class) long data);
+                                            @Ptr(JObject.class) long data);
 
     public native void wl_event_loop_destroy(@Ptr long loop);
 

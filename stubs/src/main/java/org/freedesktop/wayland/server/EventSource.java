@@ -13,51 +13,45 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.Pointer;
-import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class EventSource implements HasNative<Pointer<?>> {
+public class EventSource {
 
-    private final Pointer<?> pointer;
+    private final long pointer;
 
     private boolean valid;
 
-    protected EventSource(final Pointer<?> pointer) {
+    protected EventSource(final long pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getNative(),
+        ObjectCache.store(this.pointer,
                           this);
     }
 
-    public Pointer getNative() {
-        return this.pointer;
-    }
-
-    public static EventSource create(final Pointer<?> pointer) {
+    public static EventSource create(final long pointer) {
         return new EventSource(pointer);
     }
 
     public int updateFileDescriptor(final int mask) {
         return WaylandServerCore.INSTANCE()
-                                .wl_event_source_fd_update(getNative().address,
+                                .wl_event_source_fd_update(this.pointer,
                                                            mask);
     }
 
     public int updateTimer(final int msDelay) {
         return WaylandServerCore.INSTANCE()
-                                .wl_event_source_timer_update(getNative().address,
+                                .wl_event_source_timer_update(this.pointer,
                                                               msDelay);
     }
 
     public void check() {
         WaylandServerCore.INSTANCE()
-                         .wl_event_source_check(getNative().address);
+                         .wl_event_source_check(this.pointer);
     }
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return new Long(this.pointer).hashCode();
     }
 
     @Override
@@ -71,7 +65,7 @@ public class EventSource implements HasNative<Pointer<?>> {
 
         final EventSource that = (EventSource) o;
 
-        return getNative().equals(that.getNative());
+        return this.pointer == that.pointer;
 
     }
 
@@ -84,9 +78,9 @@ public class EventSource implements HasNative<Pointer<?>> {
     public int remove() {
         if (this.valid) {
             this.valid = false;
-            ObjectCache.remove(getNative());
+            ObjectCache.remove(this.pointer);
             return WaylandServerCore.INSTANCE()
-                                    .wl_event_source_remove(getNative().address);
+                                    .wl_event_source_remove(this.pointer);
         }
         return 0;
     }

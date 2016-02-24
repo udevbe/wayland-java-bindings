@@ -15,7 +15,6 @@ package org.freedesktop.wayland.server;
 
 import com.github.zubnix.jaccall.Pointer;
 import com.github.zubnix.jaccall.Ptr;
-import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jaccall.Pointerwl_notify_func_t;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_listener;
@@ -37,50 +36,45 @@ import static com.github.zubnix.jaccall.Pointer.ref;
  * listener should be done through provided accessor methods. A listener can
  * only listen to one signal at a time.
  */
-abstract class Listener implements HasNative<Pointer<wl_listener>> {
+abstract class Listener {
 
-    private static final wl_notify_func_t WL_NOTIFY_FUNC = new wl_notify_func_t() {
+    private static final Pointer<wl_notify_func_t> WL_NOTIFY_FUNC = Pointerwl_notify_func_t.nref(new wl_notify_func_t() {
 
         @Override
         public void $(@Ptr(wl_listener.class) final long listenerPointer,
                       @Ptr(void.class) final long data) {
-            final Listener listener = ObjectCache.from(Pointer.wrap(listenerPointer));
+            final Listener listener = ObjectCache.from(listenerPointer);
             listener.handle();
         }
-    };
+    });
 
-    private final Pointer<wl_listener> pointer;
+    public final Pointer<wl_listener> pointer;
 
     public Listener() {
         this.pointer = Pointer.malloc(wl_listener.SIZE,
                                       wl_listener.class);
         this.pointer.dref()
-                    .notify$(Pointerwl_notify_func_t.nref(WL_NOTIFY_FUNC));
-        ObjectCache.store(getNative(),
+                    .notify$(WL_NOTIFY_FUNC);
+        ObjectCache.store(this.pointer.address,
                           this);
-    }
-
-    public Pointer<wl_listener> getNative() {
-        return this.pointer;
     }
 
     public void remove() {
         WaylandServerCore.INSTANCE()
-                         .wl_list_remove(ref(getNative().dref()
-                                                        .link()).address);
+                         .wl_list_remove(ref(this.pointer.dref()
+                                                         .link()).address);
     }
 
     public void free() {
-        ObjectCache.remove(getNative());
+        ObjectCache.remove(this.pointer.address);
         this.pointer.close();
     }
 
-    //called from jni
     public abstract void handle();
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return new Long(this.pointer.address).hashCode();
     }
 
     @Override
@@ -94,7 +88,7 @@ abstract class Listener implements HasNative<Pointer<wl_listener>> {
 
         final Listener listener = (Listener) o;
 
-        return getNative().equals(listener.getNative());
+        return this.pointer.address == listener.pointer.address;
     }
 }
 

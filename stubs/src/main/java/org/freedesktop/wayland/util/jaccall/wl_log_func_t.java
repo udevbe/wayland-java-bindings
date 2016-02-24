@@ -16,7 +16,6 @@ package org.freedesktop.wayland.util.jaccall;
 import com.github.zubnix.jaccall.Functor;
 import com.github.zubnix.jaccall.Ptr;
 
-@FunctionalInterface
 @Functor
 public interface wl_log_func_t {
     void $(@Ptr(String.class) long charPtr);

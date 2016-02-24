@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.util;
 
 import com.github.zubnix.jaccall.Pointer;
-import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.server.Resource;
 import org.freedesktop.wayland.util.jaccall.wl_argument;
@@ -27,14 +26,12 @@ import static com.github.zubnix.jaccall.Pointer.nref;
 import static com.github.zubnix.jaccall.Pointer.ref;
 import static com.github.zubnix.jaccall.Pointer.wrap;
 
-public class Arguments implements HasNative<Pointer<wl_argument>> {
+public class Arguments {
 
-    private final Pointer<wl_argument> pointer;
-    private       boolean              valid;
+    public final Pointer<wl_argument> pointer;
 
     Arguments(final Pointer<wl_argument> pointer) {
         this.pointer = pointer;
-        this.valid = true;
     }
 
     public static Arguments create(final int size) {
@@ -117,7 +114,7 @@ public class Arguments implements HasNative<Pointer<wl_argument>> {
     public Arguments set(final int index,
                          final Resource<?> o) {
         this.pointer.dref(index)
-                    .o(o.getNative());
+                    .o(wrap(o.pointer));
         return this;
     }
 
@@ -132,7 +129,7 @@ public class Arguments implements HasNative<Pointer<wl_argument>> {
     public Arguments set(final int index,
                          final Proxy<?> o) {
         this.pointer.dref(index)
-                    .o(o.getNative());
+                    .o(wrap(o.pointer));
         return this;
     }
 
@@ -188,16 +185,6 @@ public class Arguments implements HasNative<Pointer<wl_argument>> {
     }
 
     @Override
-    public Pointer<wl_argument> getNative() {
-        return this.pointer;
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    @Override
     public int hashCode() {
         return this.pointer.hashCode();
     }
@@ -218,7 +205,7 @@ public class Arguments implements HasNative<Pointer<wl_argument>> {
 
     @Override
     protected void finalize() throws Throwable {
-        this.valid = false;
         super.finalize();
+        this.pointer.close();
     }
 }

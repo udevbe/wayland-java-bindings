@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.server;
 
 import com.github.zubnix.jaccall.Pointer;
-import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
@@ -24,32 +23,32 @@ import java.util.Set;
 import static com.github.zubnix.jaccall.Pointer.nref;
 import static com.github.zubnix.jaccall.Pointer.wrap;
 
-public class Display implements HasNative<Pointer<?>> {
+public class Display {
 
     public static final int OBJECT_ID = 1;
 
-    private final Pointer<?> pointer;
+    public final long pointer;
     private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
 
-    protected Display(final Pointer pointer) {
+    protected Display(final long pointer) {
         this.pointer = pointer;
         addDestroyListener(new Listener() {
             @Override
             public void handle() {
                 notifyDestroyListeners();
                 Display.this.destroyListeners.clear();
-                ObjectCache.remove(Display.this.getNative());
+                ObjectCache.remove(Display.this.pointer);
                 free();
             }
         });
-        ObjectCache.store(getNative(),
+        ObjectCache.store(this.pointer,
                           this);
     }
 
     protected void addDestroyListener(final Listener listener) {
         WaylandServerCore.INSTANCE()
-                         .wl_display_add_destroy_listener(getNative().address,
-                                                          listener.getNative().address);
+                         .wl_display_add_destroy_listener(this.pointer,
+                                                          listener.pointer.address);
     }
 
     private void notifyDestroyListeners() {
@@ -58,22 +57,18 @@ public class Display implements HasNative<Pointer<?>> {
         }
     }
 
-    public Pointer<?> getNative() {
-        return this.pointer;
-    }
-
     /**
      * Create Wayland display object. <p> This creates the wl_display object.
      *
      * @return The Wayland display object. Null if failed to create
      */
     public static Display create() {
-        return Display.get(wrap(WaylandServerCore.INSTANCE()
-                                                 .wl_display_create()));
+        return Display.get(WaylandServerCore.INSTANCE()
+                                            .wl_display_create());
     }
 
-    public static Display get(final Pointer pointer) {
-        if (pointer == null) {
+    public static Display get(final long pointer) {
+        if (pointer == 0L) {
             return null;
         }
         Display display = ObjectCache.from(pointer);
@@ -100,29 +95,29 @@ public class Display implements HasNative<Pointer<?>> {
 
     public int addSocket(final String name) {
         return WaylandServerCore.INSTANCE()
-                                .wl_display_add_socket(getNative().address,
+                                .wl_display_add_socket(this.pointer,
                                                        nref(name).address);
     }
 
     public String addSocketAuto() {
         return wrap(String.class,
                     WaylandServerCore.INSTANCE()
-                                     .wl_display_add_socket_auto(getNative().address)).dref();
+                                     .wl_display_add_socket_auto(this.pointer)).dref();
     }
 
     public void terminate() {
         WaylandServerCore.INSTANCE()
-                         .wl_display_terminate(getNative().address);
+                         .wl_display_terminate(this.pointer);
     }
 
     public void run() {
         WaylandServerCore.INSTANCE()
-                         .wl_display_run(getNative().address);
+                         .wl_display_run(this.pointer);
     }
 
     public void flushClients() {
         WaylandServerCore.INSTANCE()
-                         .wl_display_flush_clients(getNative().address);
+                         .wl_display_flush_clients(this.pointer);
     }
 
     /**
@@ -131,7 +126,7 @@ public class Display implements HasNative<Pointer<?>> {
      */
     public int getSerial() {
         return WaylandServerCore.INSTANCE()
-                                .wl_display_get_serial(getNative().address);
+                                .wl_display_get_serial(this.pointer);
     }
 
     /**
@@ -139,12 +134,12 @@ public class Display implements HasNative<Pointer<?>> {
      */
     public int nextSerial() {
         return WaylandServerCore.INSTANCE()
-                                .wl_display_next_serial(getNative().address);
+                                .wl_display_next_serial(this.pointer);
     }
 
     public EventLoop getEventLoop() {
-        return EventLoop.get(wrap(WaylandServerCore.INSTANCE()
-                                                   .wl_display_get_event_loop(getNative().address)));
+        return EventLoop.get(WaylandServerCore.INSTANCE()
+                                              .wl_display_get_event_loop(this.pointer));
     }
 
     public void register(final DestroyListener destroyListener) {
@@ -157,7 +152,7 @@ public class Display implements HasNative<Pointer<?>> {
 
     public int initShm() {
         return WaylandServerCore.INSTANCE()
-                                .wl_display_init_shm(getNative().address);
+                                .wl_display_init_shm(this.pointer);
     }
 
     /**
@@ -174,14 +169,14 @@ public class Display implements HasNative<Pointer<?>> {
     public int addShmFormat(final int format) {
         final Pointer<Integer> formatPointer = wrap(Integer.class,
                                                     WaylandServerCore.INSTANCE()
-                                                                     .wl_display_add_shm_format(getNative().address,
+                                                                     .wl_display_add_shm_format(this.pointer,
                                                                                                 format));
         return formatPointer.address == 0L ? 0 : formatPointer.dref();
     }
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return new Long(this.pointer).hashCode();
     }
 
     //TODO wl_display_get_additional_shm_formats
@@ -197,7 +192,7 @@ public class Display implements HasNative<Pointer<?>> {
 
         final Display display = (Display) o;
 
-        return getNative().equals(display.getNative());
+        return this.pointer == display.pointer;
     }
 
     /**
@@ -211,6 +206,6 @@ public class Display implements HasNative<Pointer<?>> {
      */
     public void destroy() {
         WaylandServerCore.INSTANCE()
-                         .wl_display_destroy(getNative().address);
+                         .wl_display_destroy(this.pointer);
     }
 }

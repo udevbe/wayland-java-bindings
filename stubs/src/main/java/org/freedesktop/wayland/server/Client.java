@@ -14,40 +14,18 @@
 package org.freedesktop.wayland.server;
 
 import com.github.zubnix.jaccall.Pointer;
-import org.freedesktop.wayland.HasNative;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
 import static com.github.zubnix.jaccall.Pointer.nref;
-import static com.github.zubnix.jaccall.Pointer.wrap;
 
-public class Client implements HasNative<Pointer<?>> {
+public class Client {
 
-    private final Pointer<?> pointer;
+    public final long pointer;
 
-    //private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
-
-    protected Client(final Pointer pointer) {
+    protected Client(final long pointer) {
         this.pointer = pointer;
-//        addDestroyListener(new Listener() {
-//            @Override
-//            public void handle() {
-        //notifyDestroyListeners();
-        //Client.this.destroyListeners.clear();
-        //Client.this.valid = false;
-        //ObjectCache.remove(Client.this.pointer);
-        //free();
-//            }
-//        });
-//        ObjectCache.store(pointer,
-//                          this);
     }
-
-//    private void notifyDestroyListeners(){
-//        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
-//            listener.handle();
-//        }
-//    }
 
     /**
      * Create a client for the given file descriptor
@@ -73,13 +51,13 @@ public class Client implements HasNative<Pointer<?>> {
      */
     public static Client create(final Display display,
                                 final int fd) {
-        return Client.get(wrap(WaylandServerCore.INSTANCE()
-                                                .wl_client_create(display.getNative().address,
-                                                                  fd)));
+        return Client.get(WaylandServerCore.INSTANCE()
+                                                .wl_client_create(display.pointer,
+                                                                  fd));
     }
 
-    public static Client get(final Pointer pointer) {
-        if (pointer == null) {
+    public static Client get(final long pointer) {
+        if (pointer == 0L) {
             return null;
         }
         Client client = ObjectCache.from(pointer);
@@ -99,7 +77,7 @@ public class Client implements HasNative<Pointer<?>> {
      */
     public void flush() {
         WaylandServerCore.INSTANCE()
-                         .wl_client_flush(getNative().address);
+                         .wl_client_flush(getNative());
     }
 
 //    protected void addDestroyListener(final Listener listener) {
@@ -117,7 +95,7 @@ public class Client implements HasNative<Pointer<?>> {
 //        this.destroyListeners.remove(destroyListener);
 //    }
 
-    public Pointer<?> getNative() {
+    public Long getNative() {
         return this.pointer;
     }
 
@@ -132,8 +110,8 @@ public class Client implements HasNative<Pointer<?>> {
      * @return The display object the client is associated with.
      */
     public Display getDisplay() {
-        return Display.get(wrap(WaylandServerCore.INSTANCE()
-                                                 .wl_client_get_display(getNative().address)));
+        return Display.get(WaylandServerCore.INSTANCE()
+                                                 .wl_client_get_display(getNative()));
     }
 
     /**
@@ -145,9 +123,9 @@ public class Client implements HasNative<Pointer<?>> {
      * @return The object or null if there is not object for the given ID
      */
     public Resource<?> getObject(final int id) {
-        return ObjectCache.from(wrap(WaylandServerCore.INSTANCE()
-                                                      .wl_client_get_object(getNative().address,
-                                                                            id)));
+        return ObjectCache.from(WaylandServerCore.INSTANCE()
+                                                 .wl_client_get_object(getNative(),
+                                                                       id));
     }
 
     /**
@@ -168,7 +146,7 @@ public class Client implements HasNative<Pointer<?>> {
         final Pointer<Integer> gid = nref(0);
 
         WaylandServerCore.INSTANCE()
-                         .wl_client_get_credentials(getNative().address,
+                         .wl_client_get_credentials(getNative(),
                                                     pid.address,
                                                     uid.address,
                                                     gid.address);
@@ -180,7 +158,7 @@ public class Client implements HasNative<Pointer<?>> {
 
     public void destroy() {
         WaylandServerCore.INSTANCE()
-                         .wl_client_destroy(getNative().address);
+                         .wl_client_destroy(getNative());
     }
 
     @Override

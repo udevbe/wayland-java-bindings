@@ -13,11 +13,13 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
+import com.github.zubnix.jaccall.JNI;
+import com.github.zubnix.jaccall.JObject;
+import com.github.zubnix.jaccall.Pointer;
 import com.github.zubnix.jaccall.Ptr;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import org.freedesktop.wayland.util.jaccall.wl_argument;
 import org.freedesktop.wayland.util.jaccall.wl_array;
+import org.freedesktop.wayland.util.jaccall.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jaccall.wl_message;
 
 import java.lang.reflect.Constructor;
@@ -28,29 +30,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public final class Dispatcher {
+import static com.github.zubnix.jaccall.Pointer.wrap;
+import static org.freedesktop.wayland.util.jaccall.Pointerwl_dispatcher_func_t.nref;
+
+public final class Dispatcher implements wl_dispatcher_func_t {
 
     private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Integer, Method>>();
     private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
-    public static        Dispatcher                          INSTANCE          = new Dispatcher();
+    public static final  Pointer<wl_dispatcher_func_t>       INSTANCE          = nref(new Dispatcher());
 
     Dispatcher() {
     }
 
-    public static int dispatch(@Ptr final long implementation,
-                               @Ptr final long wlObject,
-                               final int opcode,
-                               @Ptr(wl_message.class) final long wlMessage,
-                               @Ptr(wl_argument.class) final long wl_arguments) {
+    public int $(@Ptr(JObject.class) final long implementation,
+                 @Ptr final long wlObject,
+                 final int opcode,
+                 @Ptr(wl_message.class) final long wlMessage,
+                 @Ptr(wl_argument.class) final long wlArguments) {
 
         Method        method        = null;
         Object[]      jargs         = null;
         Message       message       = null;
         WaylandObject waylandObject = null;
+
         try {
             message = ObjectCache.<MessageMeta>from(wlMessage)
                                  .getMessage();
-            waylandObject = ObjectCache.from(implWlObject);
+            waylandObject = (WaylandObject) wrap(JObject.class,
+                                                 implementation).dref()
+                                                                .pojo();
             method = get(waylandObject.getClass(),
                          waylandObject.getImplementation()
                                       .getClass(),
@@ -72,7 +80,8 @@ public final class Dispatcher {
             jargs[0] = waylandObject;
 
             if (nroArgs > 0) {
-                final Arguments arguments = new Arguments(wlArguments);
+                final Arguments arguments = new Arguments(wrap(wl_argument.class,
+                                                               wlArguments));
                 boolean optional = false;
                 int argIndex = 0;
                 for (final char signatureChar : messageSignature.toCharArray()) {
@@ -168,11 +177,11 @@ public final class Dispatcher {
             case 'o': {
                 final Pointer objectPointer = arguments.getO(index);
                 final Object waylandObject;
-                if (objectPointer == Pointer.NULL) {
+                if (objectPointer.address == 0L) {
                     waylandObject = null;
                 }
                 else {
-                    final Object cachedObject = ObjectCache.from(objectPointer);
+                    final Object cachedObject = ObjectCache.from(objectPointer.address);
                     if (cachedObject == null) {
                         waylandObject = reconstruct(objectPointer,
                                                     targetType);
@@ -191,8 +200,8 @@ public final class Dispatcher {
             }
             case 'a': {
                 final wl_array wlArray = arguments.getA(index);
-                return Native.getDirectByteBuffer(Pointer.nativeValue(wlArray.data),
-                                                  wlArray.alloc);
+                return JNI.wrap(wlArray.data().address,
+                                wlArray.alloc());
             }
             default: {
                 throw new IllegalArgumentException("Can not convert wl_argument type: " + type);
