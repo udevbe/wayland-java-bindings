@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.generator.impl;
 
 import com.squareup.javawriter.JavaWriter;
-import com.sun.jna.Pointer;
 import org.freedesktop.wayland.client.Display;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.util.Arguments;
@@ -140,7 +139,7 @@ public class ProxyWriter {
         if (interfaceName.equals("wl_display")) {
             javaWriter.emitEmptyLine()
                       .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                        Pointer.class.getName(),
+                                        long.class.getName(),
                                         "pointer")
                       .emitStatement("super(pointer)")
                       .endConstructor();
@@ -148,7 +147,7 @@ public class ProxyWriter {
         else {
             javaWriter.emitEmptyLine()
                       .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                        Pointer.class.getName(),
+                                        long.class.getName(),
                                         "pointer",
                                         getJavaTypeNameEvents(clientPackage,
                                                               interfaceNode,
@@ -160,7 +159,7 @@ public class ProxyWriter {
                       .endConstructor()
                       .emitEmptyLine()
                       .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                        Pointer.class.getName(),
+                                        long.class.getName(),
                                         "pointer")
                       .emitStatement("super(pointer)")
                       .endConstructor();
@@ -314,9 +313,7 @@ public class ProxyWriter {
                                               Modifier.STATIC),
                                    "String",
                                    "name")
-                      .emitStatement("final com.sun.jna.Pointer m = new com.sun.jna.Memory(name.length() + 1)")
-                      .emitStatement("m.setString(0,name)")
-                      .emitStatement("return new %s(org.freedesktop.wayland.client.jna.WaylandClientLibrary.INSTANCE().wl_display_connect(m))",
+                      .emitStatement("return new %s(org.freedesktop.wayland.client.jaccall.WaylandClientCore.INSTANCE().wl_display_connect(com.github.zubnix.jaccall.Pointer.nref(name).address))",
                                      getSimpleJavaTypeNameProxy(interfaceNode,
                                                                 1))
                       .endMethod()
@@ -335,7 +332,7 @@ public class ProxyWriter {
                                               Modifier.STATIC),
                                    int.class.getName(),
                                    "fd")
-                      .emitStatement("return new %s(org.freedesktop.wayland.client.jna.WaylandClientLibrary.INSTANCE().wl_display_connect_to_fd(fd))",
+                      .emitStatement("return new %s(org.freedesktop.wayland.client.jaccall.WaylandClientCore.INSTANCE().wl_display_connect_to_fd(fd))",
                                      getSimpleJavaTypeNameProxy(interfaceNode,
                                                                 1))
                       .endMethod();

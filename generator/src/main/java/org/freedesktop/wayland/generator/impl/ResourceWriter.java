@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.generator.impl;
 
 import com.squareup.javawriter.JavaWriter;
-import com.sun.jna.Pointer;
 import org.freedesktop.wayland.server.Client;
 import org.freedesktop.wayland.server.Resource;
 import org.freedesktop.wayland.util.Arguments;
@@ -134,7 +133,7 @@ public class ResourceWriter {
                   .endConstructor()
                   .emitEmptyLine()
                   .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                    Pointer.class.getName(),
+                                    long.class.getName(),
                                     "pointer")
                   .emitStatement("super(pointer)")
                   .endConstructor()
