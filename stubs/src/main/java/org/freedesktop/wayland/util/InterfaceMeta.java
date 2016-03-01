@@ -97,12 +97,15 @@ public class InterfaceMeta {
                                                                 wl_interface.class);
         final Pointer<String> namePointer = malloc(sizeof(name),
                                                    String.class);
+        namePointer.write(name);
+
         final wl_interface wlInterface = wlInterfacePointer.dref();
         wlInterface.name(namePointer);
         wlInterface.version(version);
         wlInterface.method_count(method_count);
         wlInterface.methods(methodPointer);
         wlInterface.event_count(event_count);
+        wlInterface.events(eventPointer);
 
         return InterfaceMeta.get(wlInterfacePointer);
     }
