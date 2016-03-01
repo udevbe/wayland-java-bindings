@@ -20,6 +20,8 @@ import org.freedesktop.wayland.util.jaccall.wl_argument;
 import org.freedesktop.wayland.util.jaccall.wl_array;
 
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.github.zubnix.jaccall.Pointer.malloc;
 import static com.github.zubnix.jaccall.Pointer.nref;
@@ -28,6 +30,7 @@ import static com.github.zubnix.jaccall.Pointer.wrap;
 
 public class Arguments {
 
+    private final List<Object> argumentRefs = new LinkedList<Object>();
     public final Pointer<wl_argument> pointer;
 
     Arguments(final Pointer<wl_argument> pointer) {
@@ -113,6 +116,7 @@ public class Arguments {
      */
     public Arguments set(final int index,
                          final Resource<?> o) {
+        this.argumentRefs.add(o);
         this.pointer.dref(index)
                     .o(wrap(o.pointer));
         return this;
@@ -128,6 +132,7 @@ public class Arguments {
      */
     public Arguments set(final int index,
                          final Proxy<?> o) {
+        this.argumentRefs.add(o);
         this.pointer.dref(index)
                     .o(wrap(o.pointer));
         return this;
@@ -143,6 +148,7 @@ public class Arguments {
      */
     public Arguments set(final int index,
                          final Fixed f) {
+        this.argumentRefs.add(f);
         this.pointer.dref(index)
                     .f(f.getRaw());
         return this;
@@ -158,8 +164,10 @@ public class Arguments {
      */
     public Arguments set(final int index,
                          final String s) {
+        final Pointer<String> stringPointer = nref(s);
+        this.argumentRefs.add(stringPointer);
         this.pointer.dref(index)
-                    .s(nref(s));
+                    .s(stringPointer);
         return this;
     }
 
@@ -179,6 +187,7 @@ public class Arguments {
         wlArray.alloc(array.capacity());
         wlArray.size(array.capacity());
 
+        this.argumentRefs.add(wlArray);
         this.pointer.dref(index)
                     .a(ref(wlArray));
         return this;
