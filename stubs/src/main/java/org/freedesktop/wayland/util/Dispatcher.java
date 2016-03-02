@@ -214,11 +214,11 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         Constructor<?> constructor = CONSTRUCTOR_CACHE.get(targetType);
         if (constructor == null) {
             //FIXME use static get(Pointer) method instead of proxy or resource
-            constructor = targetType.getDeclaredConstructor(Pointer.class);
+            constructor = targetType.getDeclaredConstructor(long.class);
             constructor.setAccessible(true);
             CONSTRUCTOR_CACHE.put(targetType,
                                   constructor);
         }
-        return constructor.newInstance(objectPointer);
+        return constructor.newInstance(objectPointer.address);
     }
 }
