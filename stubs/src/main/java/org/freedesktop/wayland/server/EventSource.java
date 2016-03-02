@@ -14,18 +14,13 @@
 package org.freedesktop.wayland.server;
 
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
-import org.freedesktop.wayland.util.ObjectCache;
 
 public class EventSource {
 
     private final long pointer;
 
-    private boolean valid;
-
     protected EventSource(final long pointer) {
         this.pointer = pointer;
-        ObjectCache.store(this.pointer,
-                          this);
     }
 
     public static EventSource create(final long pointer) {
@@ -69,19 +64,8 @@ public class EventSource {
 
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        remove();
-        super.finalize();
-    }
-
     public int remove() {
-        if (this.valid) {
-            this.valid = false;
-            ObjectCache.remove(this.pointer);
-            return WaylandServerCore.INSTANCE()
-                                    .wl_event_source_remove(this.pointer);
-        }
-        return 0;
+        return WaylandServerCore.INSTANCE()
+                                .wl_event_source_remove(this.pointer);
     }
 }
