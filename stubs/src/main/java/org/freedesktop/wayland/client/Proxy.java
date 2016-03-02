@@ -111,19 +111,11 @@ public abstract class Proxy<I> implements WaylandObject {
      */
     protected void marshal(final int opcode,
                            final Arguments args) {
-        marshal(opcode,
-                args.pointer.address);
-    }
-
-    //called from generated proxies
-
-    //called from generated proxies
-    protected void marshal(final int opcode,
-                           final long argsPointer) {
         WaylandClientCore.INSTANCE()
                          .wl_proxy_marshal_array(this.pointer,
                                                  opcode,
-                                                 argsPointer);
+                                                 args.pointer.address);
+        args.pointer.close();
     }
 
     /**
@@ -168,19 +160,21 @@ public abstract class Proxy<I> implements WaylandObject {
                                                            final int version,
                                                            final Class<T> newProxyCls,
                                                            final Arguments args) {
-        return marshalConstructor(opcode,
-                                  implementation,
-                                  version,
-                                  newProxyCls,
-                                  args.pointer.address);
+        final T t = marshalConstructor(opcode,
+                                       implementation,
+                                       version,
+                                       newProxyCls,
+                                       args.pointer.address);
+        args.pointer.close();
+        return t;
     }
 
     //called from generated proxies
-    protected <J, T extends Proxy<J>> T marshalConstructor(final int opcode,
-                                                           final J implementation,
-                                                           final int version,
-                                                           final Class<T> newProxyCls,
-                                                           final long argsPointer) {
+    private <J, T extends Proxy<J>> T marshalConstructor(final int opcode,
+                                                         final J implementation,
+                                                         final int version,
+                                                         final Class<T> newProxyCls,
+                                                         final long argsPointer) {
         try {
             final long wlProxy = WaylandClientCore.INSTANCE()
                                                   .wl_proxy_marshal_array_constructor(this.pointer,
@@ -210,13 +204,13 @@ public abstract class Proxy<I> implements WaylandObject {
         }
     }
 
-    protected <J, T extends Proxy<J>> T marshalProxy(final long pointer,
-                                                     final J implementation,
-                                                     final int version,
-                                                     final Class<T> newProxyCls) throws NoSuchMethodException,
-                                                                                        IllegalAccessException,
-                                                                                        InvocationTargetException,
-                                                                                        InstantiationException {
+    private <J, T extends Proxy<J>> T marshalProxy(final long pointer,
+                                                   final J implementation,
+                                                   final int version,
+                                                   final Class<T> newProxyCls) throws NoSuchMethodException,
+                                                                                      IllegalAccessException,
+                                                                                      InvocationTargetException,
+                                                                                      InstantiationException {
         Constructor<? extends Proxy<?>> proxyConstructor = PROXY_CONSTRUCTORS.get(newProxyCls);
         if (proxyConstructor == null) {
             proxyConstructor = findMatchingConstructor(newProxyCls,
@@ -231,10 +225,10 @@ public abstract class Proxy<I> implements WaylandObject {
                                                 version);
     }
 
-    protected <J, T extends Proxy<J>> Constructor<T> findMatchingConstructor(final Class<T> newProxyCls,
-                                                                             final Class<?> pointerClass,
-                                                                             final Class<?> implementationClass,
-                                                                             final Class<?> intClass) throws NoSuchMethodException {
+    private <J, T extends Proxy<J>> Constructor<T> findMatchingConstructor(final Class<T> newProxyCls,
+                                                                           final Class<?> pointerClass,
+                                                                           final Class<?> implementationClass,
+                                                                           final Class<?> intClass) throws NoSuchMethodException {
         for (final Constructor<?> constructor : newProxyCls.getConstructors()) {
             final Class<?>[] parameterTypes = constructor.getParameterTypes();
             if (parameterTypes.length != 3) {

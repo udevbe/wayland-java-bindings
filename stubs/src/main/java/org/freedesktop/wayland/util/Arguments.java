@@ -211,10 +211,4 @@ public class Arguments {
 
         return this.pointer.equals(arguments.pointer);
     }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        this.pointer.close();
-    }
 }

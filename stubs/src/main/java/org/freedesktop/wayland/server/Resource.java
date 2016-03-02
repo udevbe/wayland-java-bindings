@@ -169,6 +169,7 @@ public abstract class Resource<I> implements WaylandObject {
                          .wl_resource_post_event_array(this.pointer,
                                                        opcode,
                                                        args.pointer.address);
+        args.pointer.close();
     }
 
     /**
