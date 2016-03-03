@@ -44,8 +44,9 @@ public abstract class Global<R extends Resource<?>> {
         }
     });
 
-    private final long    pointer;
-    private final JObject jObject;
+    private final long             pointer;
+    private final JObject          jObject;
+    private final Pointer<JObject> jObjectPointer;
 
     protected Global(final Display display,
                      final Class<R> resourceClass,
@@ -54,17 +55,17 @@ public abstract class Global<R extends Resource<?>> {
             throw new IllegalArgumentException("Version must be bigger than 0");
         }
 
-        final Pointer<JObject> jObjectPointer = malloc(sizeof((JObject) null),
-                                                       JObject.class);
+        this.jObjectPointer = malloc(sizeof((JObject) null),
+                                     JObject.class);
         this.jObject = new JObject(this);
-        jObjectPointer.write(this.jObject);
+        this.jObjectPointer.write(this.jObject);
 
         this.pointer = WaylandServerCore.INSTANCE()
                                         .wl_global_create(display.pointer,
                                                           InterfaceMeta.get(resourceClass)
                                                                        .getNative().address,
                                                           version,
-                                                          jObjectPointer.address,
+                                                          this.jObjectPointer.address,
                                                           FUNC_T_POINTER.address);
         ObjectCache.store(this.pointer,
                           this);
@@ -97,6 +98,7 @@ public abstract class Global<R extends Resource<?>> {
         WaylandServerCore.INSTANCE()
                          .wl_global_destroy(this.pointer);
         ObjectCache.remove(this.pointer);
+        this.jObjectPointer.close();
         this.jObject.close();
     }
 }

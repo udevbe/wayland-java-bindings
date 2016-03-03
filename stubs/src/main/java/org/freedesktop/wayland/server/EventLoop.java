@@ -89,7 +89,6 @@ public class EventLoop {
 
     public final long pointer;
     private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
-    private final Set<JObject>         handlers         = new HashSet<JObject>();
 
     private EventLoop(final long pointer) {
         this.pointer = pointer;
@@ -100,19 +99,10 @@ public class EventLoop {
                 EventLoop.this.destroyListeners.clear();
                 ObjectCache.remove(EventLoop.this.pointer);
                 free();
-
-                releaseHandlers();
             }
         });
         ObjectCache.store(this.pointer,
                           this);
-    }
-
-    private void releaseHandlers() {
-        for (final JObject handler : this.handlers) {
-            handler.close();
-        }
-        this.handlers.clear();
     }
 
     private void addDestroyListener(final Listener listener) {
@@ -146,18 +136,20 @@ public class EventLoop {
     public EventSource addFileDescriptor(final int fd,
                                          final int mask,
                                          final FileDescriptorEventHandler handler) {
-        return EventSource.create(WaylandServerCore.INSTANCE()
+        final JObject          jObject        = new JObject(handler);
+        final Pointer<JObject> jObjectPointer = handlerObjectPointer(jObject);
+
+        return EventSource.create(jObject,
+                                  jObjectPointer,
+                                  WaylandServerCore.INSTANCE()
                                                    .wl_event_loop_add_fd(this.pointer,
                                                                          fd,
                                                                          mask,
                                                                          WL_EVENT_LOOP_FD_FUNC.address,
-                                                                         handlerObjectPointer(handler).address));
+                                                                         jObjectPointer.address));
     }
 
-    private Pointer<JObject> handlerObjectPointer(final Object handler) {
-        final JObject jObject = new JObject(handler);
-        this.handlers.add(jObject);
-
+    private Pointer<JObject> handlerObjectPointer(final JObject jObject) {
         final Pointer<JObject> jObjectPointer = malloc(sizeof((JObject) null),
                                                        JObject.class);
         jObjectPointer.write(jObject);
@@ -165,26 +157,41 @@ public class EventLoop {
     }
 
     public EventSource addTimer(final TimerEventHandler handler) {
-        return EventSource.create(WaylandServerCore.INSTANCE()
+        final JObject          jObject        = new JObject(handler);
+        final Pointer<JObject> jObjectPointer = handlerObjectPointer(jObject);
+
+        return EventSource.create(jObject,
+                                  jObjectPointer,
+                                  WaylandServerCore.INSTANCE()
                                                    .wl_event_loop_add_timer(this.pointer,
                                                                             WL_EVENT_LOOP_TIMER_FUNC.address,
-                                                                            handlerObjectPointer(handler).address));
+                                                                            jObjectPointer.address));
     }
 
     public EventSource addSignal(final int signalNumber,
                                  final SignalEventHandler handler) {
-        return EventSource.create(WaylandServerCore.INSTANCE()
+        final JObject          jObject        = new JObject(handler);
+        final Pointer<JObject> jObjectPointer = handlerObjectPointer(jObject);
+
+        return EventSource.create(jObject,
+                                  jObjectPointer,
+                                  WaylandServerCore.INSTANCE()
                                                    .wl_event_loop_add_signal(this.pointer,
                                                                              signalNumber,
                                                                              WL_EVENT_LOOP_SIGNAL_FUNC.address,
-                                                                             handlerObjectPointer(handler).address));
+                                                                             jObjectPointer.address));
     }
 
     public EventSource addIdle(final IdleHandler handler) {
-        return EventSource.create(WaylandServerCore.INSTANCE()
+        final JObject          jObject        = new JObject(handler);
+        final Pointer<JObject> jObjectPointer = handlerObjectPointer(jObject);
+
+        return EventSource.create(jObject,
+                                  jObjectPointer,
+                                  WaylandServerCore.INSTANCE()
                                                    .wl_event_loop_add_idle(this.pointer,
                                                                            WL_EVENT_LOOP_IDLE_FUNC.address,
-                                                                           handlerObjectPointer(handler).address));
+                                                                           jObjectPointer.address));
     }
 
     public int dispatch(final int timeout) {

@@ -13,18 +13,30 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
+import com.github.zubnix.jaccall.JObject;
+import com.github.zubnix.jaccall.Pointer;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 
-public class EventSource {
+public final class EventSource {
 
-    private final long pointer;
+    private final JObject          jObject;
+    private final long             pointer;
+    private final Pointer<JObject> jObjectPointer;
 
-    protected EventSource(final long pointer) {
+    EventSource(final JObject jObject,
+                final Pointer<JObject> jObjectPointer,
+                final long pointer) {
+        this.jObject = jObject;
+        this.jObjectPointer = jObjectPointer;
         this.pointer = pointer;
     }
 
-    public static EventSource create(final long pointer) {
-        return new EventSource(pointer);
+    static EventSource create(final JObject jObject,
+                              final Pointer<JObject> jObjectPointer,
+                              final long pointer) {
+        return new EventSource(jObject,
+                               jObjectPointer,
+                               pointer);
     }
 
     public int updateFileDescriptor(final int mask) {
@@ -65,6 +77,8 @@ public class EventSource {
     }
 
     public int remove() {
+        this.jObjectPointer.close();
+        this.jObject.close();
         return WaylandServerCore.INSTANCE()
                                 .wl_event_source_remove(this.pointer);
     }

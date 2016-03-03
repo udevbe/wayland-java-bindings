@@ -45,6 +45,9 @@ public abstract class Resource<I> implements WaylandObject {
             resource.notifyDestroyListeners();
             resource.destroyListeners.clear();
             ObjectCache.remove(resourcePointer);
+
+            resource.jObject.close();
+            resource.jObjectPointer.close();
         }
     });
 
@@ -52,7 +55,8 @@ public abstract class Resource<I> implements WaylandObject {
     private final I    implementation;
     private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
 
-    private final JObject jObject;
+    private final JObject          jObject;
+    private final Pointer<JObject> jObjectPointer;
 
     protected Resource(final Client client,
                        final int version,
@@ -69,14 +73,14 @@ public abstract class Resource<I> implements WaylandObject {
                           this);
 
         this.jObject = new JObject(this);
-        final Pointer<JObject> jObjectPointer = malloc(sizeof((JObject) null),
-                                                       JObject.class);
-        jObjectPointer.write(this.jObject);
+        this.jObjectPointer = malloc(sizeof((JObject) null),
+                                     JObject.class);
+        this.jObjectPointer.write(this.jObject);
 
         WaylandServerCore.INSTANCE()
                          .wl_resource_set_dispatcher(this.pointer,
                                                      Dispatcher.INSTANCE.address,
-                                                     jObjectPointer.address,
+                                                     this.jObjectPointer.address,
                                                      0L,
                                                      RESOURCE_DESTROY_FUNC.address);
     }
@@ -88,6 +92,9 @@ public abstract class Resource<I> implements WaylandObject {
 
     protected Resource(final long pointer) {
         this.jObject = new JObject(this);
+        this.jObjectPointer = malloc(sizeof((JObject) null),
+                                     JObject.class);
+        this.jObjectPointer.write(this.jObject);
         this.pointer = pointer;
         this.implementation = null;
         addDestroyListener(new Listener() {
@@ -96,6 +103,8 @@ public abstract class Resource<I> implements WaylandObject {
                 notifyDestroyListeners();
                 Resource.this.destroyListeners.clear();
                 ObjectCache.remove(Resource.this.pointer);
+                Resource.this.jObject.close();
+
                 free();
             }
         });
@@ -214,6 +223,5 @@ public abstract class Resource<I> implements WaylandObject {
     public void destroy() {
         WaylandServerCore.INSTANCE()
                          .wl_resource_destroy(this.pointer);
-        this.jObject.close();
     }
 }
