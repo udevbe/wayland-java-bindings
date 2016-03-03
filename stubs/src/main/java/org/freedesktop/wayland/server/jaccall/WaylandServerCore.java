@@ -1,6 +1,5 @@
 package org.freedesktop.wayland.server.jaccall;
 
-import com.github.zubnix.jaccall.JObject;
 import com.github.zubnix.jaccall.Lib;
 import com.github.zubnix.jaccall.Linker;
 import com.github.zubnix.jaccall.Pointer;
@@ -100,7 +99,7 @@ public class WaylandServerCore implements WaylandUtil {
     public native long wl_global_create(@Ptr long display,
                                         @Ptr(wl_interface.class) long interface_,
                                         int version,
-                                        @Ptr(JObject.class) long data,
+                                        @Ptr(Object.class) long data,
                                         @Ptr(wl_global_bind_func_t.class) long bind);
 
     public native void wl_global_destroy(@Ptr long global);
@@ -222,8 +221,8 @@ public class WaylandServerCore implements WaylandUtil {
 
     public native void wl_resource_set_dispatcher(@Ptr long resource,
                                                   @Ptr(wl_dispatcher_func_t.class) long dispatcher,
-                                                  @Ptr(JObject.class) long implementation,
-                                                  @Ptr(JObject.class) long data,
+                                                  @Ptr(Object.class) long implementation,
+                                                  @Ptr(Object.class) long data,
                                                   @Ptr(wl_resource_destroy_func_t.class) long destroy);
 
     public native void wl_resource_destroy(@Ptr long resource);
@@ -306,12 +305,12 @@ public class WaylandServerCore implements WaylandUtil {
     public native long wl_event_loop_add_signal(@Ptr long loop,
                                                 int signal_number,
                                                 @Ptr(wl_event_loop_signal_func_t.class) long func,
-                                                @Ptr(JObject.class) long data);
+                                                @Ptr(Object.class) long data);
 
     @Ptr
     public native long wl_event_loop_add_timer(@Ptr long loop,
                                                @Ptr(wl_event_loop_timer_func_t.class) long func,
-                                               @Ptr(JObject.class) long data);
+                                               @Ptr(Object.class) long data);
 
     public native int wl_event_source_fd_update(@Ptr long source,
                                                 @Unsigned int mask);
@@ -321,7 +320,7 @@ public class WaylandServerCore implements WaylandUtil {
                                             int fd,
                                             @Unsigned int mask,
                                             @Ptr(wl_event_loop_fd_func_t.class) long func,
-                                            @Ptr(JObject.class) long data);
+                                            @Ptr(Object.class) long data);
 
     public native void wl_event_loop_destroy(@Ptr long loop);
 

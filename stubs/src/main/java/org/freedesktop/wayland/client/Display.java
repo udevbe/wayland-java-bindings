@@ -77,7 +77,7 @@ public abstract class Display extends Proxy<Void> {
 
     public static final int OBJECT_ID = 1;
 
-    protected Display(final long pointer) {
+    protected Display(final Long pointer) {
         super(pointer,
               null,
               1);

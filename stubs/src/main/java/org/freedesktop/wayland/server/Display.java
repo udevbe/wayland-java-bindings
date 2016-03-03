@@ -27,10 +27,10 @@ public class Display {
 
     public static final int OBJECT_ID = 1;
 
-    public final long pointer;
+    public final Long pointer;
     private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
 
-    protected Display(final long pointer) {
+    protected Display(final Long pointer) {
         this.pointer = pointer;
         addDestroyListener(new Listener() {
             @Override
@@ -176,7 +176,7 @@ public class Display {
 
     @Override
     public int hashCode() {
-        return new Long(this.pointer).hashCode();
+        return this.pointer.hashCode();
     }
 
     //TODO wl_display_get_additional_shm_formats
@@ -192,7 +192,7 @@ public class Display {
 
         final Display display = (Display) o;
 
-        return this.pointer == display.pointer;
+        return this.pointer.equals(display.pointer);
     }
 
     /**

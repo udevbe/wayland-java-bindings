@@ -21,9 +21,9 @@ import static com.github.zubnix.jaccall.Pointer.nref;
 
 public class Client {
 
-    public final long pointer;
+    public final Long pointer;
 
-    protected Client(final long pointer) {
+    Client(final Long pointer) {
         this.pointer = pointer;
     }
 
@@ -52,19 +52,15 @@ public class Client {
     public static Client create(final Display display,
                                 final int fd) {
         return Client.get(WaylandServerCore.INSTANCE()
-                                                .wl_client_create(display.pointer,
-                                                                  fd));
+                                           .wl_client_create(display.pointer,
+                                                             fd));
     }
 
-    public static Client get(final long pointer) {
+    public static Client get(final Long pointer) {
         if (pointer == 0L) {
             return null;
         }
-        Client client = ObjectCache.from(pointer);
-        if (client == null) {
-            client = new Client(pointer);
-        }
-        return client;
+        return new Client(pointer);
     }
 
     /**
@@ -77,13 +73,13 @@ public class Client {
      */
     public void flush() {
         WaylandServerCore.INSTANCE()
-                         .wl_client_flush(getNative());
+                         .wl_client_flush(this.pointer);
     }
 
 //    protected void addDestroyListener(final Listener listener) {
 //        checkValid(this);
 //        WaylandServerLibrary.INSTANCE()
-//                            .wl_client_add_destroy_listener(getNative(),
+//                            .wl_client_add_destroy_listener(this.pointer,
 //                                                            listener.getNative());
 //    }
 
@@ -95,9 +91,6 @@ public class Client {
 //        this.destroyListeners.remove(destroyListener);
 //    }
 
-    public Long getNative() {
-        return this.pointer;
-    }
 
     //TODO wl_client_get_object
     //TODO wl_client_post_no_memory
@@ -111,7 +104,7 @@ public class Client {
      */
     public Display getDisplay() {
         return Display.get(WaylandServerCore.INSTANCE()
-                                                 .wl_client_get_display(getNative()));
+                                            .wl_client_get_display(this.pointer));
     }
 
     /**
@@ -124,7 +117,7 @@ public class Client {
      */
     public Resource<?> getObject(final int id) {
         return ObjectCache.from(WaylandServerCore.INSTANCE()
-                                                 .wl_client_get_object(getNative(),
+                                                 .wl_client_get_object(this.pointer,
                                                                        id));
     }
 
@@ -146,7 +139,7 @@ public class Client {
         final Pointer<Integer> gid = nref(0);
 
         WaylandServerCore.INSTANCE()
-                         .wl_client_get_credentials(getNative(),
+                         .wl_client_get_credentials(this.pointer,
                                                     pid.address,
                                                     uid.address,
                                                     gid.address);
@@ -158,12 +151,12 @@ public class Client {
 
     public void destroy() {
         WaylandServerCore.INSTANCE()
-                         .wl_client_destroy(getNative());
+                         .wl_client_destroy(this.pointer);
     }
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -177,7 +170,7 @@ public class Client {
 
         final Client client = (Client) o;
 
-        return getNative().equals(client.getNative());
+        return this.pointer.equals(client.pointer);
     }
 }
 

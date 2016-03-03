@@ -13,7 +13,6 @@
 //limitations under the License.
 package org.freedesktop.wayland.client;
 
-import com.github.zubnix.jaccall.JObject;
 import com.github.zubnix.jaccall.Pointer;
 import org.freedesktop.wayland.client.jaccall.WaylandClientCore;
 import org.freedesktop.wayland.util.Arguments;
@@ -26,9 +25,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.github.zubnix.jaccall.Pointer.malloc;
-import static com.github.zubnix.jaccall.Size.sizeof;
 
 /**
  * Represents a protocol object on the client side.
@@ -51,11 +47,11 @@ public abstract class Proxy<I> implements WaylandObject {
 
     private static final Map<Class<? extends Proxy<?>>, Constructor<? extends Proxy<?>>> PROXY_CONSTRUCTORS = new HashMap<Class<? extends Proxy<?>>, Constructor<? extends Proxy<?>>>();
 
-    public final long pointer;
+    public final Long pointer;
 
-    private final int     version;
-    private final I       implementation;
-    private final JObject jObject;
+    private final int             version;
+    private final I               implementation;
+    private final Pointer<Object> jObjectPointer;
 
     protected Proxy(final long pointer) {
         this(pointer,
@@ -68,7 +64,7 @@ public abstract class Proxy<I> implements WaylandObject {
      * @param implementation The listener to be added to proxy
      * @param version
      */
-    protected Proxy(final long pointer,
+    protected Proxy(final Long pointer,
                     final I implementation,
                     final int version) {
         this.pointer = pointer;
@@ -76,16 +72,11 @@ public abstract class Proxy<I> implements WaylandObject {
         this.version = version;
         ObjectCache.store(this.pointer,
                           this);
-        this.jObject = new JObject(this);
+        this.jObjectPointer = Pointer.from(this);
 
         //Special casing implementation. For some proxies the underlying native library provides its own implementation.
         //We pass in a null implementation in those cases. (Eg Display proxy).
         if (implementation != null) {
-
-            final Pointer<JObject> jObjectPointer = malloc(sizeof((JObject) null),
-                                                           JObject.class);
-            jObjectPointer.write(this.jObject);
-
             WaylandClientCore.INSTANCE()
                              .wl_proxy_add_dispatcher(this.pointer,
                                                       Dispatcher.INSTANCE.address,
@@ -289,7 +280,7 @@ public abstract class Proxy<I> implements WaylandObject {
 
     @Override
     public int hashCode() {
-        return new Long(this.pointer).hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -303,7 +294,7 @@ public abstract class Proxy<I> implements WaylandObject {
 
         final Proxy proxy = (Proxy) o;
 
-        return this.pointer == proxy.pointer;
+        return this.pointer.equals(proxy.pointer);
     }
 
     /**
@@ -313,6 +304,6 @@ public abstract class Proxy<I> implements WaylandObject {
         WaylandClientCore.INSTANCE()
                          .wl_proxy_destroy(this.pointer);
         ObjectCache.remove(this.pointer);
-        this.jObject.close();
+        this.jObjectPointer.close();
     }
 }

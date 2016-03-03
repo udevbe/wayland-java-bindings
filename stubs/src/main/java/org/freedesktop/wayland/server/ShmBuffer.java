@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 
 public class ShmBuffer {
 
-    public final long pointer;
+    public final Long pointer;
 
     /**
      * Create a new underlying WlBufferResource with the constructed ShmBuffer as it's implementation.
@@ -43,7 +43,7 @@ public class ShmBuffer {
                      final int stride,
                      final int format) {
         this(WaylandServerCore.INSTANCE()
-                              .wl_shm_buffer_create(client.getNative(),
+                              .wl_shm_buffer_create(client.pointer,
                                                     id,
                                                     width,
                                                     height,
@@ -51,7 +51,7 @@ public class ShmBuffer {
                                                     format));
     }
 
-    protected ShmBuffer(final long pointer) {
+    protected ShmBuffer(final Long pointer) {
         this.pointer = pointer;
     }
 
@@ -163,7 +163,7 @@ public class ShmBuffer {
 
     @Override
     public int hashCode() {
-        return new Long(this.pointer).hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -177,7 +177,7 @@ public class ShmBuffer {
 
         final ShmBuffer shmBuffer = (ShmBuffer) o;
 
-        return this.pointer == shmBuffer.pointer;
+        return this.pointer.equals(shmBuffer.pointer);
 
     }
 }

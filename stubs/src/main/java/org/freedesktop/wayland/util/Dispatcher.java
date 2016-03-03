@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.util;
 
 import com.github.zubnix.jaccall.JNI;
-import com.github.zubnix.jaccall.JObject;
 import com.github.zubnix.jaccall.Pointer;
 import com.github.zubnix.jaccall.Ptr;
 import org.freedesktop.wayland.util.jaccall.wl_argument;
@@ -42,7 +41,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
     Dispatcher() {
     }
 
-    public int $(@Ptr(JObject.class) final long implementation,
+    public int $(@Ptr(Object.class) final long implementation,
                  @Ptr final long wlObject,
                  final int opcode,
                  @Ptr(wl_message.class) final long wlMessage,
@@ -56,9 +55,8 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         try {
             message = ObjectCache.<MessageMeta>from(wlMessage)
                                  .getMessage();
-            waylandObject = (WaylandObject) wrap(JObject.class,
-                                                 implementation).dref()
-                                                                .pojo();
+            waylandObject = (WaylandObject) wrap(Object.class,
+                                                 implementation).dref();
             method = get(waylandObject.getClass(),
                          waylandObject.getImplementation()
                                       .getClass(),
@@ -175,15 +173,16 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                 return arguments.getH(index);
             }
             case 'o': {
-                final Pointer objectPointer = arguments.getO(index);
-                final Object waylandObject;
-                if (objectPointer.address == 0L) {
+                final Pointer<?> waylandObjectPointer = arguments.getO(index);
+
+                final WaylandObject waylandObject;
+                if (waylandObjectPointer.address == 0L) {
                     waylandObject = null;
                 }
                 else {
-                    final Object cachedObject = ObjectCache.from(objectPointer.address);
+                    final WaylandObject cachedObject = ObjectCache.from(waylandObjectPointer.address);
                     if (cachedObject == null) {
-                        waylandObject = reconstruct(objectPointer,
+                        waylandObject = reconstruct(waylandObjectPointer,
                                                     targetType);
                     }
                     else {
@@ -209,16 +208,16 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         }
     }
 
-    private static Object reconstruct(final Pointer objectPointer,
-                                      final Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private static WaylandObject reconstruct(final Pointer<?> objectPointer,
+                                             final Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<?> constructor = CONSTRUCTOR_CACHE.get(targetType);
         if (constructor == null) {
             //FIXME use static get(Pointer) method instead of proxy or resource
-            constructor = targetType.getDeclaredConstructor(long.class);
+            constructor = targetType.getDeclaredConstructor(Long.class);
             constructor.setAccessible(true);
             CONSTRUCTOR_CACHE.put(targetType,
                                   constructor);
         }
-        return constructor.newInstance(objectPointer.address);
+        return (WaylandObject) constructor.newInstance(objectPointer.address);
     }
 }

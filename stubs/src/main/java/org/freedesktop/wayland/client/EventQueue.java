@@ -25,9 +25,9 @@ import org.freedesktop.wayland.util.ObjectCache;
  * @see Display
  */
 public class EventQueue {
-    public final long pointer;
+    public final Long pointer;
 
-    protected EventQueue(final long pointer) {
+    protected EventQueue(final Long pointer) {
         this.pointer = pointer;
         ObjectCache.store(this.pointer,
                           this);
@@ -43,7 +43,7 @@ public class EventQueue {
 
     @Override
     public int hashCode() {
-        return new Long(this.pointer).hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -57,7 +57,7 @@ public class EventQueue {
 
         final EventQueue that = (EventQueue) o;
 
-        return this.pointer == that.pointer;
+        return this.pointer.equals(that.pointer);
     }
 
     /**

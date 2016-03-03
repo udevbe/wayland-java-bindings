@@ -13,7 +13,6 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.JObject;
 import com.github.zubnix.jaccall.Pointer;
 import com.github.zubnix.jaccall.Ptr;
 import com.github.zubnix.jaccall.Unsigned;
@@ -22,9 +21,6 @@ import org.freedesktop.wayland.server.jaccall.wl_global_bind_func_t;
 import org.freedesktop.wayland.util.InterfaceMeta;
 import org.freedesktop.wayland.util.ObjectCache;
 
-import static com.github.zubnix.jaccall.Pointer.malloc;
-import static com.github.zubnix.jaccall.Pointer.wrap;
-import static com.github.zubnix.jaccall.Size.sizeof;
 import static org.freedesktop.wayland.server.jaccall.Pointerwl_global_bind_func_t.nref;
 
 public abstract class Global<R extends Resource<?>> {
@@ -32,21 +28,20 @@ public abstract class Global<R extends Resource<?>> {
     private static final Pointer<wl_global_bind_func_t> FUNC_T_POINTER = nref(new wl_global_bind_func_t() {
         @Override
         public void $(@Ptr final long client,
-                      @Ptr(JObject.class) final long data,
+                      @Ptr(Object.class) final long data,
                       @Unsigned final int version,
                       @Unsigned final int id) {
-            final Global<?> global = (Global<?>) wrap(JObject.class,
-                                                      data).dref()
-                                                           .pojo();
+            final Global<?> global = (Global<?>) Pointer.wrap(Object.class,
+                                                              data)
+                                                        .dref();
             global.onBindClient(Client.get(client),
                                 version,
                                 id);
         }
     });
 
-    private final long             pointer;
-    private final JObject          jObject;
-    private final Pointer<JObject> jObjectPointer;
+    private final Long            pointer;
+    private final Pointer<Object> jObjectPointer;
 
     protected Global(final Display display,
                      final Class<R> resourceClass,
@@ -55,10 +50,7 @@ public abstract class Global<R extends Resource<?>> {
             throw new IllegalArgumentException("Version must be bigger than 0");
         }
 
-        this.jObjectPointer = malloc(sizeof((JObject) null),
-                                     JObject.class);
-        this.jObject = new JObject(this);
-        this.jObjectPointer.write(this.jObject);
+        this.jObjectPointer = Pointer.from(this);
 
         this.pointer = WaylandServerCore.INSTANCE()
                                         .wl_global_create(display.pointer,
@@ -77,7 +69,7 @@ public abstract class Global<R extends Resource<?>> {
 
     @Override
     public int hashCode() {
-        return new Long(this.pointer).hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -91,7 +83,7 @@ public abstract class Global<R extends Resource<?>> {
 
         final Global global = (Global) o;
 
-        return this.pointer == global.pointer;
+        return this.pointer.equals(global.pointer);
     }
 
     public void destroy() {
@@ -99,7 +91,6 @@ public abstract class Global<R extends Resource<?>> {
                          .wl_global_destroy(this.pointer);
         ObjectCache.remove(this.pointer);
         this.jObjectPointer.close();
-        this.jObject.close();
     }
 }
 

@@ -133,7 +133,7 @@ public class ResourceWriter {
                   .endConstructor()
                   .emitEmptyLine()
                   .beginConstructor(EnumSet.of(Modifier.PUBLIC),
-                                    long.class.getName(),
+                                    Long.class.getName(),
                                     "pointer")
                   .emitStatement("super(pointer)")
                   .endConstructor()
