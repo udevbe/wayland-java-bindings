@@ -2,7 +2,6 @@ package org.freedesktop.wayland.client.egl.jaccall;
 
 
 import com.github.zubnix.jaccall.Lib;
-import com.github.zubnix.jaccall.Linker;
 import com.github.zubnix.jaccall.Ptr;
 
 @Lib("wayland-egl")
@@ -12,7 +11,7 @@ public class WaylandEglCore {
 
     public static WaylandEglCore INSTANCE() {
         if (INSTANCE == null) {
-            Linker.link(WaylandEglCore.class);
+            new WaylandEglCore_Symbols().link();
             INSTANCE = new WaylandEglCore();
         }
         return INSTANCE;

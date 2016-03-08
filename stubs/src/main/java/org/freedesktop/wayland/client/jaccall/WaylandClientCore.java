@@ -2,7 +2,6 @@ package org.freedesktop.wayland.client.jaccall;
 
 
 import com.github.zubnix.jaccall.Lib;
-import com.github.zubnix.jaccall.Linker;
 import com.github.zubnix.jaccall.Pointer;
 import com.github.zubnix.jaccall.Ptr;
 import com.github.zubnix.jaccall.Unsigned;
@@ -18,7 +17,7 @@ public class WaylandClientCore {
 
     public static WaylandClientCore INSTANCE() {
         if (INSTANCE == null) {
-            Linker.link(WaylandClientCore.class);
+            new WaylandClientCore_Symbols().link();
             INSTANCE = new WaylandClientCore();
         }
         return INSTANCE;
