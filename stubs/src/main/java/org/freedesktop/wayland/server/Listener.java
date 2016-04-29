@@ -13,77 +13,68 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.server.jna.wl_listener;
-import org.freedesktop.wayland.server.jna.wl_notify_func_t;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
+import org.freedesktop.wayland.server.jaccall.Pointerwl_notify_func_t;
+import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
+import org.freedesktop.wayland.server.jaccall.wl_listener;
+import org.freedesktop.wayland.server.jaccall.wl_notify_func_t;
 import org.freedesktop.wayland.util.ObjectCache;
+
+import static org.freedesktop.jaccall.Pointer.ref;
 
 /**
  * A single listener for Wayland signals
- * <p>
+ * <p/>
  * {@code Listener} provides the means to listen for {@code wl_signal} notifications. Many
  * Wayland objects use {@code Listener} for notification of significant events like
  * object destruction.
- * <p>
+ * <p/>
  * Clients should create {@code Listener} objects manually and can register them as
  * listeners to signals using #wl_signal_add, assuming the signal is
  * directly accessible. For opaque structs like wl_event_loop, adding a
  * listener should be done through provided accessor methods. A listener can
  * only listen to one signal at a time.
  */
-abstract class Listener implements HasNative<wl_listener> {
+abstract class Listener {
 
-    private static final wl_notify_func_t WL_NOTIFY_FUNC = new wl_notify_func_t() {
+    private static final Pointer<wl_notify_func_t> WL_NOTIFY_FUNC = Pointerwl_notify_func_t.nref(new wl_notify_func_t() {
+
         @Override
-        public void apply(final Pointer listenerPointer) {
+        public void $(@Ptr(wl_listener.class) final long listenerPointer,
+                      @Ptr(void.class) final long data) {
             final Listener listener = ObjectCache.from(listenerPointer);
             listener.handle();
         }
-    };
+    });
 
-    private final wl_listener pointer;
-
-    private boolean valid;
+    public final Pointer<wl_listener> pointer;
 
     public Listener() {
-        this.pointer = new wl_listener();
-        this.valid = true;
-        this.pointer.notify$ = WL_NOTIFY_FUNC;
-        ObjectCache.store(getNative().getPointer(),
+        this.pointer = Pointer.malloc(wl_listener.SIZE,
+                                      wl_listener.class);
+        this.pointer.dref()
+                    .notify$(WL_NOTIFY_FUNC);
+        ObjectCache.store(this.pointer.address,
                           this);
     }
 
-    public wl_listener getNative() {
-        return this.pointer;
-    }
-
     public void remove() {
-        if (isValid()) {
-            WaylandServerLibrary.INSTANCE()
-                                .wl_list_remove(getNative().link.getPointer());
-        }
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
+        WaylandServerCore.INSTANCE()
+                         .wl_list_remove(ref(this.pointer.dref()
+                                                         .link()).address);
     }
 
     public void free() {
-        if (isValid()) {
-            this.valid = false;
-            ObjectCache.remove(getNative().getPointer());
-        }
+        ObjectCache.remove(this.pointer.address);
+        this.pointer.close();
     }
 
-    //called from jni
     public abstract void handle();
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return new Long(this.pointer.address).hashCode();
     }
 
     @Override
@@ -97,7 +88,7 @@ abstract class Listener implements HasNative<wl_listener> {
 
         final Listener listener = (Listener) o;
 
-        return getNative().equals(listener.getNative());
+        return this.pointer.address == listener.pointer.address;
     }
 }
 

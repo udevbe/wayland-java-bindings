@@ -13,58 +13,48 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.freedesktop.wayland.HasNative.Precondition.checkValid;
+import static org.freedesktop.jaccall.Pointer.nref;
+import static org.freedesktop.jaccall.Pointer.wrap;
 
-public class Display implements HasNative<Pointer> {
+public class Display {
 
     public static final int OBJECT_ID = 1;
 
-    private final Pointer pointer;
-    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
-    private boolean valid;
+    public final Long pointer;
+    private final Set<DestroyListener> destroyListeners = new HashSet<>();
 
-
-    protected Display(final Pointer pointer) {
+    protected Display(final Long pointer) {
         this.pointer = pointer;
-        this.valid = true;
         addDestroyListener(new Listener() {
             @Override
             public void handle() {
                 notifyDestroyListeners();
                 Display.this.destroyListeners.clear();
-                Display.this.valid = false;
-                ObjectCache.remove(Display.this.getNative());
+                ObjectCache.remove(Display.this.pointer);
                 free();
             }
         });
-        ObjectCache.store(getNative(),
+        ObjectCache.store(this.pointer,
                           this);
     }
 
     protected void addDestroyListener(final Listener listener) {
-        checkValid(this);
-        WaylandServerLibrary.INSTANCE()
-                            .wl_display_add_destroy_listener(getNative(),
-                                                             listener.getNative());
+        WaylandServerCore.INSTANCE()
+                         .wl_display_add_destroy_listener(this.pointer,
+                                                          listener.pointer.address);
     }
 
     private void notifyDestroyListeners() {
-        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
+        for (final DestroyListener listener : new HashSet<>(this.destroyListeners)) {
             listener.handle();
         }
-    }
-
-    public Pointer getNative() {
-        return this.pointer;
     }
 
     /**
@@ -73,12 +63,12 @@ public class Display implements HasNative<Pointer> {
      * @return The Wayland display object. Null if failed to create
      */
     public static Display create() {
-        return Display.get(WaylandServerLibrary.INSTANCE()
-                                               .wl_display_create());
+        return Display.get(WaylandServerCore.INSTANCE()
+                                            .wl_display_create());
     }
 
-    public static Display get(final Pointer pointer) {
-        if (pointer == null) {
+    public static Display get(final long pointer) {
+        if (pointer == 0L) {
             return null;
         }
         Display display = ObjectCache.from(pointer);
@@ -104,37 +94,30 @@ public class Display implements HasNative<Pointer> {
      */
 
     public int addSocket(final String name) {
-        checkValid(this);
-        final Pointer m = new Memory(name.length() + 1);
-        m.setString(0,
-                    name);
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_display_add_socket(getNative(),
-                                                          m);
+        return WaylandServerCore.INSTANCE()
+                                .wl_display_add_socket(this.pointer,
+                                                       nref(name).address);
     }
 
     public String addSocketAuto() {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_display_add_socket_auto(getNative())
-                                   .getString(0);
+        return wrap(String.class,
+                    WaylandServerCore.INSTANCE()
+                                     .wl_display_add_socket_auto(this.pointer)).dref();
     }
 
     public void terminate() {
-        checkValid(this);
-        WaylandServerLibrary.INSTANCE()
-                            .wl_display_terminate(getNative());
+        WaylandServerCore.INSTANCE()
+                         .wl_display_terminate(this.pointer);
     }
 
     public void run() {
-        checkValid(this);
-        WaylandServerLibrary.INSTANCE()
-                            .wl_display_run(getNative());
+        WaylandServerCore.INSTANCE()
+                         .wl_display_run(this.pointer);
     }
 
     public void flushClients() {
-        checkValid(this);
-        WaylandServerLibrary.INSTANCE()
-                            .wl_display_flush_clients(getNative());
+        WaylandServerCore.INSTANCE()
+                         .wl_display_flush_clients(this.pointer);
     }
 
     /**
@@ -142,24 +125,21 @@ public class Display implements HasNative<Pointer> {
      * it.
      */
     public int getSerial() {
-        checkValid(this);
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_display_get_serial(getNative());
+        return WaylandServerCore.INSTANCE()
+                                .wl_display_get_serial(this.pointer);
     }
 
     /**
      * Get the next serial number <p> This function increments the display serial number and returns the new value.
      */
     public int nextSerial() {
-        checkValid(this);
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_display_next_serial(getNative());
+        return WaylandServerCore.INSTANCE()
+                                .wl_display_next_serial(this.pointer);
     }
 
     public EventLoop getEventLoop() {
-        checkValid(this);
-        return EventLoop.get(WaylandServerLibrary.INSTANCE()
-                                                 .wl_display_get_event_loop(getNative()));
+        return EventLoop.get(WaylandServerCore.INSTANCE()
+                                              .wl_display_get_event_loop(this.pointer));
     }
 
     public void register(final DestroyListener destroyListener) {
@@ -171,9 +151,8 @@ public class Display implements HasNative<Pointer> {
     }
 
     public int initShm() {
-        checkValid(this);
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_display_init_shm(getNative());
+        return WaylandServerCore.INSTANCE()
+                                .wl_display_init_shm(this.pointer);
     }
 
     /**
@@ -188,16 +167,16 @@ public class Display implements HasNative<Pointer> {
      * @return A pointer to the wl_shm format that was added to the list or NULL if adding it to the list failed.
      */
     public int addShmFormat(final int format) {
-        checkValid(this);
-        final Pointer formatPointer = WaylandServerLibrary.INSTANCE()
-                                                          .wl_display_add_shm_format(getNative(),
-                                                                                     format);
-        return formatPointer == null ? 0 : formatPointer.getInt(0);
+        final Pointer<Integer> formatPointer = wrap(Integer.class,
+                                                    WaylandServerCore.INSTANCE()
+                                                                     .wl_display_add_shm_format(this.pointer,
+                                                                                                format));
+        return formatPointer.address == 0L ? 0 : formatPointer.dref();
     }
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return this.pointer.hashCode();
     }
 
     //TODO wl_display_get_additional_shm_formats
@@ -213,18 +192,12 @@ public class Display implements HasNative<Pointer> {
 
         final Display display = (Display) o;
 
-        return getNative().equals(display.getNative());
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        destroy();
-        super.finalize();
+        return this.pointer.equals(display.pointer);
     }
 
     /**
      * Destroy Wayland display object.
-     * <p>
+     * <p/>
      * This function emits the wl_display destroy signal, releases all the sockets added to this display, free's all the
      * globals associated with this display, free's memory of additional shared memory formats and destroy the display
      * object.
@@ -232,15 +205,7 @@ public class Display implements HasNative<Pointer> {
      * @see #addDestroyListener(Listener)
      */
     public void destroy() {
-        if (isValid()) {
-            WaylandServerLibrary.INSTANCE()
-                                .wl_display_destroy(getNative());
-        }
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
+        WaylandServerCore.INSTANCE()
+                         .wl_display_destroy(this.pointer);
     }
 }
-

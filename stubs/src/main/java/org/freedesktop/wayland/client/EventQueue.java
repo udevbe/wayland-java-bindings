@@ -13,35 +13,27 @@
 //limitations under the License.
 package org.freedesktop.wayland.client;
 
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.client.jna.WaylandClientLibrary;
+import org.freedesktop.wayland.client.jaccall.WaylandClientCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
 /**
  * A queue for {@link Proxy} object events.
- * <p>
+ * <p/>
  * Event queues allows the events on a display to be handled in a thread-safe
  * manner.
  *
  * @see Display
  */
-public class EventQueue implements HasNative<Pointer> {
-    private final Pointer pointer;
-    private       boolean valid;
+public class EventQueue {
+    public final Long pointer;
 
-    protected EventQueue(final Pointer pointer) {
+    protected EventQueue(final Long pointer) {
         this.pointer = pointer;
-        this.valid = true;
-        ObjectCache.store(getNative(),
+        ObjectCache.store(this.pointer,
                           this);
     }
 
-    public Pointer getNative() {
-        return this.pointer;
-    }
-
-    public static EventQueue get(final Pointer pointer) {
+    public static EventQueue get(final long pointer) {
         EventQueue eventQueue = ObjectCache.from(pointer);
         if (eventQueue == null) {
             eventQueue = new EventQueue(pointer);
@@ -51,7 +43,7 @@ public class EventQueue implements HasNative<Pointer> {
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -65,36 +57,22 @@ public class EventQueue implements HasNative<Pointer> {
 
         final EventQueue that = (EventQueue) o;
 
-        return getNative().equals(that.getNative());
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        destroy();
-        super.finalize();
+        return this.pointer.equals(that.pointer);
     }
 
     /**
      * Destroy an event queue
-     * <p>
+     * <p/>
      * Destroy the given event queue. Any pending event on that queue is
      * discarded.
-     * <p>
+     * <p/>
      * The {@link Display} object used to create the queue should not be
      * destroyed until all event queues created with it are destroyed with
      * this function.
      */
     public void destroy() {
-        if (isValid()) {
-            this.valid = false;
-            WaylandClientLibrary.INSTANCE()
-                                .wl_event_queue_destroy(getNative());
-            ObjectCache.remove(getNative());
-        }
-    }
-
-    @Override
-    public boolean isValid() {
-        return valid;
+        WaylandClientCore.INSTANCE()
+                         .wl_event_queue_destroy(this.pointer);
+        ObjectCache.remove(this.pointer);
     }
 }

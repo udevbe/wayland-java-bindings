@@ -13,57 +13,46 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.util.ObjectCache;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 
-public class EventSource implements HasNative<Pointer> {
+public final class EventSource {
 
-    private final Pointer pointer;
+    private final Long            pointer;
+    private final Pointer<Object> jObjectPointer;
 
-    private boolean valid;
-
-    protected EventSource(final Pointer pointer) {
+    EventSource(final Pointer<Object> jObjectPointer,
+                final Long pointer) {
+        this.jObjectPointer = jObjectPointer;
         this.pointer = pointer;
-        this.valid = true;
-        ObjectCache.store(getNative(),
-                          this);
     }
 
-    public Pointer getNative() {
-        return this.pointer;
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
-    public static EventSource create(final Pointer pointer) {
-        return new EventSource(pointer);
+    static EventSource create(final Pointer<Object> jObjectPointer,
+                              final long pointer) {
+        return new EventSource(jObjectPointer,
+                               pointer);
     }
 
     public int updateFileDescriptor(final int mask) {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_event_source_fd_update(getNative(),
-                                                              mask);
+        return WaylandServerCore.INSTANCE()
+                                .wl_event_source_fd_update(this.pointer,
+                                                           mask);
     }
 
     public int updateTimer(final int msDelay) {
-        return WaylandServerLibrary.INSTANCE()
-                                   .wl_event_source_timer_update(getNative(),
-                                                                 msDelay);
+        return WaylandServerCore.INSTANCE()
+                                .wl_event_source_timer_update(this.pointer,
+                                                              msDelay);
     }
 
     public void check() {
-        WaylandServerLibrary.INSTANCE()
-                            .wl_event_source_check(getNative());
+        WaylandServerCore.INSTANCE()
+                         .wl_event_source_check(this.pointer);
     }
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -77,23 +66,13 @@ public class EventSource implements HasNative<Pointer> {
 
         final EventSource that = (EventSource) o;
 
-        return getNative().equals(that.getNative());
+        return this.pointer.equals(that.pointer);
 
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        remove();
-        super.finalize();
     }
 
     public int remove() {
-        if (this.valid) {
-            this.valid = false;
-            ObjectCache.remove(getNative());
-            return WaylandServerLibrary.INSTANCE()
-                                       .wl_event_source_remove(getNative());
-        }
-        return 0;
+        this.jObjectPointer.close();
+        return WaylandServerCore.INSTANCE()
+                                .wl_event_source_remove(this.pointer);
     }
 }

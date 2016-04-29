@@ -11,12 +11,21 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
-package org.freedesktop.wayland.util;
+package org.freedesktop.wayland.util.jaccall;
 
-public interface WaylandObject {
-    int getId();
 
-    int getVersion();
+import org.freedesktop.jaccall.CType;
+import org.freedesktop.jaccall.Field;
+import org.freedesktop.jaccall.Struct;
 
-    Object getImplementation();
+@Struct({
+                @Field(name = "size",
+                       type = CType.LONG_LONG),
+                @Field(name = "alloc",
+                       type = CType.LONG_LONG),
+                @Field(name = "data",
+                       type = CType.POINTER)
+        })
+public final class wl_array extends wl_array_Jaccall_StructType {
+
 }

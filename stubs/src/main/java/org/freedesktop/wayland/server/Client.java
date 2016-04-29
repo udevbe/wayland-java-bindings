@@ -13,45 +13,23 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class Client implements HasNative<Pointer> {
+import static org.freedesktop.jaccall.Pointer.nref;
 
-    private final Pointer pointer;
-    private       boolean valid;
+public class Client {
 
-    //private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
+    public final Long pointer;
 
-    protected Client(final Pointer pointer) {
+    Client(final Long pointer) {
         this.pointer = pointer;
-        this.valid = true;
-//        addDestroyListener(new Listener() {
-//            @Override
-//            public void handle() {
-        //notifyDestroyListeners();
-        //Client.this.destroyListeners.clear();
-        //Client.this.valid = false;
-        //ObjectCache.remove(Client.this.pointer);
-        //free();
-//            }
-//        });
-//        ObjectCache.store(pointer,
-//                          this);
     }
-
-//    private void notifyDestroyListeners(){
-//        for (DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
-//            listener.handle();
-//        }
-//    }
 
     /**
      * Create a client for the given file descriptor
-     * <p>
+     * <p/>
      * Given a file descriptor corresponding to one end of a socket, this
      * function will create a {@link Client} and add the new client to
      * the compositors client list.  At that point, the client is
@@ -59,11 +37,11 @@ public class Client implements HasNative<Pointer> {
      * servers listening socket.  When the client eventually sends
      * requests to the compositor, the {@link Client} argument to the request
      * handler will be the client returned from this function.
-     * <p>
+     * <p/>
      * The other end of the socket can be passed to
      * {@link WlDisplayProxy#connectToFd(int)} on the client side or used with the
      * WAYLAND_SOCKET environment variable on the client side.
-     * <p>
+     * <p/>
      * On failure this function sets errno accordingly and returns NULL.
      *
      * @param display The display object
@@ -73,40 +51,32 @@ public class Client implements HasNative<Pointer> {
      */
     public static Client create(final Display display,
                                 final int fd) {
-        return Client.get(WaylandServerLibrary.INSTANCE()
-                                              .wl_client_create(display.getNative(),
-                                                                fd));
+        return Client.get(WaylandServerCore.INSTANCE()
+                                           .wl_client_create(display.pointer,
+                                                             fd));
     }
 
-    public static Client get(final Pointer pointer) {
-        if (pointer == null) {
-            return null;
-        }
-        Client client = ObjectCache.from(pointer);
-        if (client == null) {
-            client = new Client(pointer);
-        }
-        return client;
+    public static Client get(final Long pointer) {
+        return new Client(pointer);
     }
 
     /**
      * Flush pending events to the client,
-     * <p>
+     * <p/>
      * Events sent to clients are queued in a buffer and written to the
      * socket later - typically when the compositor has handled all
      * requests and goes back to block in the event loop.  This function
      * flushes all queued up events for a client immediately.
      */
     public void flush() {
-        //checkValid(this);
-        WaylandServerLibrary.INSTANCE()
-                            .wl_client_flush(getNative());
+        WaylandServerCore.INSTANCE()
+                         .wl_client_flush(this.pointer);
     }
 
 //    protected void addDestroyListener(final Listener listener) {
 //        checkValid(this);
 //        WaylandServerLibrary.INSTANCE()
-//                            .wl_client_add_destroy_listener(getNative(),
+//                            .wl_client_add_destroy_listener(this.pointer,
 //                                                            listener.getNative());
 //    }
 
@@ -118,29 +88,20 @@ public class Client implements HasNative<Pointer> {
 //        this.destroyListeners.remove(destroyListener);
 //    }
 
-    public Pointer getNative() {
-        return this.pointer;
-    }
 
     //TODO wl_client_get_object
     //TODO wl_client_post_no_memory
     //TODO wl_client_get_credentials
 
-    @Override
-    public boolean isValid() {
-        return this.valid;
-    }
-
     /**
      * Get the display object for the given client
-     * <p>
+     * <p/>
      *
      * @return The display object the client is associated with.
      */
     public Display getDisplay() {
-        //checkValid(this);
-        return Display.get(WaylandServerLibrary.INSTANCE()
-                                               .wl_client_get_display(getNative()));
+        return Display.get(WaylandServerCore.INSTANCE()
+                                            .wl_client_get_display(this.pointer));
     }
 
     /**
@@ -151,50 +112,48 @@ public class Client implements HasNative<Pointer> {
      *
      * @return The object or null if there is not object for the given ID
      */
-    public Resource<?> getObject(int id) {
-        return ObjectCache.from(WaylandServerLibrary.INSTANCE()
-                                                    .wl_client_get_object(getNative(),
-                                                                          id));
+    public Resource<?> getObject(final int id) {
+        return ObjectCache.from(WaylandServerCore.INSTANCE()
+                                                 .wl_client_get_object(this.pointer,
+                                                                       id));
     }
 
     /**
      * Return Unix credentials for the client
-     * <p>
+     * <p/>
      * This function returns the process ID, the user ID and the group ID
      * for the given client.  The credentials come from getsockopt() with
      * SO_PEERCRED, on the client socket fd.
-     * <p>
+     * <p/>
      * Be aware that for clients that a compositor forks and execs and
      * then connects using socketpair(), this function will return the
      * credentials for the compositor.  The credentials for the socketpair
      * are set at creation time in the compositor.
      */
     public ClientCredentials getCredentials() {
-        final Pointer pid = new Memory(Integer.SIZE);
-        final Pointer uid = new Memory(Integer.SIZE);
-        final Pointer gid = new Memory(Integer.SIZE);
+        final Pointer<Integer> pid = nref(0);
+        final Pointer<Integer> uid = nref(0);
+        final Pointer<Integer> gid = nref(0);
 
-        WaylandServerLibrary.INSTANCE()
-                            .wl_client_get_credentials(getNative(),
-                                                       pid,
-                                                       uid,
-                                                       gid);
+        WaylandServerCore.INSTANCE()
+                         .wl_client_get_credentials(this.pointer,
+                                                    pid.address,
+                                                    uid.address,
+                                                    gid.address);
 
-        return new ClientCredentials(pid.getInt(0),
-                                     uid.getInt(0),
-                                     gid.getInt(0));
+        return new ClientCredentials(pid.dref(),
+                                     uid.dref(),
+                                     gid.dref());
     }
 
     public void destroy() {
-        // if (isValid()) {
-        WaylandServerLibrary.INSTANCE()
-                            .wl_client_destroy(getNative());
-        // }
+        WaylandServerCore.INSTANCE()
+                         .wl_client_destroy(this.pointer);
     }
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -208,13 +167,7 @@ public class Client implements HasNative<Pointer> {
 
         final Client client = (Client) o;
 
-        return getNative().equals(client.getNative());
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        //destroy();
-        super.finalize();
+        return this.pointer.equals(client.pointer);
     }
 }
 

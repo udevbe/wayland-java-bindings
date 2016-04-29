@@ -13,42 +13,36 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
-
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.util.jna.wl_interface;
-import org.freedesktop.wayland.util.jna.wl_message;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.wayland.util.jaccall.wl_interface;
+import org.freedesktop.wayland.util.jaccall.wl_message;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.freedesktop.jaccall.Pointer.malloc;
+import static org.freedesktop.jaccall.Size.sizeof;
 
 /**
  * Wrapper class for any Java type to get or create a native wayland interface for use with the native wayland
  * library. To get a native wayland interface for a given Java type, use {@link #get(Class)}.
  */
-public class InterfaceMeta implements HasNative<wl_interface> {
+public class InterfaceMeta {
 
-    public static final  InterfaceMeta                NO_INTERFACE  = new InterfaceMeta(new wl_interface(Pointer.NULL));
-    private static final Map<Class<?>, InterfaceMeta> INTERFACE_MAP = new HashMap<Class<?>, InterfaceMeta>();
+    public static final  InterfaceMeta                NO_INTERFACE  = new InterfaceMeta(Pointer.wrap(wl_interface.class,
+                                                                                                     0L));
+    private static final Map<Class<?>, InterfaceMeta> INTERFACE_MAP = new HashMap<>();
 
-    private final wl_interface pointer;
+    public final Pointer<wl_interface> pointer;
 
-    private boolean valid;
-
-    protected InterfaceMeta(final wl_interface pointer) {
+    protected InterfaceMeta(final Pointer<wl_interface> pointer) {
         this.pointer = pointer;
-        ObjectCache.store(getNative().getPointer(),
+        ObjectCache.store(getNative().address,
                           this);
     }
 
-    public wl_interface getNative() {
+    public Pointer<wl_interface> getNative() {
         return this.pointer;
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
     }
 
     /**
@@ -82,56 +76,42 @@ public class InterfaceMeta implements HasNative<wl_interface> {
                                           final int version,
                                           final Message[] methods,
                                           final Message[] events) {
-        final wl_message.ByReference[] methodPointer;
-        if (methods.length > 0) {
-            methodPointer = (wl_message.ByReference[]) new wl_message.ByReference().toArray(methods.length);
-            for (int i = 0; i < methods.length; i++) {
-                MessageMeta.init(methodPointer[i],
-                                 methods[i]);
-            }
-        }
-        else {
-            methodPointer = new wl_message.ByReference[]{new wl_message.ByReference(Pointer.NULL)};
+
+        final int method_count = methods.length;
+        final Pointer<wl_message> methodPointer = malloc(method_count * wl_message.SIZE,
+                                                         wl_message.class);
+        for (int i = 0; i < method_count; i++) {
+            MessageMeta.init(methodPointer.offset(i),
+                             methods[i]);
         }
 
-        final wl_message.ByReference[] eventPointer;
-        if (events.length > 0) {
-            eventPointer = (wl_message.ByReference[]) new wl_message.ByReference().toArray(events.length);
-            for (int i = 0; i < events.length; i++) {
-                MessageMeta.init(eventPointer[i],
-                                 events[i]);
-            }
-        }
-        else {
-            eventPointer = new wl_message.ByReference[]{new wl_message.ByReference(Pointer.NULL)};
+        final int event_count = events.length;
+        final Pointer<wl_message> eventPointer = malloc(event_count * wl_message.SIZE,
+                                                        wl_message.class);
+        for (int i = 0; i < event_count; i++) {
+            MessageMeta.init(eventPointer.offset(i),
+                             events[i]);
         }
 
-        final wl_interface interfacePointer = new wl_interface();
-        //set name
-        final Pointer m = new Memory(name.length() + 1);
-        m.setString(0,
-                    name);
-        interfacePointer.writeField("name",
-                                    m);
-        //set version
-        interfacePointer.writeField("version",
-                                    version);
-        //set methods
-        interfacePointer.writeField("methods",
-                                    methodPointer[0]);
-        interfacePointer.writeField("method_count",
-                                    methods.length);
-        //set events
-        interfacePointer.writeField("events",
-                                    eventPointer[0]);
-        interfacePointer.writeField("event_count",
-                                    events.length);
+        final Pointer<wl_interface> wlInterfacePointer = malloc(wl_interface.SIZE,
+                                                                wl_interface.class);
+        final Pointer<String> namePointer = malloc(sizeof(name),
+                                                   String.class);
+        namePointer.write(name);
 
-        return InterfaceMeta.get(interfacePointer);
+        final wl_interface wlInterface = wlInterfacePointer.dref();
+        wlInterface.name(namePointer);
+        wlInterface.version(version);
+        wlInterface.method_count(method_count);
+        wlInterface.methods(methodPointer);
+        wlInterface.event_count(event_count);
+        wlInterface.events(eventPointer);
+
+        return InterfaceMeta.get(wlInterfacePointer);
     }
 
-    public static InterfaceMeta get(final wl_interface pointer) {
-        InterfaceMeta interfaceMeta = ObjectCache.from(pointer.getPointer());
+    public static InterfaceMeta get(final Pointer<wl_interface> pointer) {
+        InterfaceMeta interfaceMeta = ObjectCache.from(pointer.address);
         if (interfaceMeta == null) {
             interfaceMeta = new InterfaceMeta(pointer);
         }
@@ -139,7 +119,9 @@ public class InterfaceMeta implements HasNative<wl_interface> {
     }
 
     public String getName() {
-        return this.pointer.name.getString(0);
+        return this.pointer.dref()
+                           .name()
+                           .dref();
     }
 
     @Override
@@ -159,11 +141,5 @@ public class InterfaceMeta implements HasNative<wl_interface> {
         final InterfaceMeta that = (InterfaceMeta) o;
 
         return getNative().equals(that.getNative());
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        this.valid = false;
-        super.finalize();
     }
 }
