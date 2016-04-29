@@ -13,11 +13,11 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
-import static com.github.zubnix.jaccall.Pointer.nref;
+import static org.freedesktop.jaccall.Pointer.nref;
 
 public class Client {
 
@@ -57,9 +57,6 @@ public class Client {
     }
 
     public static Client get(final Long pointer) {
-        if (pointer == 0L) {
-            return null;
-        }
         return new Client(pointer);
     }
 

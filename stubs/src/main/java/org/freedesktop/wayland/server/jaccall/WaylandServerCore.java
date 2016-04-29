@@ -1,9 +1,9 @@
 package org.freedesktop.wayland.server.jaccall;
 
-import com.github.zubnix.jaccall.Lib;
-import com.github.zubnix.jaccall.Pointer;
-import com.github.zubnix.jaccall.Ptr;
-import com.github.zubnix.jaccall.Unsigned;
+import org.freedesktop.jaccall.Lib;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
+import org.freedesktop.jaccall.Unsigned;
 import org.freedesktop.wayland.util.jaccall.WaylandUtil;
 import org.freedesktop.wayland.util.jaccall.wl_argument;
 import org.freedesktop.wayland.util.jaccall.wl_array;
@@ -12,7 +12,7 @@ import org.freedesktop.wayland.util.jaccall.wl_interface;
 import org.freedesktop.wayland.util.jaccall.wl_list;
 import org.freedesktop.wayland.util.jaccall.wl_log_func_t;
 
-import static com.github.zubnix.jaccall.Pointer.ref;
+import static org.freedesktop.jaccall.Pointer.ref;
 
 @Lib("wayland-server")
 public class WaylandServerCore implements WaylandUtil {

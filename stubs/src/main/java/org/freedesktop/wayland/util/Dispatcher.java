@@ -13,9 +13,9 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
-import com.github.zubnix.jaccall.JNI;
-import com.github.zubnix.jaccall.Pointer;
-import com.github.zubnix.jaccall.Ptr;
+import org.freedesktop.jaccall.JNI;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
 import org.freedesktop.wayland.util.jaccall.wl_argument;
 import org.freedesktop.wayland.util.jaccall.wl_array;
 import org.freedesktop.wayland.util.jaccall.wl_dispatcher_func_t;
@@ -29,13 +29,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.github.zubnix.jaccall.Pointer.wrap;
+import static org.freedesktop.jaccall.Pointer.wrap;
 import static org.freedesktop.wayland.util.jaccall.Pointerwl_dispatcher_func_t.nref;
 
 public final class Dispatcher implements wl_dispatcher_func_t {
 
-    private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Integer, Method>>();
-    private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
+    private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<>();
+    private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<>();
     public static final  Pointer<wl_dispatcher_func_t>       INSTANCE          = nref(new Dispatcher());
 
     Dispatcher() {
@@ -128,7 +128,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
 
         Map<Integer, Method> methodMap = METHOD_CACHE.get(implementationType);
         if (methodMap == null) {
-            methodMap = new HashMap<Integer, Method>();
+            methodMap = new HashMap<>();
             METHOD_CACHE.put(implementationType,
                              methodMap);
         }

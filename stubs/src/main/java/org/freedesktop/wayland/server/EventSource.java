@@ -13,7 +13,7 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 
 public final class EventSource {

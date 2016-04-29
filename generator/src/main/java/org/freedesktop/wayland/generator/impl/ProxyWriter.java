@@ -174,7 +174,7 @@ public class ProxyWriter {
             final String sinceAttr = requestElement.getAttribute(ATTRIBUTE_SINCE);
             final String since = sinceAttr.isEmpty() ? "1" : sinceAttr;
 
-            final LinkedList<String> args = new LinkedList<String>();
+            final LinkedList<String> args = new LinkedList<>();
             String returnType = "void";
             String implementationType;
 
@@ -233,7 +233,7 @@ public class ProxyWriter {
                                    EnumSet.of(Modifier.PUBLIC),
                                    argParams);
 
-            final List<String> argValues = new LinkedList<String>();
+            final List<String> argValues = new LinkedList<>();
             int argIndex = 0;
             for (int j = 0; j < argParams.length / 2; j++) {
                 final int k = (j * 2) + 1;
@@ -313,7 +313,7 @@ public class ProxyWriter {
                                               Modifier.STATIC),
                                    "String",
                                    "name")
-                      .emitStatement("return new %s(org.freedesktop.wayland.client.jaccall.WaylandClientCore.INSTANCE().wl_display_connect(com.github.zubnix.jaccall.Pointer.nref(name).address))",
+                      .emitStatement("return new %s(org.freedesktop.wayland.client.jaccall.WaylandClientCore.INSTANCE().wl_display_connect(org.freedesktop.jaccall.Pointer.nref(name).address))",
                                      getSimpleJavaTypeNameProxy(interfaceNode,
                                                                 1))
                       .endMethod()

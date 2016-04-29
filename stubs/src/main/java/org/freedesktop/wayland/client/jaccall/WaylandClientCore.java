@@ -1,10 +1,10 @@
 package org.freedesktop.wayland.client.jaccall;
 
 
-import com.github.zubnix.jaccall.Lib;
-import com.github.zubnix.jaccall.Pointer;
-import com.github.zubnix.jaccall.Ptr;
-import com.github.zubnix.jaccall.Unsigned;
+import org.freedesktop.jaccall.Lib;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
+import org.freedesktop.jaccall.Unsigned;
 import org.freedesktop.wayland.util.jaccall.wl_argument;
 import org.freedesktop.wayland.util.jaccall.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jaccall.wl_interface;

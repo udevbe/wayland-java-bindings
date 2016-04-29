@@ -1,8 +1,8 @@
 package org.freedesktop.wayland.client.egl.jaccall;
 
 
-import com.github.zubnix.jaccall.Lib;
-import com.github.zubnix.jaccall.Ptr;
+import org.freedesktop.jaccall.Lib;
+import org.freedesktop.jaccall.Ptr;
 
 @Lib("wayland-egl")
 public class WaylandEglCore {

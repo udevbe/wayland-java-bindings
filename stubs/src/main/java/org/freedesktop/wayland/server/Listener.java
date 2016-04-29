@@ -13,15 +13,15 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.Pointer;
-import com.github.zubnix.jaccall.Ptr;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
 import org.freedesktop.wayland.server.jaccall.Pointerwl_notify_func_t;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_listener;
 import org.freedesktop.wayland.server.jaccall.wl_notify_func_t;
 import org.freedesktop.wayland.util.ObjectCache;
 
-import static com.github.zubnix.jaccall.Pointer.ref;
+import static org.freedesktop.jaccall.Pointer.ref;
 
 /**
  * A single listener for Wayland signals
