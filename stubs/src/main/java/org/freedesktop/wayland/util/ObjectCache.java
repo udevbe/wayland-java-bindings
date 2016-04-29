@@ -14,7 +14,7 @@
 package org.freedesktop.wayland.util;
 
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,11 +25,11 @@ import java.util.Map;
  * value.
  */
 public class ObjectCache {
-    private static final Map<Long, Object> MAPPED_OBJECTS = new HashMap<Long, Object>();
+    private static final Map<Long, Object> MAPPED_OBJECTS = new HashMap<>();
 
     /**
      * Retrieve a POJO that is mapped to a native pointer. This method should be used to easily retrieve a POJO with a
-     * native context. This method will only return a POJO if it was previously cached with a call to {@link #store(Pointer, Object)}
+     * native context. This method will only return a POJO if it was previously cached with a call to {@link #store(long, Object)}
      *
      * @param pointer The pointer of the associated object.
      * @param <T>     The type of the POJO to cast.

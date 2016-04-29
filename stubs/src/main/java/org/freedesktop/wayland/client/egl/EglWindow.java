@@ -13,12 +13,12 @@
 //limitations under the License.
 package org.freedesktop.wayland.client.egl;
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.client.egl.jaccall.WaylandEglCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
-import static com.github.zubnix.jaccall.Pointer.nref;
+import static org.freedesktop.jaccall.Pointer.nref;
 
 public class EglWindow {
 

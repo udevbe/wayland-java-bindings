@@ -13,7 +13,7 @@
 //limitations under the License.
 package org.freedesktop.wayland.client;
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.client.jaccall.WaylandClientCore;
 import org.freedesktop.wayland.util.Arguments;
 import org.freedesktop.wayland.util.Dispatcher;
@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public abstract class Proxy<I> implements WaylandObject {
 
-    private static final Map<Class<? extends Proxy<?>>, Constructor<? extends Proxy<?>>> PROXY_CONSTRUCTORS = new HashMap<Class<? extends Proxy<?>>, Constructor<? extends Proxy<?>>>();
+    private static final Map<Class<? extends Proxy<?>>, Constructor<? extends Proxy<?>>> PROXY_CONSTRUCTORS = new HashMap<>();
 
     public final Long pointer;
 
@@ -177,19 +177,10 @@ public abstract class Proxy<I> implements WaylandObject {
                                 version,
                                 newProxyCls);
         }
-        catch (final NoSuchMethodException e) {
-            throw new RuntimeException("Uh oh, this is a bug!",
-                                       e);
-        }
-        catch (final IllegalAccessException e) {
-            throw new RuntimeException("Uh oh, this is a bug!",
-                                       e);
-        }
-        catch (final InvocationTargetException e) {
-            throw new RuntimeException("Uh oh, this is a bug!",
-                                       e);
-        }
-        catch (final InstantiationException e) {
+        catch (final NoSuchMethodException |
+                IllegalAccessException |
+                InstantiationException |
+                InvocationTargetException e) {
             throw new RuntimeException("Uh oh, this is a bug!",
                                        e);
         }

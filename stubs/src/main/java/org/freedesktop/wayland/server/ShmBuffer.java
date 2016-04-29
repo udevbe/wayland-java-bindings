@@ -13,7 +13,7 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.JNI;
+import org.freedesktop.jaccall.JNI;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 
 import java.nio.ByteBuffer;

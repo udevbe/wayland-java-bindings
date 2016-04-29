@@ -13,9 +13,9 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.Pointer;
-import com.github.zubnix.jaccall.Ptr;
-import com.github.zubnix.jaccall.Unsigned;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
+import org.freedesktop.jaccall.Unsigned;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_global_bind_func_t;
 import org.freedesktop.wayland.util.InterfaceMeta;

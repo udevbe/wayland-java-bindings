@@ -13,22 +13,22 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.github.zubnix.jaccall.Pointer.nref;
-import static com.github.zubnix.jaccall.Pointer.wrap;
+import static org.freedesktop.jaccall.Pointer.nref;
+import static org.freedesktop.jaccall.Pointer.wrap;
 
 public class Display {
 
     public static final int OBJECT_ID = 1;
 
     public final Long pointer;
-    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
+    private final Set<DestroyListener> destroyListeners = new HashSet<>();
 
     protected Display(final Long pointer) {
         this.pointer = pointer;
@@ -52,7 +52,7 @@ public class Display {
     }
 
     private void notifyDestroyListeners() {
-        for (final DestroyListener listener : new HashSet<DestroyListener>(this.destroyListeners)) {
+        for (final DestroyListener listener : new HashSet<>(this.destroyListeners)) {
             listener.handle();
         }
     }

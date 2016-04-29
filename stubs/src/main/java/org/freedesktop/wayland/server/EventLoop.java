@@ -13,9 +13,9 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.Pointer;
-import com.github.zubnix.jaccall.Ptr;
-import com.github.zubnix.jaccall.Unsigned;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
+import org.freedesktop.jaccall.Unsigned;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_event_loop_fd_func_t;
 import org.freedesktop.wayland.server.jaccall.wl_event_loop_idle_func_t;
@@ -26,7 +26,7 @@ import org.freedesktop.wayland.util.ObjectCache;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.github.zubnix.jaccall.Pointer.wrap;
+import static org.freedesktop.jaccall.Pointer.wrap;
 import static org.freedesktop.wayland.server.jaccall.Pointerwl_event_loop_fd_func_t.nref;
 import static org.freedesktop.wayland.server.jaccall.Pointerwl_event_loop_idle_func_t.nref;
 import static org.freedesktop.wayland.server.jaccall.Pointerwl_event_loop_signal_func_t.nref;
@@ -77,7 +77,7 @@ public class EventLoop {
 
 
     public final Long pointer;
-    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
+    private final Set<DestroyListener> destroyListeners = new HashSet<>();
 
     private EventLoop(final Long pointer) {
         this.pointer = pointer;

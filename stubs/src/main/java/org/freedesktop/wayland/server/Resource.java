@@ -13,8 +13,8 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.github.zubnix.jaccall.Pointer;
-import com.github.zubnix.jaccall.Ptr;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
 import org.freedesktop.wayland.server.jaccall.Pointerwl_resource_destroy_func_t;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_resource_destroy_func_t;
@@ -48,7 +48,7 @@ public abstract class Resource<I> implements WaylandObject {
 
     public final  Long pointer;
     private final I    implementation;
-    private final Set<DestroyListener> destroyListeners = new HashSet<DestroyListener>();
+    private final Set<DestroyListener> destroyListeners = new HashSet<>();
 
     private final Pointer<Object> jObjectPointer;
 

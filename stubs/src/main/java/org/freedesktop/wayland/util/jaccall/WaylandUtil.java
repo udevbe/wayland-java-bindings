@@ -14,7 +14,7 @@
 package org.freedesktop.wayland.util.jaccall;
 
 
-import com.github.zubnix.jaccall.Ptr;
+import org.freedesktop.jaccall.Ptr;
 
 public interface WaylandUtil {
 

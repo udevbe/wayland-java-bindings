@@ -1,8 +1,8 @@
 package org.freedesktop.wayland.server.jaccall;
 
-import com.github.zubnix.jaccall.CType;
-import com.github.zubnix.jaccall.Field;
-import com.github.zubnix.jaccall.Struct;
+import org.freedesktop.jaccall.CType;
+import org.freedesktop.jaccall.Field;
+import org.freedesktop.jaccall.Struct;
 import org.freedesktop.wayland.util.jaccall.wl_list;
 
 @Struct({

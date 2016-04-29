@@ -13,7 +13,7 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.client.Proxy;
 import org.freedesktop.wayland.server.Resource;
 import org.freedesktop.wayland.util.jaccall.wl_argument;
@@ -23,14 +23,14 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.zubnix.jaccall.Pointer.malloc;
-import static com.github.zubnix.jaccall.Pointer.nref;
-import static com.github.zubnix.jaccall.Pointer.ref;
-import static com.github.zubnix.jaccall.Pointer.wrap;
+import static org.freedesktop.jaccall.Pointer.malloc;
+import static org.freedesktop.jaccall.Pointer.nref;
+import static org.freedesktop.jaccall.Pointer.ref;
+import static org.freedesktop.jaccall.Pointer.wrap;
 
 public class Arguments {
 
-    private final List<Object> argumentRefs = new LinkedList<Object>();
+    private final List<Object> argumentRefs = new LinkedList<>();
     public final Pointer<wl_argument> pointer;
 
     Arguments(final Pointer<wl_argument> pointer) {

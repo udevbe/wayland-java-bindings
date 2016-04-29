@@ -13,15 +13,15 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.util.jaccall.wl_interface;
 import org.freedesktop.wayland.util.jaccall.wl_message;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.zubnix.jaccall.Pointer.malloc;
-import static com.github.zubnix.jaccall.Size.sizeof;
+import static org.freedesktop.jaccall.Pointer.malloc;
+import static org.freedesktop.jaccall.Size.sizeof;
 
 /**
  * Wrapper class for any Java type to get or create a native wayland interface for use with the native wayland
@@ -31,7 +31,7 @@ public class InterfaceMeta {
 
     public static final  InterfaceMeta                NO_INTERFACE  = new InterfaceMeta(Pointer.wrap(wl_interface.class,
                                                                                                      0L));
-    private static final Map<Class<?>, InterfaceMeta> INTERFACE_MAP = new HashMap<Class<?>, InterfaceMeta>();
+    private static final Map<Class<?>, InterfaceMeta> INTERFACE_MAP = new HashMap<>();
 
     public final Pointer<wl_interface> pointer;
 

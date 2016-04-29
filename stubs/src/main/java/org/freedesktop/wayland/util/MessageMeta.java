@@ -13,12 +13,12 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
-import com.github.zubnix.jaccall.Pointer;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.util.jaccall.wl_interface;
 import org.freedesktop.wayland.util.jaccall.wl_message;
 
-import static com.github.zubnix.jaccall.Pointer.malloc;
-import static com.github.zubnix.jaccall.Size.sizeof;
+import static org.freedesktop.jaccall.Pointer.malloc;
+import static org.freedesktop.jaccall.Size.sizeof;
 
 /**
  * Wrapper class for a {@link Message} to create a native wayland message for use with the native library. To create
