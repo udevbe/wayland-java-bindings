@@ -13,39 +13,33 @@
 //limitations under the License.
 package org.freedesktop.wayland.client.egl;
 
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
-import org.freedesktop.wayland.HasNative;
+import org.freedesktop.jaccall.Pointer;
 import org.freedesktop.wayland.client.Proxy;
-import org.freedesktop.wayland.client.egl.jna.WaylandEglLibrary;
+import org.freedesktop.wayland.client.egl.jaccall.WaylandEglCore;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public class EglWindow implements HasNative<Pointer> {
+import static org.freedesktop.jaccall.Pointer.nref;
 
-    private final Pointer pointer;
-    private       boolean valid;
+public class EglWindow {
 
-    protected EglWindow(final Pointer pointer) {
+    public final long pointer;
+
+    protected EglWindow(final long pointer) {
         this.pointer = pointer;
-        this.valid = true;
-        ObjectCache.store(getNative(),
+        ObjectCache.store(this.pointer,
                           this);
-    }
-
-    @Override
-    public Pointer getNative() {
-        return this.pointer;
     }
 
     public static EglWindow create(final Proxy<?> wlSurfaceProxy,
                                    final int width,
                                    final int height) {
-        return EglWindow.get(WaylandEglLibrary.INSTANCE.wl_egl_window_create(wlSurfaceProxy.getNative(),
-                                                                             width,
-                                                                             height));
+        return EglWindow.get(WaylandEglCore.INSTANCE()
+                                           .wl_egl_window_create(wlSurfaceProxy.pointer,
+                                                                 width,
+                                                                 height));
     }
 
-    public static EglWindow get(final Pointer pointer) {
+    public static EglWindow get(final long pointer) {
         EglWindow eglWindow = ObjectCache.from(pointer);
         if (eglWindow == null) {
             eglWindow = new EglWindow(pointer);
@@ -57,24 +51,24 @@ public class EglWindow implements HasNative<Pointer> {
                        final int height,
                        final int dx,
                        final int dy) {
-        WaylandEglLibrary.INSTANCE.wl_egl_window_resize(getNative(),
-                                                        width,
-                                                        height,
-                                                        dx,
-                                                        dy);
+        WaylandEglCore.INSTANCE()
+                      .wl_egl_window_resize(this.pointer,
+                                            width,
+                                            height,
+                                            dx,
+                                            dy);
     }
 
     public Size getAttachedSize() {
-        final IntByReference x = new IntByReference();
-        final IntByReference y = new IntByReference();
-        WaylandEglLibrary.INSTANCE.wl_egl_window_get_attached_size(getNative(),
-                                                                   x,
-                                                                   y);
-        return new Size(x.getValue(),
-                        y.getValue());
-    }    @Override
-    public boolean isValid() {
-        return this.valid;
+        final Pointer<Integer> x = nref(0);
+        final Pointer<Integer> y = nref(0);
+
+        WaylandEglCore.INSTANCE()
+                      .wl_egl_window_get_attached_size(this.pointer,
+                                                       x.address,
+                                                       y.address);
+        return new Size(x.dref(),
+                        y.dref());
     }
 
     public static final class Size {
@@ -121,14 +115,10 @@ public class EglWindow implements HasNative<Pointer> {
     }
 
     public void destroy() {
-        if (isValid()) {
-            this.valid = false;
-            WaylandEglLibrary.INSTANCE.wl_egl_window_destroy(getNative());
-            ObjectCache.remove(getNative());
-        }
+        WaylandEglCore.INSTANCE()
+                      .wl_egl_window_destroy(this.pointer);
+        ObjectCache.remove(this.pointer);
     }
-
-
 
 
     @Override
@@ -142,17 +132,11 @@ public class EglWindow implements HasNative<Pointer> {
 
         final EglWindow eglWindow = (EglWindow) o;
 
-        return getNative().equals(eglWindow.getNative());
+        return this.pointer == eglWindow.pointer;
     }
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        destroy();
-        super.finalize();
+        return new Long(this.pointer).hashCode();
     }
 }

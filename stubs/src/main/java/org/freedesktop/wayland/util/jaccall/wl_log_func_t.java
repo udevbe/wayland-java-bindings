@@ -11,12 +11,12 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
-package org.freedesktop.wayland.util;
+package org.freedesktop.wayland.util.jaccall;
 
-public interface WaylandObject {
-    int getId();
+import org.freedesktop.jaccall.Functor;
+import org.freedesktop.jaccall.Ptr;
 
-    int getVersion();
-
-    Object getImplementation();
+@Functor
+public interface wl_log_func_t {
+    void $(@Ptr(String.class) long charPtr);
 }

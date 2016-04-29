@@ -1,6 +1,6 @@
 wayland-java-bindings
 =====================
-[![Build Status](https://travis-ci.org/udevbe/wayland-java-bindings.svg?branch=master)](https://travis-ci.org/udevbe/wayland-java-bindings)
+[![Build Status](https://travis-ci.org/Zubnix/wayland-java-bindings.svg?branch=master)](https://travis-ci.org/Zubnix/wayland-java-bindings)
 The Wayland protocol Java-language Binding
 
 Javadoc

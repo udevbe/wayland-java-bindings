@@ -13,10 +13,13 @@
 //limitations under the License.
 package org.freedesktop.wayland.util;
 
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.util.jna.wl_array;
-import org.freedesktop.wayland.util.jna.wl_dispatcher_func_t;
+import org.freedesktop.jaccall.JNI;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
+import org.freedesktop.wayland.util.jaccall.wl_argument;
+import org.freedesktop.wayland.util.jaccall.wl_array;
+import org.freedesktop.wayland.util.jaccall.wl_dispatcher_func_t;
+import org.freedesktop.wayland.util.jaccall.wl_message;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -26,30 +29,34 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.freedesktop.jaccall.Pointer.wrap;
+import static org.freedesktop.wayland.util.jaccall.Pointerwl_dispatcher_func_t.nref;
+
 public final class Dispatcher implements wl_dispatcher_func_t {
 
-    private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<Class<?>, Map<Integer, Method>>();
-    private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<Class<?>, Constructor<?>>();
-    public static        Dispatcher                          INSTANCE          = new Dispatcher();
+    private static final Map<Class<?>, Map<Integer, Method>> METHOD_CACHE      = new HashMap<>();
+    private static final Map<Class<?>, Constructor<?>>       CONSTRUCTOR_CACHE = new HashMap<>();
+    public static final  Pointer<wl_dispatcher_func_t>       INSTANCE          = nref(new Dispatcher());
 
     Dispatcher() {
     }
 
-    @Override
-    public int apply(final Pointer implPointer,
-                     final Pointer implWlObject,
-                     final int opcode,
-                     final Pointer wlMessage,
-                     final Pointer wlArguments) {
+    public int $(@Ptr(Object.class) final long implementation,
+                 @Ptr final long wlObject,
+                 final int opcode,
+                 @Ptr(wl_message.class) final long wlMessage,
+                 @Ptr(wl_argument.class) final long wlArguments) {
 
         Method        method        = null;
         Object[]      jargs         = null;
         Message       message       = null;
         WaylandObject waylandObject = null;
+
         try {
             message = ObjectCache.<MessageMeta>from(wlMessage)
                                  .getMessage();
-            waylandObject = ObjectCache.from(implWlObject);
+            waylandObject = (WaylandObject) wrap(Object.class,
+                                                 implementation).dref();
             method = get(waylandObject.getClass(),
                          waylandObject.getImplementation()
                                       .getClass(),
@@ -71,7 +78,8 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             jargs[0] = waylandObject;
 
             if (nroArgs > 0) {
-                final Arguments arguments = new Arguments(wlArguments);
+                final Arguments arguments = new Arguments(wrap(wl_argument.class,
+                                                               wlArguments));
                 boolean optional = false;
                 int argIndex = 0;
                 for (final char signatureChar : messageSignature.toCharArray()) {
@@ -120,7 +128,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
 
         Map<Integer, Method> methodMap = METHOD_CACHE.get(implementationType);
         if (methodMap == null) {
-            methodMap = new HashMap<Integer, Method>();
+            methodMap = new HashMap<>();
             METHOD_CACHE.put(implementationType,
                              methodMap);
         }
@@ -165,15 +173,16 @@ public final class Dispatcher implements wl_dispatcher_func_t {
                 return arguments.getH(index);
             }
             case 'o': {
-                final Pointer objectPointer = arguments.getO(index);
-                final Object waylandObject;
-                if (objectPointer == Pointer.NULL) {
+                final Pointer<?> waylandObjectPointer = arguments.getO(index);
+
+                final WaylandObject waylandObject;
+                if (waylandObjectPointer.address == 0L) {
                     waylandObject = null;
                 }
                 else {
-                    final Object cachedObject = ObjectCache.from(objectPointer);
+                    final WaylandObject cachedObject = ObjectCache.from(waylandObjectPointer.address);
                     if (cachedObject == null) {
-                        waylandObject = reconstruct(objectPointer,
+                        waylandObject = reconstruct(waylandObjectPointer,
                                                     targetType);
                     }
                     else {
@@ -190,8 +199,8 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             }
             case 'a': {
                 final wl_array wlArray = arguments.getA(index);
-                return Native.getDirectByteBuffer(Pointer.nativeValue(wlArray.data),
-                                                  wlArray.alloc);
+                return JNI.wrap(wlArray.data().address,
+                                wlArray.alloc());
             }
             default: {
                 throw new IllegalArgumentException("Can not convert wl_argument type: " + type);
@@ -199,16 +208,16 @@ public final class Dispatcher implements wl_dispatcher_func_t {
         }
     }
 
-    private static Object reconstruct(final Pointer objectPointer,
-                                      final Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private static WaylandObject reconstruct(final Pointer<?> objectPointer,
+                                             final Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<?> constructor = CONSTRUCTOR_CACHE.get(targetType);
         if (constructor == null) {
             //FIXME use static get(Pointer) method instead of proxy or resource
-            constructor = targetType.getDeclaredConstructor(Pointer.class);
+            constructor = targetType.getDeclaredConstructor(Long.class);
             constructor.setAccessible(true);
             CONSTRUCTOR_CACHE.put(targetType,
                                   constructor);
         }
-        return constructor.newInstance(objectPointer);
+        return (WaylandObject) constructor.newInstance(objectPointer.address);
     }
 }

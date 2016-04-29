@@ -13,31 +13,35 @@
 //limitations under the License.
 package org.freedesktop.wayland.server;
 
-import com.sun.jna.Pointer;
-import org.freedesktop.wayland.HasNative;
-import org.freedesktop.wayland.server.jna.WaylandServerLibrary;
-import org.freedesktop.wayland.server.jna.wl_global_bind_func_t;
+import org.freedesktop.jaccall.Pointer;
+import org.freedesktop.jaccall.Ptr;
+import org.freedesktop.jaccall.Unsigned;
+import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
+import org.freedesktop.wayland.server.jaccall.wl_global_bind_func_t;
 import org.freedesktop.wayland.util.InterfaceMeta;
 import org.freedesktop.wayland.util.ObjectCache;
 
-public abstract class Global<R extends Resource<?>> implements HasNative<Pointer> {
-    //keep reference to avoid being garbage collected
-    private final wl_global_bind_func_t nativeCallback = new wl_global_bind_func_t() {
+import static org.freedesktop.wayland.server.jaccall.Pointerwl_global_bind_func_t.nref;
 
+public abstract class Global<R extends Resource<?>> {
+
+    private static final Pointer<wl_global_bind_func_t> FUNC_T_POINTER = nref(new wl_global_bind_func_t() {
         @Override
-        public void apply(final Pointer wlClient,
-                          final Pointer data,
-                          final int version,
-                          final int id) {
-            onBindClient(Client.get(wlClient),
-                         version,
-                         id);
+        public void $(@Ptr final long client,
+                      @Ptr(Object.class) final long data,
+                      @Unsigned final int version,
+                      @Unsigned final int id) {
+            final Global<?> global = (Global<?>) Pointer.wrap(Object.class,
+                                                              data)
+                                                        .dref();
+            global.onBindClient(Client.get(client),
+                                version,
+                                id);
         }
-    };
+    });
 
-    private final Pointer pointer;
-
-    private boolean valid;
+    private final Long            pointer;
+    private final Pointer<Object> jObjectPointer;
 
     protected Global(final Display display,
                      final Class<R> resourceClass,
@@ -46,28 +50,17 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
             throw new IllegalArgumentException("Version must be bigger than 0");
         }
 
-        this.pointer = WaylandServerLibrary.INSTANCE()
-                                           .wl_global_create(display.getNative(),
-                                                             InterfaceMeta.get(resourceClass)
-                                                                          .getNative(),
-                                                             version,
-                                                             Pointer.NULL,
-                                                             this.nativeCallback);
-        this.valid = true;
-        ObjectCache.store(getNative(),
+        this.jObjectPointer = Pointer.from(this);
+
+        this.pointer = WaylandServerCore.INSTANCE()
+                                        .wl_global_create(display.pointer,
+                                                          InterfaceMeta.get(resourceClass)
+                                                                       .getNative().address,
+                                                          version,
+                                                          this.jObjectPointer.address,
+                                                          FUNC_T_POINTER.address);
+        ObjectCache.store(this.pointer,
                           this);
-    }
-
-    public Pointer getNative() {
-        return this.pointer;
-    }
-
-    //called from jni
-    protected void bindClient(final long clientPointer,
-                              final int version,
-                              final int id) {
-
-        //TODO add some extra checks?
     }
 
     public abstract R onBindClient(Client client,
@@ -76,7 +69,7 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
 
     @Override
     public int hashCode() {
-        return getNative().hashCode();
+        return this.pointer.hashCode();
     }
 
     @Override
@@ -90,27 +83,14 @@ public abstract class Global<R extends Resource<?>> implements HasNative<Pointer
 
         final Global global = (Global) o;
 
-        return getNative().equals(global.getNative());
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        destroy();
-        super.finalize();
+        return this.pointer.equals(global.pointer);
     }
 
     public void destroy() {
-        if (isValid()) {
-            this.valid = false;
-            ObjectCache.remove(getNative());
-            WaylandServerLibrary.INSTANCE()
-                                .wl_global_destroy(getNative());
-        }
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.valid;
+        WaylandServerCore.INSTANCE()
+                         .wl_global_destroy(this.pointer);
+        ObjectCache.remove(this.pointer);
+        this.jObjectPointer.close();
     }
 }
 

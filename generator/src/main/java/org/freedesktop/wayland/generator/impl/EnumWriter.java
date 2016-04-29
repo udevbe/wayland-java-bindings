@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.generator.impl;
 
 import com.squareup.javawriter.JavaWriter;
-import org.freedesktop.wayland.HasValue;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -45,8 +44,7 @@ public class EnumWriter {
                                                  enumNode),
                              "enum",
                              EnumSet.of(Modifier.PUBLIC),
-                             null,
-                             HasValue.class.getName());
+                             null);
 
         //enum values
         //javaWriter.emitEnumValue()
@@ -71,7 +69,7 @@ public class EnumWriter {
         javaWriter.emitEmptyLine()
                   .emitField(int.class.getName(),
                              "value",
-                             EnumSet.of(Modifier.PRIVATE,
+                             EnumSet.of(Modifier.PUBLIC,
                                         Modifier.FINAL));
         //constructor
         javaWriter.emitEmptyLine()
@@ -80,13 +78,6 @@ public class EnumWriter {
                                     "value")
                   .emitStatement("this.value = value")
                   .endConstructor();
-        //getter
-        javaWriter.emitEmptyLine()
-                  .beginMethod(int.class.getName(),
-                               "getValue",
-                               EnumSet.of(Modifier.PUBLIC))
-                  .emitStatement("return this.value")
-                  .endMethod();
 
         javaWriter.endType();
     }
