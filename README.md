@@ -5,7 +5,7 @@ The Wayland protocol Java-language Binding
 
 Javadoc
 =======
-[Here](http://zubnix.github.io/wayland-java-bindings/)
+[Here](http://udevbe.github.io/wayland-java-bindings/)
 
 Using
 =====
