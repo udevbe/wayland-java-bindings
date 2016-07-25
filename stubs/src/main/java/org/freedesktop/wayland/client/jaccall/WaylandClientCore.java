@@ -10,7 +10,8 @@ import org.freedesktop.wayland.util.jaccall.wl_dispatcher_func_t;
 import org.freedesktop.wayland.util.jaccall.wl_interface;
 import org.freedesktop.wayland.util.jaccall.wl_log_func_t;
 
-@Lib("wayland-client")
+@Lib(value = "wayland-client",
+     version = 0)
 public class WaylandClientCore {
 
     private static WaylandClientCore INSTANCE;
