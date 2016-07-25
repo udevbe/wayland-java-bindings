@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.freedesktop</groupId>
             <artifactId>jaccall.runtime</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

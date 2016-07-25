@@ -14,7 +14,8 @@ import org.freedesktop.wayland.util.jaccall.wl_log_func_t;
 
 import static org.freedesktop.jaccall.Pointer.ref;
 
-@Lib("wayland-server")
+@Lib(value = "wayland-server",
+     version = 0)
 public class WaylandServerCore implements WaylandUtil {
 
     private static WaylandServerCore INSTANCE;
