@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.freedesktop</groupId>
     <artifactId>wayland-java-bindings</artifactId>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Wayland Java bindings</name>
@@ -42,9 +42,14 @@
     </scm>
 
     <modules>
-        <module>stubs</module>
+        <module>stubs-shared</module>
+        <module>stubs-server</module>
+        <module>stubs-client</module>
+
         <module>generator</module>
-        <module>wayland</module>
+
+        <module>wayland-client</module>
+        <module>wayland-server</module>
     </modules>
 
     <distributionManagement>
