@@ -196,7 +196,7 @@ public abstract class Proxy<I> implements WaylandObject {
         Constructor<? extends Proxy<?>> proxyConstructor = PROXY_CONSTRUCTORS.get(newProxyCls);
         if (proxyConstructor == null) {
             proxyConstructor = findMatchingConstructor(newProxyCls,
-                                                       Pointer.class,
+                                                       long.class,
                                                        implementation.getClass(),
                                                        int.class);
             PROXY_CONSTRUCTORS.put(newProxyCls,
