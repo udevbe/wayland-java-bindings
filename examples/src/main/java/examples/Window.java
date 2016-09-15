@@ -142,7 +142,7 @@ public class Window implements WlShellSurfaceEvents,
 //                                         button,
 //                                         state));
 
-        final boolean buttonPressed = state == WlPointerButtonState.PRESSED.getValue();
+        final boolean buttonPressed = state == WlPointerButtonState.PRESSED.value;
         if (buttonPressed && button == BTN_LEFT) {
             this.shellSurfaceProxy.move(this.display.getSeatProxy(),
                                         serial);
@@ -150,7 +150,7 @@ public class Window implements WlShellSurfaceEvents,
         else if (buttonPressed && button == BTN_RIGHT) {
             this.shellSurfaceProxy.resize(this.display.getSeatProxy(),
                                           serial,
-                                          edge().getValue());
+                                          edge().value);
         }
     }
 
@@ -287,24 +287,24 @@ public class Window implements WlShellSurfaceEvents,
         int           dy            = 0;
 
         if (this.needsBufferPoolUpdate) {
-            if (this.edges == WlShellSurfaceResize.NONE.getValue() ||
-                this.edges == WlShellSurfaceResize.BOTTOM_RIGHT.getValue() ||
-                this.edges == WlShellSurfaceResize.BOTTOM.getValue() ||
-                this.edges == WlShellSurfaceResize.RIGHT.getValue()) {
+            if (this.edges == WlShellSurfaceResize.NONE.value ||
+                this.edges == WlShellSurfaceResize.BOTTOM_RIGHT.value ||
+                this.edges == WlShellSurfaceResize.BOTTOM.value ||
+                this.edges == WlShellSurfaceResize.RIGHT.value) {
                 dx = 0;
                 dy = 0;
             }
-            else if (this.edges == WlShellSurfaceResize.TOP.getValue() ||
-                     this.edges == WlShellSurfaceResize.TOP_RIGHT.getValue()) {
+            else if (this.edges == WlShellSurfaceResize.TOP.value ||
+                     this.edges == WlShellSurfaceResize.TOP_RIGHT.value) {
                 dx = 0;
                 dy = this.height - this.pendingHeight;
             }
-            else if (this.edges == WlShellSurfaceResize.LEFT.getValue() ||
-                     this.edges == WlShellSurfaceResize.BOTTOM_LEFT.getValue()) {
+            else if (this.edges == WlShellSurfaceResize.LEFT.value ||
+                     this.edges == WlShellSurfaceResize.BOTTOM_LEFT.value) {
                 dx = this.width - this.pendingWidth;
                 dy = 0;
             }
-            else if (this.edges == WlShellSurfaceResize.TOP_LEFT.getValue()) {
+            else if (this.edges == WlShellSurfaceResize.TOP_LEFT.value) {
                 dx = this.width - this.pendingWidth;
                 dy = this.height - this.pendingHeight;
             }
@@ -315,7 +315,7 @@ public class Window implements WlShellSurfaceEvents,
                 this.needsBufferPoolUpdate = false;
 
                 //FIXME properly implement bufferpool destruction.
-                //bufferPool.destroy();
+                BufferPool oldBufferPool = bufferPool;
                 this.bufferPool = createBufferPool(display,
                                                    2);
                 wlBufferProxy = this.bufferPool.popBuffer();
