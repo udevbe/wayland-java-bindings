@@ -38,7 +38,7 @@ public class BufferPoolFactory {
                                                                      width,
                                                                      height,
                                                                      width * 4,
-                                                                     shmFormat.getValue());
+                                                                     shmFormat.value);
             bufferPool.queueBuffer(buffer);
             wlShmPoolProxy.destroy();
         }

@@ -13,10 +13,8 @@
 //limitations under the License.
 package examples;
 
-import com.sun.jna.LastErrorException;
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+import org.freedesktop.jaccall.JNI;
+import org.freedesktop.jaccall.Pointer;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -50,40 +48,36 @@ public final class ShmPool implements Closeable {
             throw new IllegalStateException("Cannot create temporary file: XDG_RUNTIME_DIR not set");
         }
 
-        String  name = path + template;
-        Pointer m    = new Memory(name.length() + 1); // WARNING: assumes ascii-only string
-        m.setString(0,
-                    name);
-        int fd = CLibrary.INSTANCE()
-                         .mkstemp(m);
+        final Pointer<String> name = Pointer.nref(path + template);
+        int                   fd   = Libc.mkstemp(name.address);
 
-        try {
-            int F_GETFD = 1;
-            int flags = CLibrary.INSTANCE()
-                                .fcntl(fd,
-                                       F_GETFD,
-                                       0);
-            int FD_CLOEXEC = 1;
-            flags |= FD_CLOEXEC;
-            int F_SETFD = 2;
-            CLibrary.INSTANCE()
-                    .fcntl(fd,
-                           F_SETFD,
-                           flags);
-            return fd;
+        int F_GETFD = 1;
+        int flags = Libc.fcntl(fd,
+                               F_GETFD,
+                               0);
+        if (-1 == flags) {
+            Libc.close(fd);
+            throw new RuntimeException("error");
         }
-        catch (LastErrorException e) {
-            CLibrary.INSTANCE()
-                    .close(fd);
-            throw e;
+
+        int FD_CLOEXEC = 1;
+        flags |= FD_CLOEXEC;
+        int F_SETFD = 2;
+        final int ret = Libc.fcntl(fd,
+                                   F_SETFD,
+                                   flags);
+        if (-1 == ret) {
+            Libc.close(fd);
+            throw new RuntimeException("error");
         }
+
+        return fd;
     }
 
     private static void truncateNative(int fd,
                                        int size) {
-        CLibrary.INSTANCE()
-                .ftruncate(fd,
-                           size);
+        Libc.ftruncate(fd,
+                       size);
     }
 
     public int getFd() {
@@ -103,8 +97,7 @@ public final class ShmPool implements Closeable {
     }
 
     private static void closeNative(int fd) {
-        CLibrary.INSTANCE()
-                .close(fd);
+        Libc.close(fd);
     }
 
     private static ByteBuffer mapNative(int fd,
@@ -114,15 +107,14 @@ public final class ShmPool implements Closeable {
 
         int prot       = PROT_READ | PROT_WRITE;
         int MAP_SHARED = 0x001;
-        Pointer buffer = CLibrary.INSTANCE()
-                                 .mmap(null,
+        long bufferPointer = Libc.mmap(0L,
                                        size,
                                        prot,
                                        MAP_SHARED,
                                        fd,
                                        0);
-        return buffer.getByteBuffer(0,
-                                    size);
+        return JNI.wrap(bufferPointer,
+                        size);
     }
 
     public int getFileDescriptor() {
@@ -152,9 +144,8 @@ public final class ShmPool implements Closeable {
 
     private static void unmapNative(ByteBuffer buffer) {
         buffer.capacity();
-        CLibrary.INSTANCE()
-                .munmap(Native.getDirectBufferPointer(buffer),
-                        buffer.capacity());
+        Libc.munmap(JNI.unwrap(buffer),
+                    buffer.capacity());
     }
 
     public ByteBuffer asByteBuffer() {
