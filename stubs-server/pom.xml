@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.freedesktop</groupId>
         <artifactId>wayland-java-bindings</artifactId>
-        <version>1.5.1-SNAPSHOT</version>
+        <version>1.5.1</version>
     </parent>
 
     <name>Wayland Java Stubs</name>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>org.freedesktop</groupId>
             <artifactId>jaccall.runtime</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.5</version>
         </dependency>
     </dependencies>
 
@@ -86,7 +86,7 @@
                         <path>
                             <groupId>org.freedesktop</groupId>
                             <artifactId>jaccall.generator</artifactId>
-                            <version>1.0.4-SNAPSHOT</version>
+                            <version>1.0.5</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
