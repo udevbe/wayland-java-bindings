@@ -40,6 +40,17 @@
         <tag>HEAD</tag>
     </scm>
 
+    <modules>
+        <module>stubs-shared</module>
+        <module>stubs-server</module>
+        <module>stubs-client</module>
+
+        <module>generator</module>
+
+        <module>wayland-client</module>
+        <module>wayland-server</module>
+    </modules>
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
