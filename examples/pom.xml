@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.freedesktop</groupId>
             <artifactId>jaccall.runtime</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -39,7 +39,7 @@
                         <path>
                             <groupId>org.freedesktop</groupId>
                             <artifactId>jaccall.generator</artifactId>
-                            <version>1.0.3</version>
+                            <version>1.0.4-SNAPSHOT</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
