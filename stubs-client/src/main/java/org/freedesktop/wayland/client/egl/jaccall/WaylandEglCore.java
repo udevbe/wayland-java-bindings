@@ -4,7 +4,8 @@ package org.freedesktop.wayland.client.egl.jaccall;
 import org.freedesktop.jaccall.Lib;
 import org.freedesktop.jaccall.Ptr;
 
-@Lib("wayland-egl")
+@Lib(value = "wayland-egl",
+     version = 1)
 public class WaylandEglCore {
 
     public static final int WL_EGL_PLATFORM = 1;
