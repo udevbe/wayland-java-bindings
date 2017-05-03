@@ -100,12 +100,12 @@ public class InterfaceMeta {
         namePointer.set(name);
 
         final wl_interface wlInterface = wlInterfacePointer.get();
-        wlInterface.name(namePointer);
-        wlInterface.version(version);
-        wlInterface.method_count(method_count);
-        wlInterface.methods(methodPointer);
-        wlInterface.event_count(event_count);
-        wlInterface.events(eventPointer);
+        wlInterface.setName(namePointer);
+        wlInterface.setVersion(version);
+        wlInterface.setMethod_count(method_count);
+        wlInterface.setMethods(methodPointer);
+        wlInterface.setEvent_count(event_count);
+        wlInterface.setEvents(eventPointer);
 
         return InterfaceMeta.get(wlInterfacePointer);
     }
@@ -120,7 +120,7 @@ public class InterfaceMeta {
 
     public String getName() {
         return this.pointer.get()
-                           .name()
+                           .getName()
                            .get();
     }
 

@@ -48,7 +48,7 @@ abstract class Listener {
         this.pointer = Pointer.malloc(wl_listener.SIZE,
                                       wl_listener.class);
         this.pointer.get()
-                    .notify$(WL_NOTIFY_FUNC);
+                    .setNotify$(WL_NOTIFY_FUNC);
         ObjectCache.store(this.pointer.address,
                           this);
     }

@@ -61,16 +61,16 @@ public class MessageMeta {
         final Pointer<String> namePointer = malloc(sizeof(message.name()),
                                                    String.class);
         namePointer.set(message.name());
-        wlMessage.name(namePointer);
+        wlMessage.setName(namePointer);
 
         //set signature
         final Pointer<String> signaturePointer = malloc(sizeof(message.signature()),
                                                         String.class);
         signaturePointer.set(message.signature());
-        wlMessage.signature(signaturePointer);
+        wlMessage.setSignature(signaturePointer);
 
         //set types
-        wlMessage.types(typesPointer);
+        wlMessage.setTypes(typesPointer);
 
         new MessageMeta(wlMessagePointer,
                         message);

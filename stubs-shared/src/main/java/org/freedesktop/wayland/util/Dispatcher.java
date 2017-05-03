@@ -199,8 +199,8 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             }
             case 'a': {
                 final wl_array wlArray = arguments.getA(index);
-                return JNI.wrap(wlArray.data().address,
-                                (int) wlArray.alloc());
+                return JNI.wrap(wlArray.getData().address,
+                                (int) wlArray.getAlloc());
             }
             default: {
                 throw new IllegalArgumentException("Can not convert wl_argument type: " + type);

@@ -170,7 +170,7 @@ public class WaylandServerCore implements WaylandUtil {
                               final Pointer<wl_listener> listener) {
         wl_list_insert(signal.get()
                              .listener_list()
-                             .prev().address,
+                             .getPrev().address,
                        ref(listener.get()
                                    .link()).address);
     }
