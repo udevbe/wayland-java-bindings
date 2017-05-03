@@ -6,7 +6,7 @@ import org.freedesktop.jaccall.Unsigned;
 
 @Functor
 public interface wl_event_loop_fd_func_t {
-    int $(int fd,
-          @Unsigned int mask,
-          @Ptr(Object.class) long data);
+    int invoke(int fd,
+               @Unsigned int mask,
+               @Ptr(Object.class) long data);
 }

@@ -22,7 +22,7 @@ import static org.freedesktop.jaccall.Size.sizeof;
 
 /**
  * Wrapper class for a {@link Message} to create a native wayland message for use with the native library. To create
- * a new native context for a given {@link Message}, use {@link #init(wl_message, Message)}.
+ * a new native context for a given {@link Message}, use {@link #init(Pointer, Message)} .
  *
  * @see InterfaceMeta
  */
@@ -50,23 +50,23 @@ public class MessageMeta {
         final Pointer<Pointer<wl_interface>> typesPointer = malloc(sizeof((Pointer) null) * types.length,
                                                                    wl_interface.class).castpp();
         for (int i = 0; i < types.length; i++) {
-            typesPointer.writei(i,
-                                InterfaceMeta.get(types[i])
-                                             .getNative());
+            typesPointer.set(i,
+                             InterfaceMeta.get(types[i])
+                                          .getNative());
         }
 
-        final wl_message wlMessage = wlMessagePointer.dref();
+        final wl_message wlMessage = wlMessagePointer.get();
 
         //set name
         final Pointer<String> namePointer = malloc(sizeof(message.name()),
                                                    String.class);
-        namePointer.write(message.name());
+        namePointer.set(message.name());
         wlMessage.name(namePointer);
 
         //set signature
         final Pointer<String> signaturePointer = malloc(sizeof(message.signature()),
                                                         String.class);
-        signaturePointer.write(message.signature());
+        signaturePointer.set(message.signature());
         wlMessage.signature(signaturePointer);
 
         //set types

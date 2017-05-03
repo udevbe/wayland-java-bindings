@@ -81,7 +81,7 @@ public class InterfaceMeta {
         final Pointer<wl_message> methodPointer = malloc(method_count * wl_message.SIZE,
                                                          wl_message.class);
         for (int i = 0; i < method_count; i++) {
-            MessageMeta.init(methodPointer.offset(i),
+            MessageMeta.init(methodPointer.plus(i),
                              methods[i]);
         }
 
@@ -89,7 +89,7 @@ public class InterfaceMeta {
         final Pointer<wl_message> eventPointer = malloc(event_count * wl_message.SIZE,
                                                         wl_message.class);
         for (int i = 0; i < event_count; i++) {
-            MessageMeta.init(eventPointer.offset(i),
+            MessageMeta.init(eventPointer.plus(i),
                              events[i]);
         }
 
@@ -97,9 +97,9 @@ public class InterfaceMeta {
                                                                 wl_interface.class);
         final Pointer<String> namePointer = malloc(sizeof(name),
                                                    String.class);
-        namePointer.write(name);
+        namePointer.set(name);
 
-        final wl_interface wlInterface = wlInterfacePointer.dref();
+        final wl_interface wlInterface = wlInterfacePointer.get();
         wlInterface.name(namePointer);
         wlInterface.version(version);
         wlInterface.method_count(method_count);
@@ -119,9 +119,9 @@ public class InterfaceMeta {
     }
 
     public String getName() {
-        return this.pointer.dref()
+        return this.pointer.get()
                            .name()
-                           .dref();
+                           .get();
     }
 
     @Override

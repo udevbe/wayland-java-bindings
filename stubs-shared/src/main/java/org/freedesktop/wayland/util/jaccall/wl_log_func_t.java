@@ -18,5 +18,5 @@ import org.freedesktop.jaccall.Ptr;
 
 @Functor
 public interface wl_log_func_t {
-    void $(@Ptr(String.class) long charPtr);
+    void invoke(@Ptr(String.class) long charPtr);
 }

@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.server;
 
 import org.freedesktop.jaccall.Pointer;
-import org.freedesktop.jaccall.Ptr;
 import org.freedesktop.wayland.server.jaccall.Pointerwl_resource_destroy_func_t;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_resource_destroy_func_t;
@@ -34,16 +33,13 @@ import java.util.Set;
  */
 public abstract class Resource<I> implements WaylandObject {
 
-    private static final Pointer<wl_resource_destroy_func_t> RESOURCE_DESTROY_FUNC = Pointerwl_resource_destroy_func_t.nref(new wl_resource_destroy_func_t() {
-        @Override
-        public void $(final @Ptr long resourcePointer) {
-            final Resource<?> resource = ObjectCache.from(resourcePointer);
-            resource.notifyDestroyListeners();
-            resource.destroyListeners.clear();
-            ObjectCache.remove(resourcePointer);
+    private static final Pointer<wl_resource_destroy_func_t> RESOURCE_DESTROY_FUNC = Pointerwl_resource_destroy_func_t.nref((wl_resource_destroy_func_t) resourcePointer -> {
+        final Resource<?> resource = ObjectCache.from(resourcePointer);
+        resource.notifyDestroyListeners();
+        resource.destroyListeners.clear();
+        ObjectCache.remove(resourcePointer);
 
-            resource.jObjectPointer.close();
-        }
+        resource.jObjectPointer.close();
     });
 
     public final  Long pointer;

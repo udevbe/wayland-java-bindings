@@ -14,8 +14,6 @@
 package org.freedesktop.wayland.server;
 
 import org.freedesktop.jaccall.Pointer;
-import org.freedesktop.jaccall.Ptr;
-import org.freedesktop.jaccall.Unsigned;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_event_loop_fd_func_t;
 import org.freedesktop.wayland.server.jaccall.wl_event_loop_idle_func_t;
@@ -26,53 +24,41 @@ import org.freedesktop.wayland.util.ObjectCache;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.freedesktop.jaccall.Pointer.wrap;
 import static org.freedesktop.wayland.server.jaccall.Pointerwl_event_loop_fd_func_t.nref;
 import static org.freedesktop.wayland.server.jaccall.Pointerwl_event_loop_idle_func_t.nref;
 import static org.freedesktop.wayland.server.jaccall.Pointerwl_event_loop_signal_func_t.nref;
 import static org.freedesktop.wayland.server.jaccall.Pointerwl_event_loop_timer_func_t.nref;
 
+
 public class EventLoop {
 
-    private static final Pointer<wl_event_loop_fd_func_t> WL_EVENT_LOOP_FD_FUNC = nref(new wl_event_loop_fd_func_t() {
-        @Override
-        public int $(final int fd,
-                     @Unsigned final int mask,
-                     @Ptr(Object.class) final long data) {
-            final FileDescriptorEventHandler handler = (FileDescriptorEventHandler) wrap(Object.class,
-                                                                                         data).dref();
-            return handler.handle(fd,
-                                  mask);
-        }
+    private static final Pointer<wl_event_loop_fd_func_t> WL_EVENT_LOOP_FD_FUNC = nref((wl_event_loop_fd_func_t) (fd, mask, data) -> {
+        final FileDescriptorEventHandler handler = (FileDescriptorEventHandler) Pointer.wrap(Object.class,
+                                                                                             data)
+                                                                                       .get();
+        return handler.handle(fd,
+                              mask);
     });
 
-    private static final Pointer<wl_event_loop_timer_func_t> WL_EVENT_LOOP_TIMER_FUNC = nref(new wl_event_loop_timer_func_t() {
-        @Override
-        public int $(@Ptr(Object.class)
-                     final long data) {
-            final TimerEventHandler handler = (TimerEventHandler) wrap(Object.class,
-                                                                       data).dref();
-            return handler.handle();
-        }
+    private static final Pointer<wl_event_loop_timer_func_t> WL_EVENT_LOOP_TIMER_FUNC = nref((wl_event_loop_timer_func_t) data -> {
+        final TimerEventHandler handler = (TimerEventHandler) Pointer.wrap(Object.class,
+                                                                           data)
+                                                                     .get();
+        return handler.handle();
     });
 
-    private static final Pointer<wl_event_loop_signal_func_t> WL_EVENT_LOOP_SIGNAL_FUNC = nref(new wl_event_loop_signal_func_t() {
-        @Override
-        public int $(final int signal_number,
-                     @Ptr(Object.class) final long data) {
-            final SignalEventHandler handler = (SignalEventHandler) wrap(Object.class,
-                                                                         data).dref();
-            return handler.handle(signal_number);
-        }
+    private static final Pointer<wl_event_loop_signal_func_t> WL_EVENT_LOOP_SIGNAL_FUNC = nref((wl_event_loop_signal_func_t) (signal_number, data) -> {
+        final SignalEventHandler handler = (SignalEventHandler) Pointer.wrap(Object.class,
+                                                                             data)
+                                                                       .get();
+        return handler.handle(signal_number);
     });
 
-    private static final Pointer<wl_event_loop_idle_func_t> WL_EVENT_LOOP_IDLE_FUNC = nref(new wl_event_loop_idle_func_t() {
-        @Override
-        public void $(@Ptr(Object.class) final long data) {
-            final IdleHandler handler = (IdleHandler) wrap(Object.class,
-                                                           data).dref();
-            handler.handle();
-        }
+    private static final Pointer<wl_event_loop_idle_func_t> WL_EVENT_LOOP_IDLE_FUNC = nref((wl_event_loop_idle_func_t) data -> {
+        final IdleHandler handler = (IdleHandler) Pointer.wrap(Object.class,
+                                                               data)
+                                                         .get();
+        handler.handle();
     });
 
 

@@ -67,8 +67,8 @@ public class EglWindow {
                       .wl_egl_window_get_attached_size(this.pointer,
                                                        x.address,
                                                        y.address);
-        return new Size(x.dref(),
-                        y.dref());
+        return new Size(x.get(),
+                        y.get());
     }
 
     public void destroy() {

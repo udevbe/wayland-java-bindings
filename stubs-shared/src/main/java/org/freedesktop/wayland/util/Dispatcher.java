@@ -41,11 +41,11 @@ public final class Dispatcher implements wl_dispatcher_func_t {
     Dispatcher() {
     }
 
-    public int $(@Ptr(Object.class) final long implementation,
-                 @Ptr final long wlObject,
-                 final int opcode,
-                 @Ptr(wl_message.class) final long wlMessage,
-                 @Ptr(wl_argument.class) final long wlArguments) {
+    public int invoke(@Ptr(Object.class) final long implementation,
+                      @Ptr final long wlObject,
+                      final int opcode,
+                      @Ptr(wl_message.class) final long wlMessage,
+                      @Ptr(wl_argument.class) final long wlArguments) {
 
         Method        method        = null;
         Object[]      jargs         = null;
@@ -56,7 +56,7 @@ public final class Dispatcher implements wl_dispatcher_func_t {
             message = ObjectCache.<MessageMeta>from(wlMessage)
                     .getMessage();
             waylandObject = (WaylandObject) wrap(Object.class,
-                                                 implementation).dref();
+                                                 implementation).get();
             method = get(waylandObject.getClass(),
                          waylandObject.getImplementation()
                                       .getClass(),

@@ -35,9 +35,9 @@ import org.freedesktop.jaccall.Ptr;
  */
 @Functor
 public interface wl_dispatcher_func_t {
-    int $(@Ptr(Object.class) long implementation,
-          @Ptr long wlObject,
-          int opcode,
-          @Ptr(wl_message.class) long wlMessage,
-          @Ptr(wl_argument.class) long wl_arguments);
+    int invoke(@Ptr(Object.class) long implementation,
+               @Ptr long wlObject,
+               int opcode,
+               @Ptr(wl_message.class) long wlMessage,
+               @Ptr(wl_argument.class) long wl_arguments);
 }

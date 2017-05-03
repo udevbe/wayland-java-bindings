@@ -130,7 +130,7 @@ public class WaylandServerCore implements WaylandUtil {
     public native void wl_client_post_no_memory(@Ptr long client);
 
     public void wl_signal_init(final Pointer<wl_signal> signal) {
-        wl_list_init(ref(signal.dref()
+        wl_list_init(ref(signal.get()
                                .listener_list()).address);
     }
 
@@ -168,10 +168,10 @@ public class WaylandServerCore implements WaylandUtil {
 
     public void wl_signal_add(final Pointer<wl_signal> signal,
                               final Pointer<wl_listener> listener) {
-        wl_list_insert(signal.dref()
+        wl_list_insert(signal.get()
                              .listener_list()
                              .prev().address,
-                       ref(listener.dref()
+                       ref(listener.get()
                                    .link()).address);
     }
 

@@ -5,5 +5,5 @@ import org.freedesktop.jaccall.Ptr;
 
 @Functor
 public interface wl_resource_destroy_func_t {
-    void $(@Ptr long resource);
+    void invoke(@Ptr long resource);
 }

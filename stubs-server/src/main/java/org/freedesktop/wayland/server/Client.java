@@ -141,9 +141,9 @@ public class Client {
                                                     uid.address,
                                                     gid.address);
 
-        return new ClientCredentials(pid.dref(),
-                                     uid.dref(),
-                                     gid.dref());
+        return new ClientCredentials(pid.get(),
+                                     uid.get(),
+                                     gid.get());
     }
 
     public void destroy() {

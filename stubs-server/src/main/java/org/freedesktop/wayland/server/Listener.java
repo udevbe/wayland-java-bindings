@@ -14,7 +14,6 @@
 package org.freedesktop.wayland.server;
 
 import org.freedesktop.jaccall.Pointer;
-import org.freedesktop.jaccall.Ptr;
 import org.freedesktop.wayland.server.jaccall.Pointerwl_notify_func_t;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_listener;
@@ -38,14 +37,9 @@ import static org.freedesktop.jaccall.Pointer.ref;
  */
 abstract class Listener {
 
-    private static final Pointer<wl_notify_func_t> WL_NOTIFY_FUNC = Pointerwl_notify_func_t.nref(new wl_notify_func_t() {
-
-        @Override
-        public void $(@Ptr(wl_listener.class) final long listenerPointer,
-                      @Ptr(void.class) final long data) {
-            final Listener listener = ObjectCache.from(listenerPointer);
-            listener.handle();
-        }
+    private static final Pointer<wl_notify_func_t> WL_NOTIFY_FUNC = Pointerwl_notify_func_t.nref((wl_notify_func_t) (listenerPointer, data) -> {
+        final Listener listener = ObjectCache.from(listenerPointer);
+        listener.handle();
     });
 
     public final Pointer<wl_listener> pointer;
@@ -53,7 +47,7 @@ abstract class Listener {
     public Listener() {
         this.pointer = Pointer.malloc(wl_listener.SIZE,
                                       wl_listener.class);
-        this.pointer.dref()
+        this.pointer.get()
                     .notify$(WL_NOTIFY_FUNC);
         ObjectCache.store(this.pointer.address,
                           this);
@@ -61,7 +55,7 @@ abstract class Listener {
 
     public void remove() {
         WaylandServerCore.INSTANCE()
-                         .wl_list_remove(ref(this.pointer.dref()
+                         .wl_list_remove(ref(this.pointer.get()
                                                          .link()).address);
     }
 

@@ -14,8 +14,6 @@
 package org.freedesktop.wayland.server;
 
 import org.freedesktop.jaccall.Pointer;
-import org.freedesktop.jaccall.Ptr;
-import org.freedesktop.jaccall.Unsigned;
 import org.freedesktop.wayland.server.jaccall.WaylandServerCore;
 import org.freedesktop.wayland.server.jaccall.wl_global_bind_func_t;
 import org.freedesktop.wayland.util.InterfaceMeta;
@@ -25,19 +23,13 @@ import static org.freedesktop.wayland.server.jaccall.Pointerwl_global_bind_func_
 
 public abstract class Global<R extends Resource<?>> {
 
-    private static final Pointer<wl_global_bind_func_t> FUNC_T_POINTER = nref(new wl_global_bind_func_t() {
-        @Override
-        public void $(@Ptr final long client,
-                      @Ptr(Object.class) final long data,
-                      @Unsigned final int version,
-                      @Unsigned final int id) {
-            final Global<?> global = (Global<?>) Pointer.wrap(Object.class,
-                                                              data)
-                                                        .dref();
-            global.onBindClient(Client.get(client),
-                                version,
-                                id);
-        }
+    private static final Pointer<wl_global_bind_func_t> FUNC_T_POINTER = nref((wl_global_bind_func_t) (client, data, version, id) -> {
+        final Global<?> global = (Global<?>) Pointer.wrap(Object.class,
+                                                          data)
+                                                    .get();
+        global.onBindClient(Client.get(client),
+                            version,
+                            id);
     });
 
     private final Long            pointer;

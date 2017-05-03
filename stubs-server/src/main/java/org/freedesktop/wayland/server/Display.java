@@ -102,7 +102,7 @@ public class Display {
     public String addSocketAuto() {
         return wrap(String.class,
                     WaylandServerCore.INSTANCE()
-                                     .wl_display_add_socket_auto(this.pointer)).dref();
+                                     .wl_display_add_socket_auto(this.pointer)).get();
     }
 
     public void terminate() {
@@ -171,7 +171,7 @@ public class Display {
                                                     WaylandServerCore.INSTANCE()
                                                                      .wl_display_add_shm_format(this.pointer,
                                                                                                 format));
-        return formatPointer.address == 0L ? 0 : formatPointer.dref();
+        return formatPointer.address == 0L ? 0 : formatPointer.get();
     }
 
     @Override

@@ -5,6 +5,6 @@ import org.freedesktop.jaccall.Ptr;
 
 @Functor
 public interface wl_event_loop_signal_func_t {
-    int $(int signal_number,
-          @Ptr(Object.class) long data);
+    int invoke(int signal_number,
+               @Ptr(Object.class) long data);
 }

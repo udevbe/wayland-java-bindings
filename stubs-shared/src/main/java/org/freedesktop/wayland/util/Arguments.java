@@ -45,28 +45,28 @@ public class Arguments {
     }
 
     private int getInt(final int index) {
-        return this.pointer.dref(index)
+        return this.pointer.get(index)
                            .i();
     }
 
     public int getU(final int index) {
-        return this.pointer.dref(index)
+        return this.pointer.get(index)
                            .u();
     }
 
     public Fixed getFixed(final int index) {
-        return new Fixed(this.pointer.dref(index)
+        return new Fixed(this.pointer.get(index)
                                      .f());
     }
 
     public String getS(final int index) {
-        return this.pointer.dref(index)
+        return this.pointer.get(index)
                            .s()
-                           .dref();
+                           .get();
     }
 
     public Pointer getO(final int index) {
-        return this.pointer.dref(index)
+        return this.pointer.get(index)
                            .o();
     }
 
@@ -75,13 +75,13 @@ public class Arguments {
     }
 
     public wl_array getA(final int index) {
-        return this.pointer.dref(index)
+        return this.pointer.get(index)
                            .a()
-                           .dref();
+                           .get();
     }
 
     public int getH(final int index) {
-        return this.pointer.dref(index)
+        return this.pointer.get(index)
                            .h();
     }
 
@@ -98,7 +98,7 @@ public class Arguments {
      */
     public Arguments set(final int index,
                          final int iunh) {
-        this.pointer.dref(index)
+        this.pointer.get(index)
                     .i(iunh);
         return this;
     }
@@ -114,7 +114,7 @@ public class Arguments {
     public Arguments set(final int index,
                          final WaylandObject o) {
         this.argumentRefs.add(o);
-        this.pointer.dref(index)
+        this.pointer.get(index)
                     .o(wrap(o.getPointer()));
         return this;
     }
@@ -130,7 +130,7 @@ public class Arguments {
     public Arguments set(final int index,
                          final Fixed f) {
         this.argumentRefs.add(f);
-        this.pointer.dref(index)
+        this.pointer.get(index)
                     .f(f.getRaw());
         return this;
     }
@@ -147,7 +147,7 @@ public class Arguments {
                          final String s) {
         final Pointer<String> stringPointer = nref(s);
         this.argumentRefs.add(stringPointer);
-        this.pointer.dref(index)
+        this.pointer.get(index)
                     .s(stringPointer);
         return this;
     }
@@ -169,7 +169,7 @@ public class Arguments {
         wlArray.size(array.capacity());
 
         this.argumentRefs.add(wlArray);
-        this.pointer.dref(index)
+        this.pointer.get(index)
                     .a(ref(wlArray));
         return this;
     }
