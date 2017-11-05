@@ -59,40 +59,21 @@ public class InterfaceMeta {
             final Interface waylandInterface = type.getAnnotation(Interface.class);
             if (waylandInterface == null) {
                 interfaceMeta = NO_INTERFACE;
+                INTERFACE_MAP.put(type, interfaceMeta);
             }
             else {
                 interfaceMeta = create(waylandInterface.name(),
-                                       waylandInterface.version(),
-                                       waylandInterface.methods(),
-                                       waylandInterface.events());
+                                       waylandInterface.version());
+                INTERFACE_MAP.put(type, interfaceMeta);
+                initMessages(interfaceMeta, waylandInterface.methods(), MessageType.METHOD);
+                initMessages(interfaceMeta, waylandInterface.events(), MessageType.EVENT);
             }
-            INTERFACE_MAP.put(type,
-                              interfaceMeta);
         }
         return interfaceMeta;
     }
 
     protected static InterfaceMeta create(final String name,
-                                          final int version,
-                                          final Message[] methods,
-                                          final Message[] events) {
-
-        final int method_count = methods.length;
-        final Pointer<wl_message> methodPointer = malloc(method_count * wl_message.SIZE,
-                                                         wl_message.class);
-        for (int i = 0; i < method_count; i++) {
-            MessageMeta.init(methodPointer.plus(i),
-                             methods[i]);
-        }
-
-        final int event_count = events.length;
-        final Pointer<wl_message> eventPointer = malloc(event_count * wl_message.SIZE,
-                                                        wl_message.class);
-        for (int i = 0; i < event_count; i++) {
-            MessageMeta.init(eventPointer.plus(i),
-                             events[i]);
-        }
-
+                                          final int version) {
         final Pointer<wl_interface> wlInterfacePointer = malloc(wl_interface.SIZE,
                                                                 wl_interface.class);
         final Pointer<String> namePointer = malloc(sizeof(name),
@@ -102,12 +83,29 @@ public class InterfaceMeta {
         final wl_interface wlInterface = wlInterfacePointer.get();
         wlInterface.setName(namePointer);
         wlInterface.setVersion(version);
-        wlInterface.setMethod_count(method_count);
-        wlInterface.setMethods(methodPointer);
-        wlInterface.setEvent_count(event_count);
-        wlInterface.setEvents(eventPointer);
 
         return InterfaceMeta.get(wlInterfacePointer);
+    }
+
+    protected static void initMessages(final InterfaceMeta interfaceMeta,
+                                       final Message[] messages,
+                                       final MessageType messageType) {
+        final int message_count = messages.length;
+        final Pointer<wl_message> messagePointer = malloc(message_count * wl_message.SIZE,
+                                                          wl_message.class);
+        for (int i = 0; i < message_count; i++) {
+            MessageMeta.init(messagePointer.plus(i),
+                             messages[i]);
+        }
+
+        final wl_interface wlInterface = interfaceMeta.pointer.dref();
+        if (messageType == MessageType.METHOD) {
+            wlInterface.setMethod_count(message_count);
+            wlInterface.setMethods(messagePointer);
+        } else if (messageType == MessageType.EVENT) {
+            wlInterface.setEvent_count(message_count);
+            wlInterface.setEvents(messagePointer);
+        }
     }
 
     public static InterfaceMeta get(final Pointer<wl_interface> pointer) {
@@ -122,6 +120,10 @@ public class InterfaceMeta {
         return this.pointer.get()
                            .getName()
                            .get();
+    }
+
+    private enum MessageType {
+        METHOD, EVENT;
     }
 
     @Override
